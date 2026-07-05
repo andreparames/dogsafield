@@ -55,7 +55,12 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
   }
 
   void _submit() {
-    if (_selected == null) return;
+    if (_selected == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a treat policy')),
+      );
+      return;
+    }
     ref.read(onboardingProvider.notifier).setStep(OnboardingStep.complete);
     context.push('/');
   }
