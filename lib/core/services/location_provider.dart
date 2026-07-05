@@ -7,9 +7,9 @@ final locationServiceProvider = Provider<LocationService>((ref) {
 });
 
 final locationPermissionProvider = FutureProvider<LocationPermission>((ref) {
-  return ref.read(locationServiceProvider).checkPermission();
+  return ref.watch(locationServiceProvider).checkPermission();
 });
 
 final currentPositionProvider = FutureProvider<Position>((ref) {
-  return ref.read(locationServiceProvider).getCurrentLocation();
+  return ref.watch(locationServiceProvider).getCurrentLocation();
 });

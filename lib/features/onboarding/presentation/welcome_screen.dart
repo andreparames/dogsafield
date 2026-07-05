@@ -29,7 +29,7 @@ class WelcomeScreen extends ConsumerWidget {
               FilledButton.icon(
                 onPressed: () {
                   ref.read(onboardingProvider.notifier).setStep(OnboardingStep.photoUpload);
-                  context.go('/onboarding/photo');
+                  context.push('/onboarding/photo');
                 },
                 icon: const Icon(Icons.flutter_dash),
                 label: const Text('Continue with Google'),
@@ -38,7 +38,7 @@ class WelcomeScreen extends ConsumerWidget {
               OutlinedButton.icon(
                 onPressed: () {
                   ref.read(onboardingProvider.notifier).setStep(OnboardingStep.photoUpload);
-                  context.go('/onboarding/photo');
+                  context.push('/onboarding/photo');
                 },
                 icon: const Icon(Icons.apple),
                 label: const Text('Continue with Apple'),

@@ -57,6 +57,6 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
   void _submit() {
     if (_selected == null) return;
     ref.read(onboardingProvider.notifier).setStep(OnboardingStep.complete);
-    context.go('/');
+    context.push('/');
   }
 }

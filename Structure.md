@@ -16,8 +16,8 @@ lib/
 │
 └── features/                      # Self-contained modules mapping to your user flows
     │
-    ├── onboarding/                # Flow 1: Auth, Photo Upload, AI Check, Dog Profile
-    │   ├── data/                  # API calls (Supabase/Firebase auth, AWS Rekognition)
+    ├── onboarding/                # Flow 1: Auth, Photo Upload, Dog Profile
+    │   ├── data/                  # API calls (Supabase auth, photo upload)
     │   ├── state/                 # Onboarding step tracker (renamed from providers/ —
     │   │                          # avoids assuming Provider pkg vs Riverpod/Bloc)
     │   ├── presentation/          # WelcomeScreen, PhotoUploadScreen, ProfileFormScreen

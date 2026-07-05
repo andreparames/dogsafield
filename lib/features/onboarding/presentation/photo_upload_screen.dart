@@ -65,7 +65,7 @@ class PhotoUploadScreen extends ConsumerWidget {
     ref.read(onboardingProvider.notifier).setPhotoUrl(picked.path);
     ref.read(onboardingProvider.notifier).setStep(OnboardingStep.profileForm);
     if (context.mounted) {
-      context.go('/onboarding/profile');
+      context.push('/onboarding/profile');
     }
   }
 }

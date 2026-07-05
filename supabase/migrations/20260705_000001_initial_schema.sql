@@ -163,7 +163,9 @@ create policy "Cities are publicly readable"
 
 -- Auto-update updated_at trigger
 create or replace function update_updated_at()
-returns trigger as $$
+returns trigger
+set search_path = ''
+as $$
 begin
   new.updated_at = now();
   return new;

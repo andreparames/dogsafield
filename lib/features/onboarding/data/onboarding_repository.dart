@@ -11,10 +11,11 @@ class OnboardingRepository {
   OnboardingRepository(this._client, this._picker);
 
   Future<String?> uploadPhoto() async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('No authenticated user');
     final picked = await _picker.pickImage(source: ImageSource.camera);
     if (picked == null) return null;
-    final userId = _client.auth.currentUser!.id;
-    final path = 'verification_photos/$userId/${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final path = 'verification_photos/${user.id}/${DateTime.now().millisecondsSinceEpoch}.jpg';
     await _client.storage.from('photos').upload(path, File(picked.path));
     return _client.storage.from('photos').getPublicUrl(path);
   }
@@ -31,9 +32,11 @@ class OnboardingRepository {
   }
 
   Future<Dog> createDogProfile(Dog dog) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('No authenticated user');
     await _client.from('dogs').insert({
       'id': dog.id,
-      'owner_id': _client.auth.currentUser!.id,
+      'owner_id': user.id,
       'name': dog.name,
       'age': dog.age,
       'breed': dog.breed,

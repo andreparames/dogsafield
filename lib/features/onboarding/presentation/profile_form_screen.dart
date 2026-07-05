@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
 import '../../../shared/models/dog.dart';
 import '../state/onboarding_state.dart';
 
@@ -76,9 +77,14 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
 
   void _submit() {
     final name = _nameCtrl.text.trim();
-    if (name.isEmpty) return;
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your dog\'s name')),
+      );
+      return;
+    }
     final dog = Dog(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: const Uuid().v4(),
       name: name,
       age: int.tryParse(_ageCtrl.text.trim()),
       breed: _breedCtrl.text.trim().isEmpty ? null : _breedCtrl.text.trim(),
@@ -86,7 +92,7 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
     );
     ref.read(onboardingProvider.notifier).setDog(dog);
     ref.read(onboardingProvider.notifier).setStep(OnboardingStep.icebreaker);
-    context.go('/onboarding/icebreaker');
+    context.push('/onboarding/icebreaker');
   }
 
   String _vibeLabel(SocialVibe v) {

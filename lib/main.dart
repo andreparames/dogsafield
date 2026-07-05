@@ -6,10 +6,17 @@ import 'app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Supabase.initialize(
-    url: const String.fromEnvironment('SUPABASE_URL', defaultValue: ''),
-    publishableKey: const String.fromEnvironment('SUPABASE_PUB_KEY', defaultValue: ''),
-  );
+  const url = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+  const key = String.fromEnvironment('SUPABASE_PUB_KEY', defaultValue: '');
+
+  if (url.isEmpty || key.isEmpty) {
+    throw StateError(
+      'Supabase credentials not set. '
+      'Pass --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_PUB_KEY=...',
+    );
+  }
+
+  await Supabase.initialize(url: url, publishableKey: key);
 
   runApp(const ProviderScope(child: DogsAfieldApp()));
 }

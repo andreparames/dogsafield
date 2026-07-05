@@ -76,14 +76,26 @@ class _IcebreakerScreenState extends ConsumerState<IcebreakerScreen> {
   }
 
   void _submit() {
-    if (_selectedPrompt == null || _answerCtrl.text.trim().isEmpty) return;
+    if (_selectedPrompt == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a prompt')),
+      );
+      return;
+    }
+    final answer = _answerCtrl.text.trim();
+    if (answer.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please share your story')),
+      );
+      return;
+    }
     final dog = ref.read(onboardingProvider).dog;
     if (dog != null) {
       ref.read(onboardingProvider.notifier).setDog(
-        dog.copyWith(icebreakerAnswer: _answerCtrl.text.trim()),
+        dog.copyWith(icebreakerAnswer: answer),
       );
     }
     ref.read(onboardingProvider.notifier).setStep(OnboardingStep.safetyBoundaries);
-    context.go('/onboarding/safety');
+    context.push('/onboarding/safety');
   }
 }
