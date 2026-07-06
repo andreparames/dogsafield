@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app.dart';
+import 'routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,10 @@ void main() async {
   }
 
   await Supabase.initialize(url: url, publishableKey: key);
+
+  Supabase.instance.client.auth.onAuthStateChange.listen((_) {
+    authRefreshNotifier.value++;
+  });
 
   runApp(const ProviderScope(child: DogsAfieldApp()));
 }
