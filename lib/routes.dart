@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'features/onboarding/routes.dart';
 import 'features/onboarding/state/auth_provider.dart';
 import 'features/onboarding/state/onboarding_state.dart';
+import 'features/field_map/presentation/field_map_screen.dart';
 import 'features/account/routes.dart';
 import 'features/field_map/routes.dart';
 import 'features/hosting/routes.dart';
@@ -32,7 +33,7 @@ final _appRouter = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const PlaceholderScreen(label: 'The Field'),
+      builder: (context, state) => const FieldMapScreen(),
     ),
     ...onboardingRoutes,
     ...accountRoutes,
@@ -45,16 +46,3 @@ final _appRouter = GoRouter(
 );
 
 GoRouter get appRouter => _appRouter;
-
-class PlaceholderScreen extends StatelessWidget {
-  final String label;
-  const PlaceholderScreen({super.key, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Dogs Afield — $label')),
-      body: Center(child: Text(label, style: Theme.of(context).textTheme.headlineMedium)),
-    );
-  }
-}
