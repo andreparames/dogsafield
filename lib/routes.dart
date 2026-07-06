@@ -18,13 +18,15 @@ final _appRouter = GoRouter(
   refreshListenable: authRefreshNotifier,
   initialLocation: '/onboarding/welcome',
   redirect: (context, state) {
-    final auth = ProviderScope.containerOf(context).read(authServiceProvider);
+    final container = ProviderScope.containerOf(context);
+    final auth = container.read(authServiceProvider);
     final authed = auth.isAuthenticated;
     final location = state.uri.toString();
 
     if (!authed && location != '/onboarding/welcome') return '/onboarding/welcome';
     if (authed && location == '/onboarding/welcome') {
-      final onboarding = ProviderScope.containerOf(context).read(onboardingProvider);
+      container.read(onboardingAutoInitProvider);
+      final onboarding = container.read(onboardingProvider);
       if (onboarding.step == OnboardingStep.complete) return '/';
       return '/onboarding/photo';
     }

@@ -46,6 +46,15 @@ cli/.actualrc.json
 # Supabase
 supabase/.temp/
 
+# iOS local config (do not commit API keys)
+ios/Flutter/Local.xcconfig
+
+# Local environment variables (Supabase credentials, etc.)
+.env
+
+# Development launcher
+run_app.bat
+
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile

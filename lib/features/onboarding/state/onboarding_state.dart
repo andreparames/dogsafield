@@ -77,6 +77,13 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     state = state.copyWith(dog: dog);
   }
 
+  void initFromAuth(String id, String email, String? displayName) {
+    if (state.userProfile != null) return;
+    state = state.copyWith(
+      userProfile: UserProfile(id: id, email: email, displayName: displayName),
+    );
+  }
+
   void reset() => state = const OnboardingState();
 }
 

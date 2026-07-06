@@ -8,7 +8,7 @@ Flutter app (Riverpod + go_router + Supabase). UI scaffold mostly done.
 
 - `cd dogsafield` to enter project root
 - `flutter pub get` after dependency changes
-- `flutter run --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_PUB_KEY=...`
+- `flutter run --dart-define-from-file=.env` (create `.env` with `SUPABASE_URL=...` and `SUPABASE_PUB_KEY=...`)
 - `flutter test` for tests
 
 ## Code conventions

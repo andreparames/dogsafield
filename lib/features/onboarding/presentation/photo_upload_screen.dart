@@ -1,3 +1,5 @@
+import 'dart:io' show File;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -37,7 +39,7 @@ class PhotoUploadScreen extends ConsumerWidget {
             if (state.photoUrl != null) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(state.photoUrl!, height: 200, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 200)),
+                child: Image.file(File(state.photoUrl!), height: 200, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 200)),
               ),
               const SizedBox(height: 16),
             ],
