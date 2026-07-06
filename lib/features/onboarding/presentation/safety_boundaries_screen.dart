@@ -98,9 +98,8 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
       }
 
       notifier.setStep(OnboardingStep.complete);
-      if (context.mounted) {
-        context.push('/');
-      }
+      if (!mounted) return;
+      context.push('/');
     } catch (e) {
       notifier.setSubmissionError(e.toString());
     } finally {
