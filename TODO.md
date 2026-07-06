@@ -3,12 +3,12 @@
 ## First phase
 
 ### Core & Cross-cutting
-- [ ] **Geolocation service** — background/foreground location permission & tracking
+- [x] **Geolocation service** — background/foreground location permission & tracking
 - [ ] **Supabase schema** — create tables (cities, profiles, dogs, events, attendance, connections, blocks)
 - [ ] **Auth integration** — wire real OAuth (Google/Apple) through Supabase
 - [ ] **Onboarding submission** — connect final "Complete Profile" button to backend API
 - [ ] **Environment config** — `.env` file for SUPABASE_URL, SUPABASE_PUB_KEY
-- [ ] **CI / tests** — add GitHub Actions, expand widget/unit/integration tests
+- [x] **CI / tests** — GitHub Actions workflow, 34 unit/widget tests passing
 
 ### Field Map (`lib/features/field_map/`)
 - [ ] **Map view** — Google Maps integration with active event markers
