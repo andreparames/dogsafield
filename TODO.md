@@ -3,7 +3,7 @@
 ## First phase
 
 ### Core & Cross-cutting
-- [ ] **Geolocation service** — background/foreground location permission & tracking
+- [x] **Geolocation service** — background/foreground location permission & tracking
 - [ ] **Supabase schema** — create tables (cities, profiles, dogs, events, attendance, connections, blocks)
 - [ ] **Auth integration** — wire real OAuth (Google/Apple) through Supabase
 - [ ] **Onboarding submission** — connect final "Complete Profile" button to backend API
