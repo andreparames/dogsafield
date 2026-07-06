@@ -24,6 +24,14 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   Widget build(BuildContext context) {
     final locationAsync = ref.watch(currentPositionProvider);
 
+    ref.listen(currentPositionProvider, (_, next) {
+      next.whenData((position) {
+        _mapController?.animateCamera(
+          CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)),
+        );
+      });
+    });
+
     return Scaffold(
       body: locationAsync.when(
         data: (position) {

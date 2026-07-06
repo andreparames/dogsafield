@@ -19,34 +19,35 @@ final onboardingRepositoryProvider = Provider<OnboardingRepository>((ref) {
   return OnboardingRepository(Supabase.instance.client);
 });
 
+void _initFromUser(Ref ref, User user) {
+  final notifier = ref.read(onboardingProvider.notifier);
+  if (ref.read(onboardingProvider).userProfile != null) return;
+  notifier.initFromAuth(
+    user.id,
+    user.email ?? '',
+    user.userMetadata?['full_name'] as String?,
+  );
+}
+
 final onboardingAutoInitProvider = Provider<void>((ref) {
   final auth = ref.read(authServiceProvider);
 
-  ref.listen(authServiceProvider, (prev, next) {
-    if (!next.isAuthenticated) return;
-    final user = next.currentUser;
-    if (user == null) return;
-    final notifier = ref.read(onboardingProvider.notifier);
-    if (ref.read(onboardingProvider).userProfile == null) {
-      notifier.initFromAuth(
-        user.id,
-        user.email ?? '',
-        user.userMetadata?['full_name'] as String?,
-      );
-    }
+  var disposed = false;
+  ref.onDispose(() => disposed = true);
+
+  ref.listen<AsyncValue<AuthState>>(authStateProvider, (_, next) {
+    next.whenData((authState) {
+      if (authState.session case final session?) {
+        _initFromUser(ref, session.user);
+      }
+    });
   });
 
   if (!auth.isAuthenticated) return;
   final user = auth.currentUser;
   if (user == null) return;
   Timer.run(() {
-    final notifier = ref.read(onboardingProvider.notifier);
-    if (ref.read(onboardingProvider).userProfile == null) {
-      notifier.initFromAuth(
-        user.id,
-        user.email ?? '',
-        user.userMetadata?['full_name'] as String?,
-      );
-    }
+    if (disposed) return;
+    _initFromUser(ref, user);
   });
 });

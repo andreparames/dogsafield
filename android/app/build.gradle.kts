@@ -1,3 +1,4 @@
+import org.gradle.api.GradleException
 import java.util.Properties
 
 plugins {
@@ -36,10 +37,13 @@ android {
         if (localFile.exists()) {
             localProps.load(localFile.inputStream())
         }
-        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] =
-            localProps.getProperty("googleMapsApiKey")
-                ?: System.getenv("GOOGLE_MAPS_API_KEY")
-                ?: ""
+        val mapsApiKey = localProps.getProperty("googleMapsApiKey")
+            ?: System.getenv("GOOGLE_MAPS_API_KEY")
+            ?: ""
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = mapsApiKey
+        if (mapsApiKey.isEmpty()) {
+            throw GradleException("GOOGLE_MAPS_API_KEY is not set. Set googleMapsApiKey in android/local.properties or pass GOOGLE_MAPS_API_KEY environment variable.")
+        }
     }
 
     buildTypes {
