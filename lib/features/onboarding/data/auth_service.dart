@@ -3,9 +3,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 const kAuthRedirectUrl = 'io.supabase.dogsafield://login-callback';
 
 class AuthService {
-  final SupabaseClient _client;
+  late final SupabaseClient _client;
 
-  AuthService(this._client);
+  AuthService(SupabaseClient client) : _client = client;
+
+  AuthService.test();
 
   User? get currentUser => _client.auth.currentUser;
 
