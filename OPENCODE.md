@@ -45,3 +45,4 @@ Flutter app (Riverpod + go_router + Supabase). UI scaffold mostly done.
 - Branch: `initial-scaffold`
 - Remote: `origin` (GitHub, SSH)
 - SSH key at `~/.ssh/id_rsa` — use `$env:GIT_SSH_COMMAND = "ssh -i ..."`
+- Never merge PRs — that's the user's job after review
