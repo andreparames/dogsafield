@@ -113,6 +113,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repo.uploadCallCount, 1);
+    expect(container.read(onboardingProvider).photoUrl, 'https://example.com/uploaded.jpg');
     expect(find.text('Home'), findsOneWidget);
   });
 
