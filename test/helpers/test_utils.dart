@@ -28,14 +28,27 @@ class FakeAuthService extends AuthService {
 }
 
 class FakeOnboardingRepository implements OnboardingRepository {
-  @override
-  Future<String?> uploadPhoto(String path) async => 'https://example.com/uploaded.jpg';
+  bool shouldFail = false;
+  int uploadCallCount = 0;
 
   @override
-  Future<UserProfile> createProfile(UserProfile profile) async => profile;
+  Future<String> uploadPhoto(String path) async {
+    uploadCallCount++;
+    if (shouldFail) throw Exception('Upload failed');
+    return 'https://example.com/uploaded.jpg';
+  }
 
   @override
-  Future<Dog> createDogProfile(Dog dog) async => dog;
+  Future<UserProfile> createProfile(UserProfile profile) async {
+    if (shouldFail) throw Exception('Profile save failed');
+    return profile;
+  }
+
+  @override
+  Future<Dog> createDogProfile(Dog dog) async {
+    if (shouldFail) throw Exception('Dog save failed');
+    return dog;
+  }
 }
 
 final fakeAuthService = FakeAuthService();

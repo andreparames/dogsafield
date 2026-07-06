@@ -8,10 +8,11 @@ class OnboardingRepository {
 
   OnboardingRepository(this._client);
 
-  Future<String?> uploadPhoto(String localPath) async {
+  Future<String> uploadPhoto(String localPath) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('No authenticated user');
-    final path = 'verification_photos/${user.id}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final ext = localPath.split('.').last;
+    final path = 'verification_photos/${user.id}/${DateTime.now().millisecondsSinceEpoch}.$ext';
     await _client.storage.from('photos').upload(path, File(localPath));
     return _client.storage.from('photos').getPublicUrl(path);
   }

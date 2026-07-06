@@ -84,6 +84,7 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
       String? photoUrl;
       if (onboarding.photoUrl != null) {
         photoUrl = await repo.uploadPhoto(onboarding.photoUrl!);
+        notifier.setPhotoUrl(photoUrl);
       }
 
       await repo.createProfile(
@@ -101,7 +102,7 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
       if (!mounted) return;
       context.push('/');
     } catch (e) {
-      notifier.setSubmissionError(e.toString());
+      notifier.setSubmissionError('Something went wrong. Please try again.');
     } finally {
       notifier.setSubmitting(false);
     }

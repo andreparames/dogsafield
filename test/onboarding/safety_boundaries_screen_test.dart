@@ -71,4 +71,90 @@ void main() {
 
     expect(find.text('Home'), findsOneWidget);
   });
+
+  testWidgets('uploads photo and persists returned URL to state', (WidgetTester tester) async {
+    final repo = FakeOnboardingRepository();
+    final container = ProviderContainer(
+      overrides: [
+        authServiceProvider.overrideWithValue(fakeAuthService),
+        authStateProvider.overrideWith((ref) => Stream.empty()),
+        onboardingRepositoryProvider.overrideWithValue(repo),
+      ],
+    );
+    container.read(onboardingProvider.notifier).setUserProfile(
+      UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
+    );
+    container.read(onboardingProvider.notifier).setDog(
+      Dog(id: 'd1', name: 'Buddy'),
+    );
+    container.read(onboardingProvider.notifier).setPhotoUrl('/tmp/photo.png');
+    addTearDown(container.dispose);
+
+    final router = GoRouter(
+      initialLocation: '/test',
+      routes: [
+        GoRoute(path: '/test', builder: (_, __) => const SafetyBoundariesScreen()),
+        GoRoute(path: '/', builder: (_, __) => const Scaffold(body: Text('Home'))),
+      ],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.textContaining('Okay to share'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Complete Profile'));
+    await tester.pumpAndSettle();
+
+    expect(repo.uploadCallCount, 1);
+    expect(find.text('Home'), findsOneWidget);
+  });
+
+  testWidgets('shows error message when submission fails', (WidgetTester tester) async {
+    final repo = FakeOnboardingRepository()..shouldFail = true;
+    final container = ProviderContainer(
+      overrides: [
+        authServiceProvider.overrideWithValue(fakeAuthService),
+        authStateProvider.overrideWith((ref) => Stream.empty()),
+        onboardingRepositoryProvider.overrideWithValue(repo),
+      ],
+    );
+    container.read(onboardingProvider.notifier).setUserProfile(
+      UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
+    );
+    container.read(onboardingProvider.notifier).setDog(
+      Dog(id: 'd1', name: 'Buddy'),
+    );
+    addTearDown(container.dispose);
+
+    final router = GoRouter(
+      initialLocation: '/test',
+      routes: [
+        GoRoute(path: '/test', builder: (_, __) => const SafetyBoundariesScreen()),
+        GoRoute(path: '/', builder: (_, __) => const Scaffold(body: Text('Home'))),
+      ],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.textContaining('Okay to share'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Complete Profile'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Something went wrong. Please try again.'), findsOneWidget);
+  });
 }

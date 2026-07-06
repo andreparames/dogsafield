@@ -11,6 +11,8 @@ enum OnboardingStep {
   complete,
 }
 
+const _unset = Object();
+
 class OnboardingState {
   final OnboardingStep step;
   final bool isLoading;
@@ -37,7 +39,7 @@ class OnboardingState {
     bool? isLoading,
     String? error,
     bool? isSubmitting,
-    String? submissionError,
+    Object? submissionError = _unset,
     String? photoUrl,
     UserProfile? userProfile,
     Dog? dog,
@@ -47,7 +49,9 @@ class OnboardingState {
       isLoading: isLoading ?? this.isLoading,
       error: error,
       isSubmitting: isSubmitting ?? this.isSubmitting,
-      submissionError: submissionError,
+      submissionError: identical(submissionError, _unset)
+          ? this.submissionError
+          : submissionError as String?,
       photoUrl: photoUrl ?? this.photoUrl,
       userProfile: userProfile ?? this.userProfile,
       dog: dog ?? this.dog,
@@ -61,7 +65,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   void setStep(OnboardingStep step) => state = state.copyWith(step: step, error: null);
   void setLoading(bool v) => state = state.copyWith(isLoading: v);
   void setError(String e) => state = state.copyWith(error: e);
-  void setSubmitting(bool v) => state = state.copyWith(isSubmitting: v, submissionError: v ? null : state.submissionError);
+  void setSubmitting(bool v) => state = state.copyWith(isSubmitting: v, submissionError: v ? null : _unset);
   void setSubmissionError(String e) => state = state.copyWith(submissionError: e);
   void setPhotoUrl(String url) => state = state.copyWith(photoUrl: url);
 
