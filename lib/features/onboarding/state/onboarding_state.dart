@@ -20,6 +20,7 @@ class OnboardingState {
   final bool isSubmitting;
   final String? submissionError;
   final String? photoUrl;
+  final String? localPhotoPath;
   final UserProfile? userProfile;
   final Dog? dog;
 
@@ -30,6 +31,7 @@ class OnboardingState {
     this.isSubmitting = false,
     this.submissionError,
     this.photoUrl,
+    this.localPhotoPath,
     this.userProfile,
     this.dog,
   });
@@ -41,6 +43,7 @@ class OnboardingState {
     bool? isSubmitting,
     Object? submissionError = _unset,
     String? photoUrl,
+    String? localPhotoPath,
     UserProfile? userProfile,
     Dog? dog,
   }) {
@@ -53,6 +56,7 @@ class OnboardingState {
           ? this.submissionError
           : submissionError as String?,
       photoUrl: photoUrl ?? this.photoUrl,
+      localPhotoPath: localPhotoPath ?? this.localPhotoPath,
       userProfile: userProfile ?? this.userProfile,
       dog: dog ?? this.dog,
     );
@@ -68,6 +72,8 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   void setSubmitting(bool v) => state = state.copyWith(isSubmitting: v, submissionError: v ? null : _unset);
   void setSubmissionError(String e) => state = state.copyWith(submissionError: e);
   void setPhotoUrl(String url) => state = state.copyWith(photoUrl: url);
+
+  void setLocalPhotoPath(String path) => state = state.copyWith(localPhotoPath: path);
 
   void setUserProfile(UserProfile profile) {
     state = state.copyWith(userProfile: profile);

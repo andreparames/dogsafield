@@ -82,8 +82,8 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
 
     try {
       String? photoUrl;
-      if (onboarding.photoUrl != null) {
-        photoUrl = await repo.uploadPhoto(onboarding.photoUrl!).timeout(const Duration(seconds: 15));
+      if (onboarding.localPhotoPath != null) {
+        photoUrl = await repo.uploadPhoto(onboarding.localPhotoPath!).timeout(const Duration(seconds: 15));
         notifier.setPhotoUrl(photoUrl);
       }
 

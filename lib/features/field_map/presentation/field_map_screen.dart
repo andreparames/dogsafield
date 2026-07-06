@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../core/services/location_provider.dart';
 import '../../../core/services/location_service.dart';
@@ -91,7 +92,35 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
 
   Future<void> _retry() async {
     final service = LocationService();
-    await service.requestPermission();
+    final permission = await service.requestPermission();
+
+    if (permission == LocationPermission.deniedForever) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location permission permanently denied. Open settings to enable.')),
+      );
+      await Geolocator.openAppSettings();
+      return;
+    }
+
+    if (permission == LocationPermission.denied) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location permission is required to show the map.')),
+      );
+      return;
+    }
+
+    final enabled = await service.isLocationEnabled();
+    if (!enabled) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location services are disabled. Enable them in settings.')),
+      );
+      await Geolocator.openLocationSettings();
+      return;
+    }
+
     ref.invalidate(currentPositionProvider);
   }
 }

@@ -36,10 +36,10 @@ class PhotoUploadScreen extends ConsumerWidget {
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 32),
-            if (state.photoUrl != null) ...[
+            if (state.localPhotoPath != null) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.file(File(state.photoUrl!), height: 200, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 200)),
+                child: Image.file(File(state.localPhotoPath!), height: 200, fit: BoxFit.cover),
               ),
               const SizedBox(height: 16),
             ],
@@ -64,7 +64,7 @@ class PhotoUploadScreen extends ConsumerWidget {
     final picker = ref.read(imagePickerProvider);
     final picked = await picker.pickImage(source: source, maxWidth: 1024);
     if (picked == null) return;
-    ref.read(onboardingProvider.notifier).setPhotoUrl(picked.path);
+    ref.read(onboardingProvider.notifier).setLocalPhotoPath(picked.path);
     ref.read(onboardingProvider.notifier).setStep(OnboardingStep.profileForm);
     if (context.mounted) {
       context.push('/onboarding/profile');
