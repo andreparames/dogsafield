@@ -9,3 +9,5 @@ final authServiceProvider = Provider<AuthService>((ref) {
 final authStateProvider = StreamProvider<AuthState>((ref) {
   return Supabase.instance.client.auth.onAuthStateChange;
 });
+
+final signingInProvider = StateProvider<bool>((ref) => false);

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../state/auth_provider.dart';
 
 class WelcomeScreen extends ConsumerWidget {
@@ -9,13 +8,7 @@ class WelcomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-
-    ref.listen(authStateProvider, (prev, next) {
-      final user = next.valueOrNull?.session?.user;
-      if (user != null) {
-        context.go('/onboarding/photo');
-      }
-    });
+    final isSigningIn = ref.watch(signingInProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -35,13 +28,16 @@ class WelcomeScreen extends ConsumerWidget {
               ),
               const Spacer(),
               FilledButton.icon(
-                onPressed: () {
+                onPressed: isSigningIn ? null : () {
+                  ref.read(signingInProvider.notifier).state = true;
                   ref.read(authServiceProvider).signInWithGoogle().catchError((e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Google sign-in failed: $e')),
                       );
                     }
+                  }).whenComplete(() {
+                    ref.read(signingInProvider.notifier).state = false;
                   });
                 },
                 icon: const Icon(Icons.flutter_dash),
@@ -49,13 +45,16 @@ class WelcomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
-                onPressed: () {
+                onPressed: isSigningIn ? null : () {
+                  ref.read(signingInProvider.notifier).state = true;
                   ref.read(authServiceProvider).signInWithApple().catchError((e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Apple sign-in failed: $e')),
                       );
                     }
+                  }).whenComplete(() {
+                    ref.read(signingInProvider.notifier).state = false;
                   });
                 },
                 icon: const Icon(Icons.apple),

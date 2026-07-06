@@ -52,8 +52,6 @@
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Dogsafield needs your location to find nearby events and dog parks.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Dogsafield needs background location to track pack walks and notify you about nearby gatherings.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
