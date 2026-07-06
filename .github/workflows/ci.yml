@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Cache Flutter SDK
+        id: cache-flutter
+        uses: actions/cache@v4
+        with:
+          path: /opt/flutter
+          key: flutter-3.29.3-${{ runner.os }}
+
+      - name: Install Flutter
+        if: steps.cache-flutter.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq curl git unzip xz-utils zip libglu1-mesa
+          git clone --depth 1 -b 3.29.3 https://github.com/flutter/flutter.git /opt/flutter
+
+      - name: Add Flutter to PATH
+        run: echo "/opt/flutter/bin" >> $GITHUB_PATH
+
+      - run: flutter pub get
+
+      - run: flutter test
+
+      - run: flutter analyze
