@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dogsafield/features/onboarding/data/auth_service.dart';
+import 'package:dogsafield/features/onboarding/data/onboarding_repository.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
+import 'package:dogsafield/shared/models/dog.dart';
+import 'package:dogsafield/shared/models/user_profile.dart';
 
 class FakeAuthService extends AuthService {
   FakeAuthService() : super.test();
@@ -24,7 +27,19 @@ class FakeAuthService extends AuthService {
   Future<void> signOut() async {}
 }
 
+class FakeOnboardingRepository implements OnboardingRepository {
+  @override
+  Future<String?> uploadPhoto(String path) async => 'https://example.com/uploaded.jpg';
+
+  @override
+  Future<UserProfile> createProfile(UserProfile profile) async => profile;
+
+  @override
+  Future<Dog> createDogProfile(Dog dog) async => dog;
+}
+
 final fakeAuthService = FakeAuthService();
+final fakeOnboardingRepository = FakeOnboardingRepository();
 
 Widget createTestApp(Widget child) {
   final router = GoRouter(
@@ -43,6 +58,7 @@ Widget createTestApp(Widget child) {
     overrides: [
       authServiceProvider.overrideWithValue(fakeAuthService),
       authStateProvider.overrideWith((ref) => Stream.empty()),
+      onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
     ],
     child: MaterialApp.router(routerConfig: router),
   );

@@ -15,6 +15,8 @@ void main() {
       expect(notifier.state.step, OnboardingStep.welcome);
       expect(notifier.state.isLoading, false);
       expect(notifier.state.error, isNull);
+      expect(notifier.state.isSubmitting, false);
+      expect(notifier.state.submissionError, isNull);
       expect(notifier.state.photoUrl, isNull);
       expect(notifier.state.dog, isNull);
     });
@@ -43,6 +45,23 @@ void main() {
       expect(notifier.state.isLoading, false);
     });
 
+    test('setSubmitting toggles submitting state and clears submissionError', () {
+      notifier.setSubmissionError('previous error');
+      notifier.setSubmitting(true);
+      expect(notifier.state.isSubmitting, true);
+      expect(notifier.state.submissionError, isNull);
+
+      notifier.setSubmitting(false);
+      expect(notifier.state.isSubmitting, false);
+    });
+
+    test('setSubmissionError stores error without affecting submitting', () {
+      notifier.setSubmitting(true);
+      notifier.setSubmissionError('upload failed');
+      expect(notifier.state.submissionError, 'upload failed');
+      expect(notifier.state.isSubmitting, true);
+    });
+
     test('setPhotoUrl stores url', () {
       notifier.setPhotoUrl('https://example.com/photo.jpg');
       expect(notifier.state.photoUrl, 'https://example.com/photo.jpg');
@@ -68,11 +87,15 @@ void main() {
       notifier.setPhotoUrl('https://example.com/p.jpg');
       notifier.setDog(Dog(id: '1', name: 'Buddy'));
       notifier.setLoading(true);
+      notifier.setSubmitting(true);
+      notifier.setSubmissionError('some error');
 
       notifier.reset();
 
       expect(notifier.state.step, OnboardingStep.welcome);
       expect(notifier.state.isLoading, false);
+      expect(notifier.state.isSubmitting, false);
+      expect(notifier.state.submissionError, isNull);
       expect(notifier.state.photoUrl, isNull);
       expect(notifier.state.dog, isNull);
     });
