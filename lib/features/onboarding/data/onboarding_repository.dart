@@ -1,22 +1,19 @@
 import 'dart:io';
-import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/dog.dart';
 import '../../../shared/models/user_profile.dart';
 
 class OnboardingRepository {
   final SupabaseClient _client;
-  final ImagePicker _picker;
 
-  OnboardingRepository(this._client, this._picker);
+  OnboardingRepository(this._client);
 
-  Future<String?> uploadPhoto() async {
+  Future<String> uploadPhoto(String localPath) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('No authenticated user');
-    final picked = await _picker.pickImage(source: ImageSource.camera);
-    if (picked == null) return null;
-    final path = 'verification_photos/${user.id}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-    await _client.storage.from('photos').upload(path, File(picked.path));
+    final ext = localPath.split('.').last;
+    final path = 'verification_photos/${user.id}/${DateTime.now().millisecondsSinceEpoch}.$ext';
+    await _client.storage.from('photos').upload(path, File(localPath));
     return _client.storage.from('photos').getPublicUrl(path);
   }
 
