@@ -83,7 +83,7 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
     try {
       String? photoUrl;
       if (onboarding.photoUrl != null) {
-        photoUrl = await repo.uploadPhoto(onboarding.photoUrl!);
+        photoUrl = await repo.uploadPhoto(onboarding.photoUrl!).timeout(const Duration(seconds: 15));
         notifier.setPhotoUrl(photoUrl);
       }
 
@@ -92,10 +92,10 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
           photoUrl: photoUrl,
           treatPolicy: _selected,
         ),
-      );
+      ).timeout(const Duration(seconds: 15));
 
       if (onboarding.dog != null) {
-        await repo.createDogProfile(onboarding.dog!);
+        await repo.createDogProfile(onboarding.dog!).timeout(const Duration(seconds: 15));
       }
 
       notifier.setStep(OnboardingStep.complete);
