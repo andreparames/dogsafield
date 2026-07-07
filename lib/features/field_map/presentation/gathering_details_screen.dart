@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/models/dog.dart';
+import '../../../shared/models/event.dart';
 import '../../../shared/models/user_profile.dart';
 import '../data/gathering_detail.dart';
 import '../state/gathering_providers.dart';
+import '../state/rsvp_providers.dart';
 import 'event_marker_icon.dart';
 
 class GatheringDetailsScreen extends ConsumerWidget {
@@ -167,6 +169,8 @@ class _GatheringContent extends StatelessWidget {
             '${event.attendeeIds.length} / ${event.maxAttendees} attending',
             style: theme.textTheme.bodyLarge,
           ),
+          const SizedBox(height: 12),
+          _JoinPackSection(event: event),
         ],
       ),
     );
@@ -254,6 +258,57 @@ class _HostCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _JoinPackSection extends ConsumerWidget {
+  final DogEvent event;
+
+  const _JoinPackSection({required this.event});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final rsvpAsync = ref.watch(hasRsvpProvider(event.id));
+    final actionState = ref.watch(rsvpActionProvider(event.id));
+
+    ref.listen<RsvpActionState>(rsvpActionProvider(event.id), (_, next) {
+      if (next is RsvpActionError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.message)),
+        );
+        ref.read(rsvpActionProvider(event.id).notifier).reset();
+      }
+    });
+
+    if (actionState is RsvpActionLoading) {
+      return const Center(child: SizedBox(
+        width: 24, height: 24,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      ));
+    }
+
+    return rsvpAsync.when(
+      data: (hasRsvp) {
+        if (hasRsvp) {
+          return OutlinedButton.icon(
+            onPressed: () => ref.read(rsvpActionProvider(event.id).notifier).cancelRsvp(),
+            icon: const Icon(Icons.bookmark_remove),
+            label: const Text('Cancel RSVP'),
+          );
+        }
+        return FilledButton.icon(
+          onPressed: () => ref.read(rsvpActionProvider(event.id).notifier).joinPack(),
+          icon: const Icon(Icons.group_add),
+          label: const Text('Join Pack'),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => FilledButton.icon(
+        onPressed: () => ref.read(rsvpActionProvider(event.id).notifier).joinPack(),
+        icon: const Icon(Icons.group_add),
+        label: const Text('Join Pack'),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dogsafield/features/field_map/data/field_map_repository.dart';
 import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
 import 'package:dogsafield/features/field_map/data/gathering_repository.dart';
+import 'package:dogsafield/features/field_map/data/rsvp_repository.dart';
 import 'package:dogsafield/features/hosting/data/hosting_repository.dart';
 import 'package:dogsafield/features/onboarding/data/auth_service.dart';
 import 'package:dogsafield/features/onboarding/data/onboarding_repository.dart';
@@ -118,6 +119,29 @@ class FakeGatheringRepository implements GatheringRepository {
     if (shouldFail) throw Exception('Gathering fetch failed');
     if (detail == null) throw Exception('Not found');
     return detail!;
+  }
+}
+
+class FakeRsvpRepository implements RsvpRepository {
+  Set<String> rsvpEvents = {};
+  bool shouldFail = false;
+
+  @override
+  Future<void> rsvpToEvent(String eventId) async {
+    if (shouldFail) throw Exception('RSVP failed');
+    rsvpEvents.add(eventId);
+  }
+
+  @override
+  Future<void> cancelRsvp(String eventId) async {
+    if (shouldFail) throw Exception('Cancel failed');
+    rsvpEvents.remove(eventId);
+  }
+
+  @override
+  Future<bool> hasRsvp(String eventId) async {
+    if (shouldFail) throw Exception('Check failed');
+    return rsvpEvents.contains(eventId);
   }
 }
 
