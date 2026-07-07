@@ -20,12 +20,11 @@
 - [ ] Screens: `MapHubScreen`, `GatheringDetailsScreen`
 
 ### Hosting (`lib/features/hosting/`)
-- [ ] **Template selection** — Dog Picnic (stationary), Pack Walk (linear), Field Games (structured) [disabled]
+- [x] **CreateEventScreen** — form with template (Dog Picnic/Pack Walk/Field Games), title, description, location, date/time picker, max attendees, what-to-bring checklist
+- [x] **HostingRepository** — Supabase insert + fetch for events table
+- [x] **Publish to Field** — submit event to Supabase with RLS (host_id = auth.uid())
 - [ ] **Location & time picker** — select park/trail from map, assign date/time window
-- [ ] **Pack capacity** — set max RSVPs to prevent overcrowding
-- [ ] **What to Bring checklist** — quick-select items (long line leash, human lunch, etc.)
-- [ ] **Publish to Field** — instant publication to map for local users within radius
-- [ ] Screens: `TemplateSelectScreen`, `CreateEventFormScreen`
+- [ ] **Hub Parks** — designated parks shown during city launch periods
 
 ### Verification Loop (`lib/features/verification_loop/`)
 - [ ] **Post-event trigger** — push notification 2 hours after gathering start

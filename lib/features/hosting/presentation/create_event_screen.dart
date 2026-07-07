@@ -1,0 +1,174 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../shared/models/event.dart';
+import '../state/hosting_provider.dart';
+
+const _bringOptions = ['Long line leash', 'Human lunch', 'Dog treats', 'Water bowl', 'Poop bags', 'Towel', 'Frisbee', 'Tennis balls'];
+
+class CreateEventScreen extends ConsumerStatefulWidget {
+  const CreateEventScreen({super.key});
+
+  @override
+  ConsumerState<CreateEventScreen> createState() => _CreateEventScreenState();
+}
+
+class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
+  final _locationCtrl = TextEditingController();
+  EventType? _type;
+  DateTime _dateTime = DateTime.now().add(const Duration(days: 1));
+  TimeOfDay _time = const TimeOfDay(hour: 10, minute: 0);
+  int _maxAttendees = 20;
+  final Set<String> _whatToBring = {};
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _descCtrl.dispose();
+    _locationCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDateTime() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _dateTime,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (date == null || !mounted) return;
+
+    final time = await showTimePicker(context: context, initialTime: _time);
+    if (time == null || !mounted) return;
+
+    setState(() {
+      _dateTime = date;
+      _time = time;
+    });
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_type == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an event type.')),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    try {
+      final repo = ref.read(hostingRepositoryProvider);
+      final dt = DateTime(_dateTime.year, _dateTime.month, _dateTime.day, _time.hour, _time.minute);
+      await repo.createEvent(DogEvent(
+        id: '',
+        hostId: '',
+        type: _type!,
+        title: _titleCtrl.text.trim(),
+        description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+        locationName: _locationCtrl.text.trim(),
+        latitude: 0,
+        longitude: 0,
+        dateTime: dt,
+        maxAttendees: _maxAttendees,
+        whatToBring: _whatToBring.toList(),
+      ));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Event created!')),
+      );
+      context.pop();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to create event: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(title: const Text('Create Event')),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            Text('Event Type', style: theme.textTheme.titleMedium),
+            const SizedBox(height: 8),
+            SegmentedButton<EventType>(
+              emptySelectionAllowed: true,
+              segments: const [
+                ButtonSegment(value: EventType.dogPicnic, label: Text('Dog Picnic'), icon: Icon(Icons.weekend)),
+                ButtonSegment(value: EventType.packWalk, label: Text('Pack Walk'), icon: Icon(Icons.directions_walk)),
+                ButtonSegment(value: EventType.fieldGames, label: Text('Field Games'), icon: Icon(Icons.sports)),
+              ],
+              selected: _type != null ? {_type!} : {},
+              onSelectionChanged: (v) => setState(() => _type = v.first),
+            ),
+            const SizedBox(height: 24),
+            TextFormField(
+              controller: _titleCtrl,
+              decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder()),
+              validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _locationCtrl,
+              decoration: const InputDecoration(labelText: 'Location', border: OutlineInputBorder()),
+              validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter a location' : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _descCtrl,
+              decoration: const InputDecoration(labelText: 'Description (optional)', border: OutlineInputBorder()),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+            InkWell(
+              onTap: _pickDateTime,
+              child: InputDecorator(
+                decoration: const InputDecoration(labelText: 'Date & Time', border: OutlineInputBorder()),
+                child: Text('${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}  ${_time.format(context)}'),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              initialValue: _maxAttendees.toString(),
+              decoration: const InputDecoration(labelText: 'Max Attendees', border: OutlineInputBorder()),
+              keyboardType: TextInputType.number,
+              onChanged: (v) => _maxAttendees = int.tryParse(v) ?? 20,
+            ),
+            const SizedBox(height: 24),
+            Text('What to Bring', style: theme.textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: _bringOptions.map((item) => FilterChip(
+                label: Text(item),
+                selected: _whatToBring.contains(item),
+                onSelected: (v) => setState(() => v ? _whatToBring.add(item) : _whatToBring.remove(item)),
+              )).toList(),
+            ),
+            const SizedBox(height: 32),
+            FilledButton(
+              onPressed: _isSubmitting ? null : _submit,
+              child: _isSubmitting
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Text('Publish to Field'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

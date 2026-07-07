@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:dogsafield/features/hosting/data/hosting_repository.dart';
+import 'package:dogsafield/features/hosting/state/hosting_provider.dart';
 import 'package:dogsafield/features/onboarding/data/auth_service.dart';
 import 'package:dogsafield/features/onboarding/data/onboarding_repository.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
 import 'package:dogsafield/shared/models/dog.dart';
+import 'package:dogsafield/shared/models/event.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
 
 class FakeAuthService extends AuthService {
@@ -56,6 +59,25 @@ class FakeOnboardingRepository implements OnboardingRepository {
   Future<Dog> createDogProfile(Dog dog) async {
     if (shouldFail) throw Exception('Dog save failed');
     return dog;
+  }
+}
+
+class FakeHostingRepository implements HostingRepository {
+  bool shouldFail = false;
+  int createCallCount = 0;
+  DogEvent? lastCreated;
+
+  @override
+  Future<DogEvent> createEvent(DogEvent event) async {
+    createCallCount++;
+    if (shouldFail) throw Exception('Create failed');
+    lastCreated = event;
+    return event;
+  }
+
+  @override
+  Future<List<DogEvent>> fetchMyEvents() async {
+    return [];
   }
 }
 
