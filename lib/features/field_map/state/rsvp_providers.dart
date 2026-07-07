@@ -11,39 +11,59 @@ final hasRsvpProvider = FutureProvider.family<bool, String>((ref, eventId) async
   return repo.hasRsvp(eventId);
 });
 
-enum RsvpActionState { idle, loading, success, error }
+sealed class RsvpActionState {
+  const RsvpActionState();
+}
+
+class RsvpActionIdle extends RsvpActionState {
+  const RsvpActionIdle();
+}
+
+class RsvpActionLoading extends RsvpActionState {
+  const RsvpActionLoading();
+}
+
+class RsvpActionSuccess extends RsvpActionState {
+  const RsvpActionSuccess();
+}
+
+class RsvpActionError extends RsvpActionState {
+  final String message;
+  const RsvpActionError(this.message);
+}
 
 class RsvpActionNotifier extends StateNotifier<RsvpActionState> {
   final Ref _ref;
   final String _eventId;
 
-  RsvpActionNotifier(this._ref, this._eventId) : super(RsvpActionState.idle);
+  RsvpActionNotifier(this._ref, this._eventId)
+      : super(const RsvpActionIdle());
 
   Future<void> joinPack() async {
-    state = RsvpActionState.loading;
+    state = const RsvpActionLoading();
     try {
       final repo = _ref.read(rsvpRepositoryProvider);
       await repo.rsvpToEvent(_eventId);
-      state = RsvpActionState.success;
+      state = const RsvpActionSuccess();
       _ref.invalidate(hasRsvpProvider(_eventId));
     } catch (e) {
-      state = RsvpActionState.error;
+      state = RsvpActionError('Failed to RSVP: $e');
     }
   }
 
   Future<void> cancelRsvp() async {
-    state = RsvpActionState.loading;
+    state = const RsvpActionLoading();
     try {
       final repo = _ref.read(rsvpRepositoryProvider);
       await repo.cancelRsvp(_eventId);
-      state = RsvpActionState.success;
+      state = const RsvpActionSuccess();
       _ref.invalidate(hasRsvpProvider(_eventId));
     } catch (e) {
-      state = RsvpActionState.error;
+      state = RsvpActionError('Failed to cancel RSVP: $e');
     }
   }
 
-  void reset() => state = RsvpActionState.idle;
+  void reset() => state = const RsvpActionIdle();
 }
 
 final rsvpActionProvider =

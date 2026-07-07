@@ -54,7 +54,7 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      expect(container.read(rsvpActionProvider('evt-1')), RsvpActionState.idle);
+      expect(container.read(rsvpActionProvider('evt-1')), isA<RsvpActionIdle>());
     });
 
     test('joinPack transitions to success', () async {
@@ -70,7 +70,7 @@ void main() {
       final notifier = container.read(rsvpActionProvider('evt-1').notifier);
       await notifier.joinPack();
 
-      expect(container.read(rsvpActionProvider('evt-1')), RsvpActionState.success);
+      expect(container.read(rsvpActionProvider('evt-1')), isA<RsvpActionSuccess>());
       expect(await container.read(hasRsvpProvider('evt-1').future), true);
     });
 
@@ -89,7 +89,7 @@ void main() {
       final notifier = container.read(rsvpActionProvider('evt-1').notifier);
       await notifier.cancelRsvp();
 
-      expect(container.read(rsvpActionProvider('evt-1')), RsvpActionState.success);
+      expect(container.read(rsvpActionProvider('evt-1')), isA<RsvpActionSuccess>());
       expect(await container.read(hasRsvpProvider('evt-1').future), false);
     });
 
@@ -108,7 +108,7 @@ void main() {
       final notifier = container.read(rsvpActionProvider('evt-1').notifier);
       await notifier.joinPack();
 
-      expect(container.read(rsvpActionProvider('evt-1')), RsvpActionState.error);
+      expect(container.read(rsvpActionProvider('evt-1')), isA<RsvpActionError>());
     });
   });
 }

@@ -273,7 +273,16 @@ class _JoinPackSection extends ConsumerWidget {
     final rsvpAsync = ref.watch(hasRsvpProvider(event.id));
     final actionState = ref.watch(rsvpActionProvider(event.id));
 
-    if (actionState == RsvpActionState.loading) {
+    ref.listen<RsvpActionState>(rsvpActionProvider(event.id), (_, next) {
+      if (next is RsvpActionError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.message)),
+        );
+        ref.read(rsvpActionProvider(event.id).notifier).reset();
+      }
+    });
+
+    if (actionState is RsvpActionLoading) {
       return const Center(child: SizedBox(
         width: 24, height: 24,
         child: CircularProgressIndicator(strokeWidth: 2),
@@ -284,17 +293,13 @@ class _JoinPackSection extends ConsumerWidget {
       data: (hasRsvp) {
         if (hasRsvp) {
           return OutlinedButton.icon(
-            onPressed: actionState == RsvpActionState.loading
-                ? null
-                : () => ref.read(rsvpActionProvider(event.id).notifier).cancelRsvp(),
+            onPressed: () => ref.read(rsvpActionProvider(event.id).notifier).cancelRsvp(),
             icon: const Icon(Icons.bookmark_remove),
             label: const Text('Cancel RSVP'),
           );
         }
         return FilledButton.icon(
-          onPressed: actionState == RsvpActionState.loading
-              ? null
-              : () => ref.read(rsvpActionProvider(event.id).notifier).joinPack(),
+          onPressed: () => ref.read(rsvpActionProvider(event.id).notifier).joinPack(),
           icon: const Icon(Icons.group_add),
           label: const Text('Join Pack'),
         );
