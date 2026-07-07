@@ -39,7 +39,7 @@ class PhotoUploadScreen extends ConsumerWidget {
             if (state.localPhotoPath != null) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.file(File(state.localPhotoPath!), height: 200, fit: BoxFit.cover),
+                child: Image.file(File(state.localPhotoPath!), height: 200, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 200)),
               ),
               const SizedBox(height: 16),
             ],
