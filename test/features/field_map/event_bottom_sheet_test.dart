@@ -78,6 +78,9 @@ void main() {
         ),
       );
 
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
+
       expect(find.text('3 / 20'), findsOneWidget);
     });
 
@@ -93,14 +96,14 @@ void main() {
         ),
       );
 
-      await tester.drag(find.byType(ListView), const Offset(0, -100));
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
       await tester.pumpAndSettle();
 
       expect(find.text('Heavy Shade'), findsOneWidget);
       expect(find.text('Fenced Area'), findsOneWidget);
     });
 
-    testWidgets('shows View Details button', (tester) async {
+    testWidgets('shows View Details button immediately without scrolling', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -111,9 +114,6 @@ void main() {
           ),
         ),
       );
-
-      await tester.drag(find.byType(ListView), const Offset(0, -200));
-      await tester.pumpAndSettle();
 
       expect(find.text('View Details'), findsOneWidget);
     });
@@ -130,9 +130,6 @@ void main() {
         ),
       );
 
-      await tester.drag(find.byType(ListView), const Offset(0, -200));
-      await tester.pumpAndSettle();
-
       expect(find.text('Cancel RSVP'), findsNothing);
     });
 
@@ -148,7 +145,7 @@ void main() {
         ),
       );
 
-      await tester.drag(find.byType(ListView), const Offset(0, -300));
+      await tester.drag(find.byType(ListView), const Offset(0, -100));
       await tester.pumpAndSettle();
 
       expect(find.text('Cancel RSVP'), findsOneWidget);

@@ -90,34 +90,7 @@ class EventBottomSheet extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.people,
-                      size: 16, color: theme.colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 6),
-                  Text('${event.attendeeIds.length} / ${event.maxAttendees}',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      )),
-                ],
-              ),
-              if (event.amenityTags.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: event.amenityTags.map((tag) {
-                    return Chip(
-                      label: Text(tag,
-                          style: theme.textTheme.labelSmall),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity.compact,
-                    );
-                  }).toList(),
-                ),
-              ],
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               FilledButton(
                 onPressed: () => context.push('/field/gathering/${event.id}'),
                 child: const Text('View Details'),
@@ -135,6 +108,33 @@ class EventBottomSheet extends StatelessWidget {
                   child: const Text('Cancel RSVP'),
                 ),
               ],
+              if (event.amenityTags.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: event.amenityTags.map((tag) {
+                    return Chip(
+                      label: Text(tag,
+                          style: theme.textTheme.labelSmall),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    );
+                  }).toList(),
+                ),
+              ],
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.people,
+                      size: 16, color: theme.colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 6),
+                  Text('${event.attendeeIds.length} / ${event.maxAttendees}',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      )),
+                ],
+              ),
             ],
           ),
         );
