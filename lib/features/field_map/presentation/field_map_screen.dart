@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../core/services/location_provider.dart';
 import '../../../core/services/location_service.dart';
 import '../state/field_map_providers.dart';
+import '../state/rsvp_providers.dart';
 import '../state/feedback_providers.dart';
 import 'event_bottom_sheet.dart';
 import 'event_marker_icon.dart';
@@ -201,18 +202,30 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () {
+              controller.dispose();
+              Navigator.pop(ctx);
+            },
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               final message = controller.text.trim();
               if (message.isEmpty) return;
-              ref.read(feedbackProvider.notifier).submit(message);
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Thanks for your feedback!')),
-              );
+              controller.dispose();
+              try {
+                await ref.read(feedbackProvider.notifier).submit(message);
+                if (!ctx.mounted) return;
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Thanks for your feedback!')),
+                );
+              } catch (e) {
+                if (!ctx.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to send feedback: $e')),
+                );
+              }
             },
             child: const Text('Send'),
           ),

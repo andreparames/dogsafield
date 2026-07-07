@@ -20,11 +20,6 @@ final allEventsProvider = FutureProvider<List<DogEvent>>((ref) async {
   );
 });
 
-final myRsvpIdsProvider = FutureProvider<Set<String>>((ref) async {
-  final repo = ref.watch(rsvpRepositoryProvider);
-  return repo.fetchMyRsvpIds();
-});
-
 final discoveredEventsProvider = FutureProvider<List<DogEvent>>((ref) async {
   final showRsvps = ref.watch(rsvpFilterProvider);
   final allEvents = await ref.watch(allEventsProvider.future);
