@@ -69,7 +69,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   Future<void> _pickLocation() async {
     final result = await context.push<LocationPickerResult>(
       '/hosting/location-picker',
-      extra: <String, double>{'lat': _latitude ?? 0, 'lng': _longitude ?? 0},
+      extra: <String, dynamic>{'lat': _latitude ?? 0, 'lng': _longitude ?? 0, 'name': _locationNameCtrl.text},
     );
     if (result != null) {
       setState(() {
@@ -151,6 +151,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
             ),
             const SizedBox(height: 24),
             TextFormField(
+              key: const Key('eventTitle'),
               controller: _titleCtrl,
               decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder()),
               validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter a title' : null,

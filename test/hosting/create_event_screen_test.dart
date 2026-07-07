@@ -74,7 +74,7 @@ void main() {
       await tester.tap(find.text('Dog Picnic'));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byType(TextFormField).at(0), 'Morning Meetup');
+      await tester.enterText(find.byKey(const Key('eventTitle')), 'Morning Meetup');
       await tester.pumpAndSettle();
 
       await tester.drag(find.byType(ListView), const Offset(0, -400));
@@ -115,7 +115,7 @@ void main() {
       await tester.tap(find.text('Dog Picnic'));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byType(TextFormField).at(0), 'Event');
+      await tester.enterText(find.byKey(const Key('eventTitle')), 'Event');
       await tester.pumpAndSettle();
 
       await tester.drag(find.byType(ListView), const Offset(0, -400));

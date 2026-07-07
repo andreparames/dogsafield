@@ -12,10 +12,11 @@ List<RouteBase> hostingRoutes = [
     path: '/hosting/location-picker',
     name: 'locationPicker',
     builder: (context, state) {
-      final args = state.extra as Map<String, double>?;
+      final args = state.extra as Map<String, dynamic>?;
       return LocationPickerScreen(
-        initialLatitude: args?['lat'] ?? 0,
-        initialLongitude: args?['lng'] ?? 0,
+        initialLatitude: (args?['lat'] as num?)?.toDouble() ?? 0,
+        initialLongitude: (args?['lng'] as num?)?.toDouble() ?? 0,
+        initialLocationName: args?['name'] as String?,
       );
     },
   ),
