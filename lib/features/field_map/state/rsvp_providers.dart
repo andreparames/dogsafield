@@ -40,6 +40,7 @@ class RsvpActionNotifier extends StateNotifier<RsvpActionState> {
       : super(const RsvpActionIdle());
 
   Future<void> joinPack() async {
+    if (state is RsvpActionLoading) return;
     state = const RsvpActionLoading();
     try {
       final repo = _ref.read(rsvpRepositoryProvider);
@@ -52,6 +53,7 @@ class RsvpActionNotifier extends StateNotifier<RsvpActionState> {
   }
 
   Future<void> cancelRsvp() async {
+    if (state is RsvpActionLoading) return;
     state = const RsvpActionLoading();
     try {
       final repo = _ref.read(rsvpRepositoryProvider);

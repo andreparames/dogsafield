@@ -65,22 +65,17 @@ class GatheringRepository {
 
     final userIds = attendanceRows.map((r) => r['user_id'] as String).toList();
 
-    final profileRows = await _client
-        .from('profiles')
-        .select()
-        .inFilter('id', userIds);
+    final results = await Future.wait([
+      _client.from('profiles').select().inFilter('id', userIds),
+      _client.from('dogs').select().inFilter('owner_id', userIds),
+    ]);
     final profileMap = <String, UserProfile>{};
-    for (final row in profileRows) {
+    for (final row in results[0]) {
       final profile = _rowToProfile(row);
       profileMap[profile.id] = profile;
     }
-
-    final dogRows = await _client
-        .from('dogs')
-        .select()
-        .inFilter('owner_id', userIds);
     final dogMap = <String, Dog>{};
-    for (final row in dogRows) {
+    for (final row in results[1]) {
       final ownerId = row['owner_id'] as String;
       dogMap.putIfAbsent(ownerId, () => _rowToDog(row));
     }
