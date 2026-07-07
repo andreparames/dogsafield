@@ -58,7 +58,7 @@ void main() {
       final router = GoRouter(
         initialLocation: '/test',
         routes: [
-          GoRoute(path: '/test', builder: (_, __) => const CreateEventScreen()),
+          GoRoute(path: '/test', builder: (_, __) => const CreateEventScreen(initialLatitude: 38.7, initialLongitude: -9.1)),
           GoRoute(path: '/', builder: (_, __) => const Scaffold(body: Text('Home'))),
         ],
       );
@@ -71,14 +71,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final fields = find.byType(TextFormField);
       await tester.tap(find.text('Dog Picnic'));
       await tester.pumpAndSettle();
 
-      await tester.enterText(fields.at(0), 'Morning Meetup');
-      await tester.pumpAndSettle();
-
-      await tester.enterText(fields.at(1), 'Central Park');
+      await tester.enterText(find.byKey(const Key('eventTitle')), 'Morning Meetup');
       await tester.pumpAndSettle();
 
       await tester.drag(find.byType(ListView), const Offset(0, -400));
@@ -103,7 +99,7 @@ void main() {
       final router = GoRouter(
         initialLocation: '/test',
         routes: [
-          GoRoute(path: '/test', builder: (_, __) => const CreateEventScreen()),
+          GoRoute(path: '/test', builder: (_, __) => const CreateEventScreen(initialLatitude: 38.7, initialLongitude: -9.1)),
           GoRoute(path: '/', builder: (_, __) => const Scaffold(body: Text('Home'))),
         ],
       );
@@ -116,14 +112,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final fields = find.byType(TextFormField);
       await tester.tap(find.text('Dog Picnic'));
       await tester.pumpAndSettle();
 
-      await tester.enterText(fields.at(0), 'Event');
-      await tester.pumpAndSettle();
-
-      await tester.enterText(fields.at(1), 'Park');
+      await tester.enterText(find.byKey(const Key('eventTitle')), 'Event');
       await tester.pumpAndSettle();
 
       await tester.drag(find.byType(ListView), const Offset(0, -400));
