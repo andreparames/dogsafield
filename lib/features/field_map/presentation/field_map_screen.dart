@@ -100,7 +100,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               ),
               Positioned(
                 top: 16,
-                right: 16,
+                left: 16,
                 child: CircleAvatar(
                   backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                   child: IconButton(
@@ -211,7 +211,10 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           FilledButton(
             onPressed: () async {
               final message = controller.text.trim();
-              if (message.isEmpty) return;
+              if (message.isEmpty) {
+                controller.dispose();
+                return;
+              }
               controller.dispose();
               try {
                 await ref.read(feedbackProvider.notifier).submit(message);
