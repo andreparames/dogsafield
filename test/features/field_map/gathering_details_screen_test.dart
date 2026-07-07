@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
 import 'package:dogsafield/features/field_map/presentation/gathering_details_screen.dart';
 import 'package:dogsafield/features/field_map/state/gathering_providers.dart';
+import 'package:dogsafield/features/field_map/state/rsvp_providers.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
 import 'package:dogsafield/shared/models/dog.dart';
 import 'package:dogsafield/shared/models/event.dart';
@@ -15,10 +16,12 @@ Widget createTestApp(Widget child) {
 }
 
 void main() {
-  late FakeGatheringRepository repo;
+  late FakeGatheringRepository gatheringRepo;
+  late FakeRsvpRepository rsvpRepo;
 
   setUp(() {
-    repo = FakeGatheringRepository();
+    gatheringRepo = FakeGatheringRepository();
+    rsvpRepo = FakeRsvpRepository();
   });
 
   Widget buildScreen(String eventId) {
@@ -26,7 +29,8 @@ void main() {
       overrides: [
         authServiceProvider.overrideWithValue(fakeAuthService),
         authStateProvider.overrideWith((ref) => Stream.empty()),
-        gatheringRepositoryProvider.overrideWithValue(repo),
+        gatheringRepositoryProvider.overrideWithValue(gatheringRepo),
+        rsvpRepositoryProvider.overrideWithValue(rsvpRepo),
       ],
       child: createTestApp(GatheringDetailsScreen(eventId: eventId)),
     );
@@ -34,7 +38,7 @@ void main() {
 
   group('GatheringDetailsScreen', () {
     testWidgets('displays event title and type', (tester) async {
-      repo.detail = GatheringDetail(
+      gatheringRepo.detail = GatheringDetail(
         event: DogEvent(
           id: 'evt-1',
           hostId: 'host-1',
@@ -70,7 +74,7 @@ void main() {
     });
 
     testWidgets('displays date and location', (tester) async {
-      repo.detail = GatheringDetail(
+      gatheringRepo.detail = GatheringDetail(
         event: DogEvent(
           id: 'evt-1',
           hostId: 'host-1',
@@ -93,7 +97,7 @@ void main() {
     });
 
     testWidgets('displays host info', (tester) async {
-      repo.detail = GatheringDetail(
+      gatheringRepo.detail = GatheringDetail(
         event: DogEvent(
           id: 'evt-1',
           hostId: 'host-1',
@@ -127,7 +131,7 @@ void main() {
     });
 
     testWidgets('displays amenity tags as chips', (tester) async {
-      repo.detail = GatheringDetail(
+      gatheringRepo.detail = GatheringDetail(
         event: DogEvent(
           id: 'evt-1',
           hostId: 'host-1',
@@ -151,7 +155,7 @@ void main() {
     });
 
     testWidgets('displays what to bring items', (tester) async {
-      repo.detail = GatheringDetail(
+      gatheringRepo.detail = GatheringDetail(
         event: DogEvent(
           id: 'evt-1',
           hostId: 'host-1',
@@ -176,7 +180,7 @@ void main() {
     });
 
     testWidgets('displays attendance count', (tester) async {
-      repo.detail = GatheringDetail(
+      gatheringRepo.detail = GatheringDetail(
         event: DogEvent(
           id: 'evt-1',
           hostId: 'host-1',
@@ -199,13 +203,84 @@ void main() {
     });
 
     testWidgets('shows error UI on failure', (tester) async {
-      repo.shouldFail = true;
+      gatheringRepo.shouldFail = true;
 
       await tester.pumpWidget(buildScreen('evt-1'));
       await tester.pumpAndSettle();
 
       expect(find.text('Failed to load event'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
+    });
+
+    testWidgets('shows Join Pack button when not RSVPd', (tester) async {
+      gatheringRepo.detail = GatheringDetail(
+        event: DogEvent(
+          id: 'evt-1',
+          hostId: 'host-1',
+          type: EventType.packWalk,
+          title: 'Walk',
+          locationName: 'Park',
+          latitude: 38.7,
+          longitude: -9.1,
+          dateTime: DateTime(2026, 7, 10, 15, 0),
+          maxAttendees: 20,
+        ),
+        host: UserProfile(id: 'host-1', email: 'host@test.com'),
+      );
+
+      await tester.pumpWidget(buildScreen('evt-1'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Join Pack'), findsOneWidget);
+    });
+
+    testWidgets('shows Cancel RSVP after joining', (tester) async {
+      gatheringRepo.detail = GatheringDetail(
+        event: DogEvent(
+          id: 'evt-1',
+          hostId: 'host-1',
+          type: EventType.packWalk,
+          title: 'Walk',
+          locationName: 'Park',
+          latitude: 38.7,
+          longitude: -9.1,
+          dateTime: DateTime(2026, 7, 10, 15, 0),
+          maxAttendees: 20,
+        ),
+        host: UserProfile(id: 'host-1', email: 'host@test.com'),
+      );
+      await rsvpRepo.rsvpToEvent('evt-1');
+
+      await tester.pumpWidget(buildScreen('evt-1'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cancel RSVP'), findsOneWidget);
+    });
+
+    testWidgets('tapping Join Pack calls RSVP and shows Cancel RSVP', (tester) async {
+      gatheringRepo.detail = GatheringDetail(
+        event: DogEvent(
+          id: 'evt-1',
+          hostId: 'host-1',
+          type: EventType.packWalk,
+          title: 'Walk',
+          locationName: 'Park',
+          latitude: 38.7,
+          longitude: -9.1,
+          dateTime: DateTime(2026, 7, 10, 15, 0),
+          maxAttendees: 20,
+        ),
+        host: UserProfile(id: 'host-1', email: 'host@test.com'),
+      );
+
+      await tester.pumpWidget(buildScreen('evt-1'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Join Pack'));
+      await tester.pumpAndSettle();
+
+      expect(rsvpRepo.rsvpEvents.contains('evt-1'), true);
+      expect(find.text('Cancel RSVP'), findsOneWidget);
     });
   });
 }
