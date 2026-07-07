@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/event.dart';
 
@@ -13,7 +14,7 @@ class FieldMapRepository {
   }) async {
     const double kmPerDegree = 111.0;
     final double latDelta = radiusKm / kmPerDegree;
-    final double lonDelta = radiusKm / (kmPerDegree * 0.766);
+    final double lonDelta = radiusKm / (kmPerDegree * cos(latitude * pi / 180));
 
     final response = await _client
         .from('events')

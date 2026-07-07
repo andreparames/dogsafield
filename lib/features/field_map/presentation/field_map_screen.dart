@@ -60,26 +60,35 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
             ),
           );
 
-          eventsAsync.whenData((events) {
-            for (final event in events) {
-              markers.add(
-                Marker(
-                  markerId: MarkerId(event.id),
-                  position: LatLng(event.latitude, event.longitude),
-                  icon: markerIconForType(event.type),
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (_) => EventBottomSheet(
-                        event: event,
-                        showRsvpAction: showRsvps,
-                      ),
-                    );
-                  },
-                ),
+          eventsAsync.when(
+            data: (events) {
+              for (final event in events) {
+                markers.add(
+                  Marker(
+                    markerId: MarkerId(event.id),
+                    position: LatLng(event.latitude, event.longitude),
+                    icon: markerIconForType(event.type),
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (_) => EventBottomSheet(
+                          event: event,
+                          showRsvpAction: showRsvps,
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }
+            },
+            loading: () {},
+            error: (error, _) {
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to load events: $error')),
               );
-            }
-          });
+            },
+          );
 
           return Stack(
             children: [

@@ -126,8 +126,9 @@ class EventBottomSheet extends StatelessWidget {
                 const SizedBox(height: 8),
                 OutlinedButton(
                   onPressed: () {
+                    final messenger = ScaffoldMessenger.of(context);
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                       const SnackBar(content: Text('Cancel RSVP — coming soon')),
                     );
                   },
