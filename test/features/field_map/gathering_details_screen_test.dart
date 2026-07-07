@@ -1,37 +1,211 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
 import 'package:dogsafield/features/field_map/presentation/gathering_details_screen.dart';
+import 'package:dogsafield/features/field_map/state/gathering_providers.dart';
+import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
+import 'package:dogsafield/shared/models/dog.dart';
+import 'package:dogsafield/shared/models/event.dart';
+import 'package:dogsafield/shared/models/user_profile.dart';
+import '../../helpers/test_utils.dart';
+
+Widget createTestApp(Widget child) {
+  return MaterialApp(home: child);
+}
 
 void main() {
+  late FakeGatheringRepository repo;
+
+  setUp(() {
+    repo = FakeGatheringRepository();
+  });
+
+  Widget buildScreen(String eventId) {
+    return ProviderScope(
+      overrides: [
+        authServiceProvider.overrideWithValue(fakeAuthService),
+        authStateProvider.overrideWith((ref) => Stream.empty()),
+        gatheringRepositoryProvider.overrideWithValue(repo),
+      ],
+      child: createTestApp(GatheringDetailsScreen(eventId: eventId)),
+    );
+  }
+
   group('GatheringDetailsScreen', () {
-    testWidgets('displays event ID', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: GatheringDetailsScreen(eventId: 'test-event-123'),
+    testWidgets('displays event title and type', (tester) async {
+      repo.detail = GatheringDetail(
+        event: DogEvent(
+          id: 'evt-1',
+          hostId: 'host-1',
+          type: EventType.packWalk,
+          title: 'Morning Walk',
+          locationName: 'Park',
+          latitude: 38.7,
+          longitude: -9.1,
+          dateTime: DateTime(2026, 7, 10, 15, 0),
+          maxAttendees: 20,
+          amenityTags: ['Heavy Shade'],
+          whatToBring: ['Water', 'Leash'],
+          attendeeIds: ['a', 'b', 'c'],
+        ),
+        host: UserProfile(
+          id: 'host-1',
+          email: 'host@test.com',
+          displayName: 'Jane',
+        ),
+        hostDog: Dog(
+          id: 'dog-1',
+          name: 'Buddy',
+          breed: 'Golden Retriever',
+          vibe: SocialVibe.zoomieKing,
         ),
       );
 
-      expect(find.text('ID: test-event-123'), findsOneWidget);
+      await tester.pumpWidget(buildScreen('evt-1'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Morning Walk'), findsOneWidget);
+      expect(find.text('Pack Walk'), findsOneWidget);
     });
 
-    testWidgets('displays title', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: GatheringDetailsScreen(eventId: 'abc'),
+    testWidgets('displays date and location', (tester) async {
+      repo.detail = GatheringDetail(
+        event: DogEvent(
+          id: 'evt-1',
+          hostId: 'host-1',
+          type: EventType.dogPicnic,
+          title: 'Picnic',
+          locationName: 'Riverside Park',
+          latitude: 38.7,
+          longitude: -9.1,
+          dateTime: DateTime(2026, 7, 10, 15, 0),
+          maxAttendees: 20,
         ),
+        host: UserProfile(id: 'host-1', email: 'host@test.com'),
       );
 
-      expect(find.text('Gathering Details'), findsOneWidget);
+      await tester.pumpWidget(buildScreen('evt-1'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Riverside Park'), findsOneWidget);
+      expect(find.textContaining('7/10/2026'), findsOneWidget);
     });
 
-    testWidgets('shows placeholder message', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: GatheringDetailsScreen(eventId: 'xyz'),
+    testWidgets('displays host info', (tester) async {
+      repo.detail = GatheringDetail(
+        event: DogEvent(
+          id: 'evt-1',
+          hostId: 'host-1',
+          type: EventType.packWalk,
+          title: 'Walk',
+          locationName: 'Park',
+          latitude: 38.7,
+          longitude: -9.1,
+          dateTime: DateTime(2026, 7, 10, 15, 0),
+          maxAttendees: 20,
+        ),
+        host: UserProfile(
+          id: 'host-1',
+          email: 'host@test.com',
+          displayName: 'Jane Doe',
+        ),
+        hostDog: Dog(
+          id: 'dog-1',
+          name: 'Buddy',
+          breed: 'Golden Retriever',
+          vibe: SocialVibe.zoomieKing,
         ),
       );
 
-      expect(find.text('Full event details coming soon.'), findsOneWidget);
+      await tester.pumpWidget(buildScreen('evt-1'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Jane Doe'), findsOneWidget);
+      expect(find.textContaining('Buddy'), findsOneWidget);
+      expect(find.textContaining('Golden Retriever'), findsOneWidget);
+    });
+
+    testWidgets('displays amenity tags as chips', (tester) async {
+      repo.detail = GatheringDetail(
+        event: DogEvent(
+          id: 'evt-1',
+          hostId: 'host-1',
+          type: EventType.fieldGames,
+          title: 'Games',
+          locationName: 'Field',
+          latitude: 38.7,
+          longitude: -9.1,
+          dateTime: DateTime(2026, 7, 10, 15, 0),
+          maxAttendees: 20,
+          amenityTags: ['Heavy Shade', 'Fenced Area'],
+        ),
+        host: UserProfile(id: 'host-1', email: 'host@test.com'),
+      );
+
+      await tester.pumpWidget(buildScreen('evt-1'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Heavy Shade'), findsOneWidget);
+      expect(find.text('Fenced Area'), findsOneWidget);
+    });
+
+    testWidgets('displays what to bring items', (tester) async {
+      repo.detail = GatheringDetail(
+        event: DogEvent(
+          id: 'evt-1',
+          hostId: 'host-1',
+          type: EventType.packWalk,
+          title: 'Walk',
+          locationName: 'Park',
+          latitude: 38.7,
+          longitude: -9.1,
+          dateTime: DateTime(2026, 7, 10, 15, 0),
+          maxAttendees: 20,
+          whatToBring: ['Water', 'Long leash', 'Treats'],
+        ),
+        host: UserProfile(id: 'host-1', email: 'host@test.com'),
+      );
+
+      await tester.pumpWidget(buildScreen('evt-1'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Water'), findsOneWidget);
+      expect(find.text('Long leash'), findsOneWidget);
+      expect(find.text('Treats'), findsOneWidget);
+    });
+
+    testWidgets('displays attendance count', (tester) async {
+      repo.detail = GatheringDetail(
+        event: DogEvent(
+          id: 'evt-1',
+          hostId: 'host-1',
+          type: EventType.packWalk,
+          title: 'Walk',
+          locationName: 'Park',
+          latitude: 38.7,
+          longitude: -9.1,
+          dateTime: DateTime(2026, 7, 10, 15, 0),
+          maxAttendees: 20,
+          attendeeIds: ['u1', 'u2', 'u3'],
+        ),
+        host: UserProfile(id: 'host-1', email: 'host@test.com'),
+      );
+
+      await tester.pumpWidget(buildScreen('evt-1'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('3 / 20 attending'), findsOneWidget);
+    });
+
+    testWidgets('shows error UI on failure', (tester) async {
+      repo.shouldFail = true;
+
+      await tester.pumpWidget(buildScreen('evt-1'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Failed to load event'), findsOneWidget);
+      expect(find.text('Retry'), findsOneWidget);
     });
   });
 }
