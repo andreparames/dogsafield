@@ -69,7 +69,7 @@
 - [ ] **Founding Pack eligibility** — detect 60-day launch-window registration
 - [ ] **Founding Pack activity lock** — require 3 verified attendances within 60 days to unlock
 - [ ] **Geographic waiver** — waive fees for Founding Pack members attending events in their founding city
-- [ ] Screens: `UpgradeScreen`, `FoundingPackBadge`, `TrialLimitSheet`
+- [x] Screens: `UpgradeScreen`, `FoundingPackBadge`, `TrialLimitSheet`
 
 ### Verification Loop (`lib/features/verification_loop/`)
 - [ ] **Hardening** — anti-collusion checks, dispute process, no-show penalties (post-v1)
