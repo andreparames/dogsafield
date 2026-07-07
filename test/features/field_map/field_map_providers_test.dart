@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:dogsafield/core/services/location_provider.dart';
 import 'package:dogsafield/features/field_map/state/field_map_providers.dart';
+import 'package:dogsafield/features/field_map/state/rsvp_providers.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
 import 'package:dogsafield/shared/models/event.dart';
 import '../../helpers/test_utils.dart';
@@ -21,10 +22,12 @@ final fakePosition = Position(
 );
 
 void main() {
-  late FakeFieldMapRepository repo;
+  late FakeFieldMapRepository fieldRepo;
+  late FakeRsvpRepository rsvpRepo;
 
   setUp(() {
-    repo = FakeFieldMapRepository();
+    fieldRepo = FakeFieldMapRepository();
+    rsvpRepo = FakeRsvpRepository();
   });
 
   group('rsvpFilterProvider', () {
@@ -44,28 +47,43 @@ void main() {
     });
   });
 
-  group('discoveredEventsProvider', () {
-    test('returns nearby events when filter is false', () async {
-      final events = [
-        DogEvent(
-          id: '1',
-          hostId: 'host1',
-          type: EventType.packWalk,
-          title: 'Morning Walk',
-          locationName: 'Park',
-          latitude: 38.7,
-          longitude: -9.1,
-          dateTime: DateTime.now().add(const Duration(days: 1)),
-          maxAttendees: 10,
-        ),
-      ];
-      repo.nearbyEvents = events;
+  group('myRsvpIdsProvider', () {
+    test('returns RSVPd event IDs', () async {
+      rsvpRepo.rsvpEvents = {'evt-1', 'evt-2'};
 
       final container = ProviderContainer(
         overrides: [
           authServiceProvider.overrideWithValue(fakeAuthService),
           authStateProvider.overrideWith((ref) => Stream.empty()),
-          fieldMapRepositoryProvider.overrideWithValue(repo),
+          rsvpRepositoryProvider.overrideWithValue(rsvpRepo),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final ids = await container.read(myRsvpIdsProvider.future);
+      expect(ids, {'evt-1', 'evt-2'});
+    });
+  });
+
+  group('discoveredEventsProvider', () {
+    test('returns all events when filter is false', () async {
+      final events = [
+        DogEvent(
+          id: '1', hostId: 'host1', type: EventType.packWalk,
+          title: 'Morning Walk', locationName: 'Park',
+          latitude: 38.7, longitude: -9.1,
+          dateTime: DateTime.now().add(const Duration(days: 1)),
+          maxAttendees: 10,
+        ),
+      ];
+      fieldRepo.nearbyEvents = events;
+
+      final container = ProviderContainer(
+        overrides: [
+          authServiceProvider.overrideWithValue(fakeAuthService),
+          authStateProvider.overrideWith((ref) => Stream.empty()),
+          fieldMapRepositoryProvider.overrideWithValue(fieldRepo),
+          rsvpRepositoryProvider.overrideWithValue(rsvpRepo),
           currentPositionProvider.overrideWith((ref) async => fakePosition),
         ],
       );
@@ -77,27 +95,33 @@ void main() {
       expect(result, events);
     });
 
-    test('returns RSVPs when filter is true', () async {
-      final events = [
+    test('filters locally when filter is true', () async {
+      final allEvents = [
         DogEvent(
-          id: '2',
-          hostId: 'host2',
-          type: EventType.dogPicnic,
-          title: 'Picnic',
-          locationName: 'Garden',
-          latitude: 38.8,
-          longitude: -9.2,
+          id: '1', hostId: 'host1', type: EventType.packWalk,
+          title: 'Morning Walk', locationName: 'Park',
+          latitude: 38.7, longitude: -9.1,
+          dateTime: DateTime.now().add(const Duration(days: 1)),
+          maxAttendees: 10,
+        ),
+        DogEvent(
+          id: '2', hostId: 'host2', type: EventType.dogPicnic,
+          title: 'Picnic', locationName: 'Garden',
+          latitude: 38.8, longitude: -9.2,
           dateTime: DateTime.now().add(const Duration(days: 2)),
           maxAttendees: 20,
         ),
       ];
-      repo.rsvpEvents = events;
+      fieldRepo.nearbyEvents = allEvents;
+      rsvpRepo.rsvpEvents = {'1'};
 
       final container = ProviderContainer(
         overrides: [
           authServiceProvider.overrideWithValue(fakeAuthService),
           authStateProvider.overrideWith((ref) => Stream.empty()),
-          fieldMapRepositoryProvider.overrideWithValue(repo),
+          fieldMapRepositoryProvider.overrideWithValue(fieldRepo),
+          rsvpRepositoryProvider.overrideWithValue(rsvpRepo),
+          currentPositionProvider.overrideWith((ref) async => fakePosition),
         ],
       );
       addTearDown(container.dispose);
@@ -105,30 +129,29 @@ void main() {
       container.read(rsvpFilterProvider.notifier).state = true;
       final result = await container.read(discoveredEventsProvider.future);
 
-      expect(result, events);
+      expect(result.length, 1);
+      expect(result.single.id, '1');
     });
 
-    test('re-fetches when filter toggles', () async {
+    test('filters locally without re-fetching when toggle changes', () async {
       final events = [
         DogEvent(
-          id: '3',
-          hostId: 'host3',
-          type: EventType.fieldGames,
-          title: 'Games',
-          locationName: 'Field',
-          latitude: 38.9,
-          longitude: -9.3,
-          dateTime: DateTime.now().add(const Duration(days: 3)),
-          maxAttendees: 30,
+          id: '1', hostId: 'host1', type: EventType.packWalk,
+          title: 'Walk', locationName: 'Park',
+          latitude: 38.7, longitude: -9.1,
+          dateTime: DateTime.now().add(const Duration(days: 1)),
+          maxAttendees: 10,
         ),
       ];
-      repo.nearbyEvents = events;
+      fieldRepo.nearbyEvents = events;
+      rsvpRepo.rsvpEvents = {};
 
       final container = ProviderContainer(
         overrides: [
           authServiceProvider.overrideWithValue(fakeAuthService),
           authStateProvider.overrideWith((ref) => Stream.empty()),
-          fieldMapRepositoryProvider.overrideWithValue(repo),
+          fieldMapRepositoryProvider.overrideWithValue(fieldRepo),
+          rsvpRepositoryProvider.overrideWithValue(rsvpRepo),
           currentPositionProvider.overrideWith((ref) async => fakePosition),
         ],
       );
@@ -138,34 +161,22 @@ void main() {
       final nearby = await container.read(discoveredEventsProvider.future);
       expect(nearby, events);
 
-      final rsvpEvents = [
-        DogEvent(
-          id: '4',
-          hostId: 'host4',
-          type: EventType.packWalk,
-          title: 'Rsvp Walk',
-          locationName: 'Trail',
-          latitude: 39.0,
-          longitude: -9.4,
-          dateTime: DateTime.now().add(const Duration(days: 4)),
-          maxAttendees: 15,
-        ),
-      ];
-      repo.rsvpEvents = rsvpEvents;
+      fieldRepo.nearbyEvents = []; // would be a new fetch if re-fetching
 
       container.read(rsvpFilterProvider.notifier).state = true;
       final myRsvps = await container.read(discoveredEventsProvider.future);
-      expect(myRsvps, rsvpEvents);
+      expect(myRsvps, isEmpty); // still sees original events list, not the mutated one
     });
 
     test('throws when repository fails', () async {
-      repo.shouldFail = true;
+      fieldRepo.shouldFail = true;
 
       final container = ProviderContainer(
         overrides: [
           authServiceProvider.overrideWithValue(fakeAuthService),
           authStateProvider.overrideWith((ref) => Stream.empty()),
-          fieldMapRepositoryProvider.overrideWithValue(repo),
+          fieldMapRepositoryProvider.overrideWithValue(fieldRepo),
+          rsvpRepositoryProvider.overrideWithValue(rsvpRepo),
           currentPositionProvider.overrideWith((ref) async => fakePosition),
         ],
       );

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../shared/models/event.dart';
 
-BitmapDescriptor markerIconForType(EventType type) {
+BitmapDescriptor markerIconForType(EventType type, {bool isRsvpd = false}) {
+  if (isRsvpd) {
+    return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet);
+  }
   switch (type) {
     case EventType.packWalk:
       return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);

@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../core/services/location_provider.dart';
 import '../../../core/services/location_service.dart';
 import '../state/field_map_providers.dart';
+import '../state/feedback_providers.dart';
 import 'event_bottom_sheet.dart';
 import 'event_marker_icon.dart';
 
@@ -27,8 +28,10 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final locationAsync = ref.watch(currentPositionProvider);
     final eventsAsync = ref.watch(discoveredEventsProvider);
+    final rsvpIdsAsync = ref.watch(myRsvpIdsProvider);
     final showRsvps = ref.watch(rsvpFilterProvider);
 
     ref.listen(currentPositionProvider, (_, next) {
@@ -53,13 +56,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           );
 
           final markers = <Marker>{};
-          markers.add(
-            Marker(
-              markerId: const MarkerId('currentLocation'),
-              position: LatLng(position.latitude, position.longitude),
-            ),
-          );
 
+          final rsvpIds = rsvpIdsAsync.asData?.value ?? {};
           eventsAsync.when(
             data: (events) {
               for (final event in events) {
@@ -67,7 +65,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                   Marker(
                     markerId: MarkerId(event.id),
                     position: LatLng(event.latitude, event.longitude),
-                    icon: markerIconForType(event.type),
+                    icon: markerIconForType(event.type, isRsvpd: rsvpIds.contains(event.id)),
                     onTap: () {
                       showModalBottomSheet(
                         context: context,
@@ -101,6 +99,18 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               ),
               Positioned(
                 top: 16,
+                right: 16,
+                child: CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  child: IconButton(
+                    icon: Icon(Icons.person, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                    onPressed: () => context.push('/account'),
+                    tooltip: 'Account',
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 16,
                 left: 0,
                 right: 0,
                 child: Center(
@@ -122,6 +132,16 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                       ref.read(rsvpFilterProvider.notifier).state = selected.first;
                     },
                   ),
+                ),
+              ),
+              Positioned(
+                top: 16,
+                right: 16,
+                child: IconButton(
+                  icon: Icon(Icons.chat_bubble_outline,
+                      color: theme.colorScheme.primary),
+                  tooltip: 'Feedback',
+                  onPressed: () => _showFeedbackDialog(context),
                 ),
               ),
             ],
@@ -160,6 +180,43 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showFeedbackDialog(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Send Feedback'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLines: 4,
+          decoration: const InputDecoration(
+            hintText: 'Share your thoughts, suggestions, or report an issue...',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final message = controller.text.trim();
+              if (message.isEmpty) return;
+              ref.read(feedbackProvider.notifier).submit(message);
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Thanks for your feedback!')),
+              );
+            },
+            child: const Text('Send'),
+          ),
+        ],
       ),
     );
   }

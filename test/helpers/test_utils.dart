@@ -127,6 +127,12 @@ class FakeRsvpRepository implements RsvpRepository {
   bool shouldFail = false;
 
   @override
+  Future<Set<String>> fetchMyRsvpIds() async {
+    if (shouldFail) throw Exception('Fetch failed');
+    return rsvpEvents;
+  }
+
+  @override
   Future<void> rsvpToEvent(String eventId) async {
     if (shouldFail) throw Exception('RSVP failed');
     rsvpEvents.add(eventId);
