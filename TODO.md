@@ -26,9 +26,12 @@
 - [x] **RSVP flow** — "Join Pack" / "Cancel RSVP" buttons with trial/founder stubbed, SnackBar feedback on errors
 - [x] **GatheringDetailsScreen** — full screen with event info, host card, amenities, what-to-bring, attendance count, RSVP actions
 
-### User screen (`lib/features/user/`)
-- [ ] **Avatar button** — circular user photo on the Field Map (top-left) as entry point
-- [ ] **Profile screen** — displays user's name and their registered dog(s)
+### Account screen (`lib/features/account/`)
+- [x] **Avatar button** — circular user photo on the Field Map (top-left) as entry point, routes to `/account`
+- [x] **Profile screen** — displays user's name, dog info, trial counter, Founding Pack badge
+- [x] **Trial limit enforcement** — 3-free-RSVP lifetime limit with sheet
+- [x] **Founding Pack eligibility** — detect 60-day launch-window registration
+- [x] **Upgrade screen** — premium subscription gate when trial exhausted
 - [ ] **Suspend account** — hides the user everywhere (events, attendance, discoverability) without deleting data; must re-enable to use the app (no ghost usage)
 - [ ] **Delete account** — fully removes all data, confirmation sent via email
 
@@ -65,12 +68,8 @@
 ## Second phase
 
 ### Account (`lib/features/account/`)
-- [ ] **Trial RSVP counter** — track and enforce the 3-free-RSVP lifetime trial limit
-- [ ] **Subscription upgrade** — premium subscription gate when trial exhausted
-- [ ] **Founding Pack eligibility** — detect 60-day launch-window registration
 - [ ] **Founding Pack activity lock** — require 3 verified attendances within 60 days to unlock
 - [ ] **Geographic waiver** — waive fees for Founding Pack members attending events in their founding city
-- [x] Screens: `UpgradeScreen`, `FoundingPackBadge`, `TrialLimitSheet`
 
 ### Verification Loop (`lib/features/verification_loop/`)
 - [ ] **Hardening** — anti-collusion checks, dispute process, no-show penalties (post-v1)
