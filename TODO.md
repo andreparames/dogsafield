@@ -8,17 +8,17 @@
 - [x] **Auth integration** — wire real OAuth (Google/Apple) through Supabase
 - [x] **Onboarding submission** — connect final "Complete Profile" button to backend API
 - [x] **Environment config** — `.env` file for SUPABASE_URL, SUPABASE_PUB_KEY
-- [x] **CI / tests** — GitHub Actions workflow, 48 unit/widget tests passing
+- [x] **CI / tests** — GitHub Actions workflow, 94 unit/widget tests passing
 - [x] **Skip onboarding** — returning users with existing profiles skip onboarding and go to the map
 
 ### Field Map (`lib/features/field_map/`)
 - [x] **Map view** — Google Maps integration with user location marker
 - [x] **Event discovery** — fetched nearby events + My RSVPs toggle, map markers colored by EventType, bottom sheet on tap, gathering detail stub screen
 - [ ] **Hub Parks** — designated parks shown during city launch periods
-- [ ] **Gathering detail** — view host info, amenity tags, What to Bring checklist
-- [ ] **Attendee profiles** — browse RSVP list, read icebreaker stories
-- [ ] **RSVP flow** — "Join Pack" button with trial/founder evaluation against event location
-- [ ] Screens: `MapHubScreen`, `GatheringDetailsScreen`
+- [x] **Gathering detail** — view host info, amenity tags, What to Bring checklist, loading/error/retry states
+- [x] **Attendee profiles** — browse RSVP list, read icebreaker stories
+- [x] **RSVP flow** — "Join Pack" / "Cancel RSVP" buttons with trial/founder stubbed, SnackBar feedback on errors
+- [x] **GatheringDetailsScreen** — full screen with event info, host card, amenities, what-to-bring, attendance count, RSVP actions
 
 ### Hosting (`lib/features/hosting/`)
 - [x] **CreateEventScreen** — form with template (Dog Picnic/Pack Walk/Field Games), title, description, location, date/time picker, max attendees, what-to-bring checklist

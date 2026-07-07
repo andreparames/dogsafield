@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dogsafield/features/field_map/data/attendee_profile.dart';
 import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
 import 'package:dogsafield/features/field_map/presentation/gathering_details_screen.dart';
 import 'package:dogsafield/features/field_map/state/gathering_providers.dart';
@@ -51,7 +52,6 @@ void main() {
           maxAttendees: 20,
           amenityTags: ['Heavy Shade'],
           whatToBring: ['Water', 'Leash'],
-          attendeeIds: ['a', 'b', 'c'],
         ),
         host: UserProfile(
           id: 'host-1',
@@ -179,7 +179,7 @@ void main() {
       expect(find.text('Treats'), findsOneWidget);
     });
 
-    testWidgets('displays attendance count', (tester) async {
+    testWidgets('displays attendance count and attendee names', (tester) async {
       gatheringRepo.detail = GatheringDetail(
         event: DogEvent(
           id: 'evt-1',
@@ -191,15 +191,65 @@ void main() {
           longitude: -9.1,
           dateTime: DateTime(2026, 7, 10, 15, 0),
           maxAttendees: 20,
-          attendeeIds: ['u1', 'u2', 'u3'],
         ),
         host: UserProfile(id: 'host-1', email: 'host@test.com'),
+        attendees: [
+          AttendeeProfile(
+            profile: UserProfile(id: 'u1', email: 'u1@test.com', displayName: 'Alice'),
+          ),
+          AttendeeProfile(
+            profile: UserProfile(id: 'u2', email: 'u2@test.com', displayName: 'Bob'),
+          ),
+          AttendeeProfile(
+            profile: UserProfile(id: 'u3', email: 'u3@test.com', displayName: 'Carol'),
+          ),
+        ],
       );
 
       await tester.pumpWidget(buildScreen('evt-1'));
       await tester.pumpAndSettle();
 
       expect(find.text('3 / 20 attending'), findsOneWidget);
+      expect(find.text('Alice'), findsOneWidget);
+      expect(find.text('Bob'), findsOneWidget);
+      expect(find.text('Carol'), findsOneWidget);
+    });
+
+    testWidgets('displays attendee dog info and icebreaker answers', (tester) async {
+      gatheringRepo.detail = GatheringDetail(
+        event: DogEvent(
+          id: 'evt-1',
+          hostId: 'host-1',
+          type: EventType.packWalk,
+          title: 'Walk',
+          locationName: 'Park',
+          latitude: 38.7,
+          longitude: -9.1,
+          dateTime: DateTime(2026, 7, 10, 15, 0),
+          maxAttendees: 20,
+        ),
+        host: UserProfile(id: 'host-1', email: 'host@test.com'),
+        attendees: [
+          AttendeeProfile(
+            profile: UserProfile(id: 'u1', email: 'u1@test.com', displayName: 'Dave'),
+            dog: Dog(
+              id: 'dog-1',
+              name: 'Rex',
+              breed: 'German Shepherd',
+              vibe: SocialVibe.zoomieKing,
+              icebreakerAnswer: 'Loves to fetch sticks!',
+            ),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(buildScreen('evt-1'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Dave'), findsOneWidget);
+      expect(find.textContaining('Rex'), findsOneWidget);
+      expect(find.textContaining('German Shepherd'), findsOneWidget);
+      expect(find.textContaining('Loves to fetch sticks!'), findsOneWidget);
     });
 
     testWidgets('shows error UI on failure', (tester) async {
