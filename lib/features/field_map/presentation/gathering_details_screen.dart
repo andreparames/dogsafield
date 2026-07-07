@@ -228,12 +228,15 @@ class _HostCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundImage: host.photoUrl != null
-                  ? NetworkImage(host.photoUrl!)
-                  : null,
-              child: host.photoUrl == null
-                  ? Icon(Icons.person, size: 28)
-                  : null,
+              child: host.photoUrl != null
+                  ? Image.network(
+                      host.photoUrl!,
+                      width: 56,
+                      height: 56,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 28),
+                    )
+                  : const Icon(Icons.person, size: 28),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -302,12 +305,15 @@ class _AttendeeCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 24,
-              backgroundImage: profile.photoUrl != null
-                  ? NetworkImage(profile.photoUrl!)
-                  : null,
-              child: profile.photoUrl == null
-                  ? Icon(Icons.person, size: 24)
-                  : null,
+              child: profile.photoUrl != null
+                  ? Image.network(
+                      profile.photoUrl!,
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 24),
+                    )
+                  : const Icon(Icons.person, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -394,10 +400,17 @@ class _JoinPackSection extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => FilledButton.icon(
-        onPressed: () => ref.read(rsvpActionProvider(event.id).notifier).joinPack(),
-        icon: const Icon(Icons.group_add),
-        label: const Text('Join Pack'),
+      error: (err, _) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Could not load RSVP status', style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => ref.invalidate(hasRsvpProvider(event.id)),
+            icon: const Icon(Icons.refresh, size: 18),
+            label: const Text('Retry'),
+          ),
+        ],
       ),
     );
   }
