@@ -80,6 +80,8 @@ class _AccountContent extends StatelessWidget {
             _SafetySection(profile: profile),
           ],
           const SizedBox(height: 32),
+          _AccountActions(),
+          const SizedBox(height: 24),
           _SignOutButton(),
         ],
       ),
@@ -353,6 +355,155 @@ class _SafetySection extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _AccountActions extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final actionState = ref.watch(accountActionProvider);
+
+    ref.listen<AccountActionState>(accountActionProvider, (prev, next) {
+      if (next is AccountActionError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.message)),
+        );
+      }
+      if (next is AccountActionSuccess) {
+        ref.read(onboardingProvider.notifier).reset();
+      }
+    });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Danger Zone', style: theme.textTheme.titleSmall?.copyWith(
+          color: theme.colorScheme.error,
+        )),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: actionState is AccountActionLoading
+                ? null
+                : () => _showSuspendDialog(context, ref),
+            icon: const Icon(Icons.pause_circle_outline),
+            label: const Text('Suspend Account'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: theme.colorScheme.error,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: actionState is AccountActionLoading
+                ? null
+                : () => _showDeleteDialog(context, ref),
+            icon: const Icon(Icons.delete_forever),
+            label: const Text('Delete Account'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: theme.colorScheme.error,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showSuspendDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Suspend Account'),
+        content: const Text(
+          'Your profile will be hidden from other users. '
+          'You can reactivate at any time by signing in.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ref.read(accountActionProvider.notifier).suspendAccount();
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Suspend'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context, WidgetRef ref) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) {
+            controller.dispose();
+            Navigator.pop(ctx);
+          }
+        },
+        child: AlertDialog(
+          title: const Text('Delete Account'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'This permanently removes all your data. '
+                'This action cannot be undone.',
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Type DELETE to confirm',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                controller.dispose();
+                Navigator.pop(ctx);
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                if (controller.text.trim() != 'DELETE') {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Type DELETE to confirm')),
+                  );
+                  return;
+                }
+                controller.dispose();
+                Navigator.pop(ctx);
+                ref.read(accountActionProvider.notifier).deleteAccount();
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Delete Forever'),
+          ),
+        ],
+      ),
       ),
     );
   }

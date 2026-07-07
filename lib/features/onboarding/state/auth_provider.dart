@@ -7,6 +7,7 @@ import '../data/onboarding_repository.dart';
 import 'onboarding_state.dart';
 
 final authRefreshNotifier = ValueNotifier(0);
+final suspendedNotifier = ValueNotifier(false);
 
 final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(Supabase.instance.client);
@@ -39,6 +40,11 @@ Future<void> _checkExistingProfile(Ref ref) async {
   try {
     final existing = await repo.fetchProfile(user.id);
     if (existing == null) return;
+    if (existing.isSuspended) {
+      suspendedNotifier.value = true;
+      authRefreshNotifier.value++;
+      return;
+    }
     final notifier = ref.read(onboardingProvider.notifier);
     notifier.setUserProfile(existing);
     notifier.setStep(OnboardingStep.complete);

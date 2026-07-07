@@ -32,8 +32,8 @@
 - [x] **Trial limit enforcement** — 3-free-RSVP lifetime limit with sheet
 - [x] **Founding Pack eligibility** — detect 60-day launch-window registration
 - [x] **Upgrade screen** — premium subscription gate when trial exhausted
-- [ ] **Suspend account** — hides the user everywhere (events, attendance, discoverability) without deleting data; must re-enable to use the app (no ghost usage)
-- [ ] **Delete account** — fully removes all data, confirmation sent via email
+- [x] **Suspend account** — hides the user everywhere (events, attendance, discoverability) without deleting data; must re-enable to use the app (no ghost usage)
+- [x] **Delete account** — fully removes all data via `delete_my_account()` RPC; confirmation dialog with "type DELETE" gate
 
 ### Info screens
 - [ ] **Field intro screen** — first time accessing the Field, show an illustrated explainer of how it works

@@ -28,6 +28,35 @@ class AccountRepository {
     return _rowToDog(response.first);
   }
 
+  Future<void> suspendAccount() async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+    await _client
+        .from('profiles')
+        .update({'is_suspended': true})
+        .eq('id', user.id);
+    await _client.auth.signOut();
+  }
+
+  Future<void> reactivateAccount() async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+    await _client
+        .from('profiles')
+        .update({'is_suspended': false})
+        .eq('id', user.id);
+  }
+
+  Future<void> deleteAccount() async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+    await _client.rpc('delete_my_account');
+    try {
+      await _client.auth.signOut();
+    } catch (_) {
+    }
+  }
+
   UserProfile _rowToProfile(Map<String, dynamic> row) {
     return UserProfile(
       id: row['id'] as String,
@@ -37,6 +66,7 @@ class AccountRepository {
       isVerified: row['is_verified'] as bool? ?? false,
       trialRsvpsUsed: row['trial_rsvps_used'] as int? ?? 0,
       isFoundingPack: row['is_founding_pack'] as bool? ?? false,
+      isSuspended: row['is_suspended'] as bool? ?? false,
       treatPolicy: row['treat_policy'] != null
           ? TreatPolicy.values.firstWhere((e) => e.name == row['treat_policy'])
           : null,
