@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:dogsafield/features/field_map/data/field_map_repository.dart';
 import 'package:dogsafield/features/hosting/data/hosting_repository.dart';
 import 'package:dogsafield/features/onboarding/data/auth_service.dart';
 import 'package:dogsafield/features/onboarding/data/onboarding_repository.dart';
@@ -81,6 +82,28 @@ class FakeHostingRepository implements HostingRepository {
   @override
   Future<List<DogEvent>> fetchMyEvents() async {
     return [];
+  }
+}
+
+class FakeFieldMapRepository implements FieldMapRepository {
+  List<DogEvent> nearbyEvents = [];
+  List<DogEvent> rsvpEvents = [];
+  bool shouldFail = false;
+
+  @override
+  Future<List<DogEvent>> fetchEventsNearby({
+    required double latitude,
+    required double longitude,
+    double radiusKm = 50,
+  }) async {
+    if (shouldFail) throw Exception('Fetch failed');
+    return nearbyEvents;
+  }
+
+  @override
+  Future<List<DogEvent>> fetchMyRsvps() async {
+    if (shouldFail) throw Exception('Fetch failed');
+    return rsvpEvents;
   }
 }
 

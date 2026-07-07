@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../core/services/location_provider.dart';
 import '../../../core/services/location_service.dart';
+import '../state/field_map_providers.dart';
+import 'event_bottom_sheet.dart';
+import 'event_marker_icon.dart';
 
 class FieldMapScreen extends ConsumerStatefulWidget {
   const FieldMapScreen({super.key});
@@ -25,6 +28,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   @override
   Widget build(BuildContext context) {
     final locationAsync = ref.watch(currentPositionProvider);
+    final eventsAsync = ref.watch(discoveredEventsProvider);
+    final showRsvps = ref.watch(rsvpFilterProvider);
 
     ref.listen(currentPositionProvider, (_, next) {
       next.whenData((position) {
@@ -46,17 +51,71 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
             target: LatLng(position.latitude, position.longitude),
             zoom: 15,
           );
-          return GoogleMap(
-            initialCameraPosition: cameraPosition,
-            onMapCreated: (controller) => _mapController = controller,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-            markers: {
-              Marker(
-                markerId: const MarkerId('currentLocation'),
-                position: LatLng(position.latitude, position.longitude),
+
+          final markers = <Marker>{};
+          markers.add(
+            Marker(
+              markerId: const MarkerId('currentLocation'),
+              position: LatLng(position.latitude, position.longitude),
+            ),
+          );
+
+          eventsAsync.whenData((events) {
+            for (final event in events) {
+              markers.add(
+                Marker(
+                  markerId: MarkerId(event.id),
+                  position: LatLng(event.latitude, event.longitude),
+                  icon: markerIconForType(event.type),
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (_) => EventBottomSheet(
+                        event: event,
+                        showRsvpAction: showRsvps,
+                      ),
+                    );
+                  },
+                ),
+              );
+            }
+          });
+
+          return Stack(
+            children: [
+              GoogleMap(
+                initialCameraPosition: cameraPosition,
+                onMapCreated: (controller) => _mapController = controller,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+                markers: markers,
               ),
-            },
+              Positioned(
+                top: 16,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: SegmentedButton<bool>(
+                    segments: const [
+                      ButtonSegment(
+                        value: false,
+                        label: Text('Nearby'),
+                        icon: Icon(Icons.map),
+                      ),
+                      ButtonSegment(
+                        value: true,
+                        label: Text('My RSVPs'),
+                        icon: Icon(Icons.bookmark),
+                      ),
+                    ],
+                    selected: {showRsvps},
+                    onSelectionChanged: (selected) {
+                      ref.read(rsvpFilterProvider.notifier).state = selected.first;
+                    },
+                  ),
+                ),
+              ),
+            ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
