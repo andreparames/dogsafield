@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'presentation/create_event_screen.dart';
 import 'presentation/location_picker_screen.dart';
