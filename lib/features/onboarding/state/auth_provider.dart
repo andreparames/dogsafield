@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/auth_service.dart';
 import '../data/onboarding_repository.dart';
 import 'onboarding_state.dart';
+
+final authRefreshNotifier = ValueNotifier(0);
 
 final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(Supabase.instance.client);
@@ -29,6 +32,21 @@ void _initFromUser(Ref ref, User user) {
   );
 }
 
+Future<void> _checkExistingProfile(Ref ref) async {
+  final user = ref.read(authServiceProvider).currentUser;
+  if (user == null) return;
+  final repo = ref.read(onboardingRepositoryProvider);
+  try {
+    final existing = await repo.fetchProfile(user.id);
+    if (existing == null) return;
+    final notifier = ref.read(onboardingProvider.notifier);
+    notifier.setUserProfile(existing);
+    notifier.setStep(OnboardingStep.complete);
+    authRefreshNotifier.value++;
+  } catch (_) {
+  }
+}
+
 final onboardingAutoInitProvider = Provider<void>((ref) {
   final auth = ref.read(authServiceProvider);
 
@@ -49,5 +67,6 @@ final onboardingAutoInitProvider = Provider<void>((ref) {
   Timer.run(() {
     if (disposed) return;
     _initFromUser(ref, user);
+    _checkExistingProfile(ref);
   });
 });

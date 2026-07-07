@@ -40,6 +40,7 @@ class FakeAuthService extends AuthService {
 class FakeOnboardingRepository implements OnboardingRepository {
   bool shouldFail = false;
   int uploadCallCount = 0;
+  UserProfile? existingProfile;
 
   @override
   Future<String> uploadPhoto(String path) async {
@@ -47,6 +48,9 @@ class FakeOnboardingRepository implements OnboardingRepository {
     if (shouldFail) throw Exception('Upload failed');
     return 'https://example.com/uploaded.jpg';
   }
+
+  @override
+  Future<UserProfile?> fetchProfile(String id) async => existingProfile;
 
   @override
   Future<UserProfile> createProfile(UserProfile profile) async {

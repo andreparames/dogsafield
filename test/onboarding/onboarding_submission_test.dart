@@ -175,11 +175,11 @@ void main() {
           final location = state.uri.toString();
 
           if (!authed && location != '/onboarding/welcome') return '/onboarding/welcome';
-          if (authed && location == '/onboarding/welcome') {
+          if (authed) {
             container.read(onboardingAutoInitProvider);
             final onboarding = container.read(onboardingProvider);
             if (onboarding.step == OnboardingStep.complete) return '/';
-            return '/onboarding/photo';
+            if (location == '/onboarding/welcome') return '/onboarding/photo';
           }
           return null;
         },
@@ -202,6 +202,76 @@ void main() {
 
       expect(container.read(onboardingProvider).userProfile, isNotNull);
       expect(container.read(onboardingProvider).userProfile!.id, 'test-uuid');
+    });
+
+    testWidgets('sets step to complete when existing profile found in DB',
+        (WidgetTester tester) async {
+      addTearDown(() => fakeOnboardingRepository.existingProfile = null);
+      fakeOnboardingRepository.existingProfile = UserProfile(
+        id: 'existing-uuid',
+        email: 'existing@test.com',
+        displayName: 'Existing User',
+      );
+
+      final authService = FakeAuthService();
+      authService.setAuthenticated(
+        value: true,
+        user: User(
+          id: 'existing-uuid',
+          appMetadata: {},
+          userMetadata: null,
+          aud: 'authenticated',
+          createdAt: DateTime.now().toIso8601String(),
+        ),
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          authServiceProvider.overrideWithValue(authService),
+          authStateProvider.overrideWith((ref) => Stream.empty()),
+          onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final router = GoRouter(
+        refreshListenable: authRefreshNotifier,
+        initialLocation: '/onboarding/welcome',
+        redirect: (context, state) {
+          final container = ProviderScope.containerOf(context);
+          final auth = container.read(authServiceProvider);
+          final authed = auth.isAuthenticated;
+          final location = state.uri.toString();
+
+          if (!authed && location != '/onboarding/welcome') return '/onboarding/welcome';
+          if (authed) {
+            container.read(onboardingAutoInitProvider);
+            final onboarding = container.read(onboardingProvider);
+            if (onboarding.step == OnboardingStep.complete) return '/';
+            if (location == '/onboarding/welcome') return '/onboarding/photo';
+          }
+          return null;
+        },
+        routes: [
+          GoRoute(path: '/onboarding/welcome', builder: (_, __) => const SizedBox()),
+          GoRoute(path: '/onboarding/photo', builder: (_, __) => const SizedBox()),
+          GoRoute(path: '/', builder: (_, __) => const Scaffold(body: Text('Home'))),
+        ],
+      );
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
+
+      await tester.pump(); // Timer.run fires -> _checkExistingProfile -> bumps authRefreshNotifier
+      await tester.pump(); // redirect re-evaluates -> step=complete -> route to /
+      await tester.pumpAndSettle();
+
+      expect(container.read(onboardingProvider).step, OnboardingStep.complete);
+      expect(router.state.matchedLocation, '/');
     });
   });
 }
