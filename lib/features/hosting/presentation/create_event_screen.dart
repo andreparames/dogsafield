@@ -3,11 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/models/event.dart';
 import '../state/hosting_provider.dart';
+import 'location_picker_screen.dart';
 
 const _bringOptions = ['Long line leash', 'Human lunch', 'Dog treats', 'Water bowl', 'Poop bags', 'Towel', 'Frisbee', 'Tennis balls'];
 
 class CreateEventScreen extends ConsumerStatefulWidget {
-  const CreateEventScreen({super.key});
+  final double initialLatitude;
+  final double initialLongitude;
+
+  const CreateEventScreen({super.key, this.initialLatitude = 0, this.initialLongitude = 0});
 
   @override
   ConsumerState<CreateEventScreen> createState() => _CreateEventScreenState();
@@ -17,8 +21,10 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
-  final _locationCtrl = TextEditingController();
+  final _locationNameCtrl = TextEditingController();
   EventType? _type;
+  double? _latitude;
+  double? _longitude;
   DateTime _dateTime = DateTime.now().add(const Duration(days: 1));
   TimeOfDay _time = const TimeOfDay(hour: 10, minute: 0);
   int _maxAttendees = 20;
@@ -26,10 +32,19 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   bool _isSubmitting = false;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initialLatitude != 0 || widget.initialLongitude != 0) {
+      _latitude = widget.initialLatitude;
+      _longitude = widget.initialLongitude;
+    }
+  }
+
+  @override
   void dispose() {
     _titleCtrl.dispose();
     _descCtrl.dispose();
-    _locationCtrl.dispose();
+    _locationNameCtrl.dispose();
     super.dispose();
   }
 
@@ -51,11 +66,31 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
     });
   }
 
+  Future<void> _pickLocation() async {
+    final result = await context.push<LocationPickerResult>(
+      '/hosting/location-picker',
+      extra: <String, double>{'lat': _latitude ?? 0, 'lng': _longitude ?? 0},
+    );
+    if (result != null) {
+      setState(() {
+        _latitude = result.latitude;
+        _longitude = result.longitude;
+        if (result.locationName != null) _locationNameCtrl.text = result.locationName!;
+      });
+    }
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_type == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select an event type.')),
+      );
+      return;
+    }
+    if (_latitude == null || _longitude == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a location on the map.')),
       );
       return;
     }
@@ -70,9 +105,9 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
         type: _type!,
         title: _titleCtrl.text.trim(),
         description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
-        locationName: _locationCtrl.text.trim(),
-        latitude: 0,
-        longitude: 0,
+        locationName: _locationNameCtrl.text.trim().isEmpty ? 'Selected Location' : _locationNameCtrl.text.trim(),
+        latitude: _latitude!,
+        longitude: _longitude!,
         dateTime: dt,
         maxAttendees: _maxAttendees,
         whatToBring: _whatToBring.toList(),
@@ -121,10 +156,14 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
               validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _locationCtrl,
-              decoration: const InputDecoration(labelText: 'Location', border: OutlineInputBorder()),
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter a location' : null,
+            InkWell(
+              onTap: _pickLocation,
+              child: InputDecorator(
+                decoration: const InputDecoration(labelText: 'Location', border: OutlineInputBorder(), suffixIcon: Icon(Icons.map)),
+                child: _latitude != null
+                    ? Text('${_latitude!.toStringAsFixed(5)}, ${_longitude!.toStringAsFixed(5)}')
+                    : Text('Tap to select on map', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+              ),
             ),
             const SizedBox(height: 16),
             TextFormField(
