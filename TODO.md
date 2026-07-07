@@ -8,7 +8,8 @@
 - [x] **Auth integration** — wire real OAuth (Google/Apple) through Supabase
 - [x] **Onboarding submission** — connect final "Complete Profile" button to backend API
 - [x] **Environment config** — `.env` file for SUPABASE_URL, SUPABASE_PUB_KEY
-- [x] **CI / tests** — GitHub Actions workflow, 44 unit/widget tests passing
+- [x] **CI / tests** — GitHub Actions workflow, 48 unit/widget tests passing
+- [x] **Skip onboarding** — returning users with existing profiles skip onboarding and go to the map
 
 ### Field Map (`lib/features/field_map/`)
 - [x] **Map view** — Google Maps integration with user location marker
@@ -23,8 +24,7 @@
 - [x] **CreateEventScreen** — form with template (Dog Picnic/Pack Walk/Field Games), title, description, location, date/time picker, max attendees, what-to-bring checklist
 - [x] **HostingRepository** — Supabase insert + fetch for events table
 - [x] **Publish to Field** — submit event to Supabase with RLS (host_id = auth.uid())
-- [ ] **Location & time picker** — select park/trail from map, assign date/time window
-- [ ] **Hub Parks** — designated parks shown during city launch periods
+- [x] **Location & time picker** — select park/trail from map, assign date/time window
 
 ### Verification Loop (`lib/features/verification_loop/`)
 - [ ] **Post-event trigger** — push notification 2 hours after gathering start
