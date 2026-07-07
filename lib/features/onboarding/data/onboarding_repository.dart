@@ -26,8 +26,8 @@ class OnboardingRepository {
       email: row['email'] as String,
       displayName: row['display_name'] as String?,
       photoUrl: row['photo_url'] as String?,
-      treatPolicy: row['treat_policy'] != null
-          ? TreatPolicy.values.firstWhere((e) => e.name == row['treat_policy'])
+      treatPolicy: (row['treat_policy'] as String?) != null
+          ? TreatPolicy.values.cast<TreatPolicy?>().firstWhere((e) => e!.name == row['treat_policy'], orElse: () => null)
           : null,
     );
   }
