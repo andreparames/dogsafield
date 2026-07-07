@@ -71,10 +71,12 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
     var lat = _latitude;
     var lng = _longitude;
     if (lat == null || lng == null) {
-      final pos = ref.read(currentPositionProvider).valueOrNull;
-      if (pos != null) {
+      try {
+        final pos = await ref.read(currentPositionProvider.future);
+        if (!mounted) return;
         lat = pos.latitude;
         lng = pos.longitude;
+      } catch (_) {
       }
     }
     final result = await context.push<LocationPickerResult>(
