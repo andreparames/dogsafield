@@ -175,7 +175,7 @@ void main() {
           final location = state.uri.toString();
 
           if (!authed && location != '/onboarding/welcome') return '/onboarding/welcome';
-          if (authed) {
+          if (authed && location.startsWith('/onboarding/')) {
             container.read(onboardingAutoInitProvider);
             final onboarding = container.read(onboardingProvider);
             if (onboarding.step == OnboardingStep.complete) return '/';
@@ -244,7 +244,7 @@ void main() {
           final location = state.uri.toString();
 
           if (!authed && location != '/onboarding/welcome') return '/onboarding/welcome';
-          if (authed) {
+          if (authed && location.startsWith('/onboarding/')) {
             container.read(onboardingAutoInitProvider);
             final onboarding = container.read(onboardingProvider);
             if (onboarding.step == OnboardingStep.complete) return '/';
