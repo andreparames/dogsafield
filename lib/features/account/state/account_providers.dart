@@ -25,3 +25,61 @@ final accountDetailProvider = FutureProvider<AccountDetail>((ref) async {
   final dog = await repo.fetchDog(user.id);
   return AccountDetail(profile: profile, dog: dog);
 });
+
+sealed class AccountActionState {
+  const AccountActionState();
+}
+
+class AccountActionIdle extends AccountActionState {
+  const AccountActionIdle();
+}
+
+class AccountActionLoading extends AccountActionState {
+  const AccountActionLoading();
+}
+
+class AccountActionSuccess extends AccountActionState {
+  const AccountActionSuccess();
+}
+
+class AccountActionError extends AccountActionState {
+  final String message;
+  const AccountActionError(this.message);
+}
+
+class AccountActionNotifier extends StateNotifier<AccountActionState> {
+  final Ref _ref;
+
+  AccountActionNotifier(this._ref) : super(const AccountActionIdle());
+
+  Future<void> suspendAccount() async {
+    if (state is AccountActionLoading) return;
+    state = const AccountActionLoading();
+    try {
+      final repo = _ref.read(accountRepositoryProvider);
+      await repo.suspendAccount();
+      state = const AccountActionSuccess();
+    } catch (e) {
+      state = AccountActionError('Failed to suspend account: $e');
+    }
+  }
+
+  Future<void> deleteAccount() async {
+    if (state is AccountActionLoading) return;
+    state = const AccountActionLoading();
+    try {
+      final repo = _ref.read(accountRepositoryProvider);
+      await repo.deleteAccount();
+      state = const AccountActionSuccess();
+    } catch (e) {
+      state = AccountActionError('Failed to delete account: $e');
+    }
+  }
+
+  void reset() => state = const AccountActionIdle();
+}
+
+final accountActionProvider =
+    StateNotifierProvider<AccountActionNotifier, AccountActionState>((ref) {
+  return AccountActionNotifier(ref);
+});

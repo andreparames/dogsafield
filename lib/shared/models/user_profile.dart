@@ -8,6 +8,7 @@ class UserProfile {
   final bool isVerified;
   final int trialRsvpsUsed;
   final bool isFoundingPack;
+  final bool isSuspended;
   final TreatPolicy? treatPolicy;
 
   const UserProfile({
@@ -18,6 +19,7 @@ class UserProfile {
     this.isVerified = false,
     this.trialRsvpsUsed = 0,
     this.isFoundingPack = false,
+    this.isSuspended = false,
     this.treatPolicy,
   });
 
@@ -27,6 +29,7 @@ class UserProfile {
     bool? isVerified,
     int? trialRsvpsUsed,
     bool? isFoundingPack,
+    bool? isSuspended,
     TreatPolicy? treatPolicy,
   }) {
     return UserProfile(
@@ -37,6 +40,7 @@ class UserProfile {
       isVerified: isVerified ?? this.isVerified,
       trialRsvpsUsed: trialRsvpsUsed ?? this.trialRsvpsUsed,
       isFoundingPack: isFoundingPack ?? this.isFoundingPack,
+      isSuspended: isSuspended ?? this.isSuspended,
       treatPolicy: treatPolicy ?? this.treatPolicy,
     );
   }

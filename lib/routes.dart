@@ -4,6 +4,7 @@ import 'features/onboarding/routes.dart';
 import 'features/onboarding/state/auth_provider.dart';
 import 'features/onboarding/state/onboarding_state.dart';
 import 'features/field_map/presentation/field_map_screen.dart';
+import 'features/account/presentation/suspend_screen.dart';
 import 'features/account/routes.dart';
 import 'features/field_map/routes.dart';
 import 'features/hosting/routes.dart';
@@ -21,6 +22,7 @@ final _appRouter = GoRouter(
     final location = state.uri.toString();
 
     if (!authed && location != '/onboarding/welcome') return '/onboarding/welcome';
+    if (suspendedNotifier.value && location != '/account/suspended') return '/account/suspended';
     if (authed && location.startsWith('/onboarding/')) {
       container.read(onboardingAutoInitProvider);
       final onboarding = container.read(onboardingProvider);
@@ -33,6 +35,10 @@ final _appRouter = GoRouter(
     GoRoute(
       path: '/',
       builder: (context, state) => const FieldMapScreen(),
+    ),
+    GoRoute(
+      path: '/account/suspended',
+      builder: (context, state) => const SuspendScreen(),
     ),
     ...onboardingRoutes,
     ...accountRoutes,
