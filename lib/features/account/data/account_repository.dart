@@ -51,6 +51,10 @@ class AccountRepository {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
     await _client.rpc('delete_my_account');
+    try {
+      await _client.auth.signOut();
+    } catch (_) {
+    }
   }
 
   UserProfile _rowToProfile(Map<String, dynamic> row) {

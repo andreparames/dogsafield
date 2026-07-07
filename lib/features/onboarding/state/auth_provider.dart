@@ -42,6 +42,7 @@ Future<void> _checkExistingProfile(Ref ref) async {
     if (existing == null) return;
     if (existing.isSuspended) {
       suspendedNotifier.value = true;
+      authRefreshNotifier.value++;
       return;
     }
     final notifier = ref.read(onboardingProvider.notifier);

@@ -60,7 +60,7 @@ class AccountActionNotifier extends StateNotifier<AccountActionState> {
       await repo.suspendAccount();
       state = const AccountActionSuccess();
     } catch (e) {
-      state = AccountActionError('Failed to suspend account: $e');
+      state = const AccountActionError('Failed to suspend account. Please try again.');
     }
   }
 
@@ -72,7 +72,7 @@ class AccountActionNotifier extends StateNotifier<AccountActionState> {
       await repo.deleteAccount();
       state = const AccountActionSuccess();
     } catch (e) {
-      state = AccountActionError('Failed to delete account: $e');
+      state = const AccountActionError('Failed to delete account. Please try again.');
     }
   }
 

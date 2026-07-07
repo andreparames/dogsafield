@@ -448,47 +448,62 @@ class _AccountActions extends ConsumerWidget {
     final controller = TextEditingController();
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Account'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'This permanently removes all your data. '
-              'This action cannot be undone.',
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              decoration: const InputDecoration(
-                hintText: 'Type DELETE to confirm',
-                border: OutlineInputBorder(),
+      barrierDismissible: false,
+      builder: (ctx) => PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) {
+            controller.dispose();
+            Navigator.pop(ctx);
+          }
+        },
+        child: AlertDialog(
+          title: const Text('Delete Account'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'This permanently removes all your data. '
+                'This action cannot be undone.',
               ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              controller.dispose();
-              Navigator.pop(ctx);
-            },
-            child: const Text('Cancel'),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Type DELETE to confirm',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () {
-              if (controller.text.trim() != 'DELETE') return;
-              controller.dispose();
-              Navigator.pop(ctx);
-              ref.read(accountActionProvider.notifier).deleteAccount();
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
+          actions: [
+            TextButton(
+              onPressed: () {
+                controller.dispose();
+                Navigator.pop(ctx);
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                if (controller.text.trim() != 'DELETE') {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Type DELETE to confirm')),
+                  );
+                  return;
+                }
+                controller.dispose();
+                Navigator.pop(ctx);
+                ref.read(accountActionProvider.notifier).deleteAccount();
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
             ),
             child: const Text('Delete Forever'),
           ),
         ],
+      ),
       ),
     );
   }
