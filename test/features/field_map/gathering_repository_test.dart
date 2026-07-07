@@ -1,10 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
-import 'package:dogsafield/features/field_map/data/gathering_repository.dart';
 import 'package:dogsafield/shared/models/dog.dart';
 import 'package:dogsafield/shared/models/event.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../helpers/test_utils.dart';
 
 void main() {

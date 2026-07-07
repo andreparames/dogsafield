@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
 import 'package:dogsafield/features/field_map/state/gathering_providers.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
-import 'package:dogsafield/shared/models/dog.dart';
 import 'package:dogsafield/shared/models/event.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
 import '../../helpers/test_utils.dart';
