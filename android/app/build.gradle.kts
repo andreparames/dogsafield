@@ -1,3 +1,6 @@
+import org.gradle.api.GradleException
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -28,6 +31,19 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        val localProps = Properties()
+        val localFile = rootProject.file("local.properties")
+        if (localFile.exists()) {
+            localProps.load(localFile.inputStream())
+        }
+        val mapsApiKey = localProps.getProperty("googleMapsApiKey")
+            ?: System.getenv("GOOGLE_MAPS_API_KEY")
+            ?: ""
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = mapsApiKey
+        if (mapsApiKey.isEmpty()) {
+            throw GradleException("GOOGLE_MAPS_API_KEY is not set. Set googleMapsApiKey in android/local.properties or pass GOOGLE_MAPS_API_KEY environment variable.")
+        }
     }
 
     buildTypes {

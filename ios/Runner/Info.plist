@@ -50,6 +50,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>GMSApiKey</key>
+	<string>$(GOOGLE_MAPS_API_KEY)</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Dogsafield needs your location to find nearby events and dog parks.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>

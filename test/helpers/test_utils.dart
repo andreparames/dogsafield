@@ -11,11 +11,19 @@ import 'package:dogsafield/shared/models/user_profile.dart';
 class FakeAuthService extends AuthService {
   FakeAuthService() : super.test();
 
-  @override
-  User? get currentUser => null;
+  bool _isAuthenticatedOverride = false;
+  User? _currentUserOverride;
+
+  void setAuthenticated({required bool value, User? user}) {
+    _isAuthenticatedOverride = value;
+    _currentUserOverride = user;
+  }
 
   @override
-  bool get isAuthenticated => false;
+  User? get currentUser => _currentUserOverride;
+
+  @override
+  bool get isAuthenticated => _isAuthenticatedOverride;
 
   @override
   Future<void> signInWithApple() async {}

@@ -87,7 +87,7 @@ void main() {
     container.read(onboardingProvider.notifier).setDog(
       Dog(id: 'd1', name: 'Buddy'),
     );
-    container.read(onboardingProvider.notifier).setPhotoUrl('/tmp/photo.png');
+    container.read(onboardingProvider.notifier).setLocalPhotoPath('/tmp/photo.png');
     addTearDown(container.dispose);
 
     final router = GoRouter(

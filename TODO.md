@@ -4,14 +4,14 @@
 
 ### Core & Cross-cutting
 - [x] **Geolocation service** — background/foreground location permission & tracking
-- [ ] **Supabase schema** — create tables (cities, profiles, dogs, events, attendance, connections, blocks)
+- [x] **Supabase schema** — create tables (cities, profiles, dogs, events, attendance, connections, blocks)
 - [x] **Auth integration** — wire real OAuth (Google/Apple) through Supabase
-- [ ] **Onboarding submission** — connect final "Complete Profile" button to backend API
-- [ ] **Environment config** — `.env` file for SUPABASE_URL, SUPABASE_PUB_KEY
-- [x] **CI / tests** — GitHub Actions workflow, 34 unit/widget tests passing
+- [x] **Onboarding submission** — connect final "Complete Profile" button to backend API
+- [x] **Environment config** — `.env` file for SUPABASE_URL, SUPABASE_PUB_KEY
+- [x] **CI / tests** — GitHub Actions workflow, 44 unit/widget tests passing
 
 ### Field Map (`lib/features/field_map/`)
-- [ ] **Map view** — Google Maps integration with active event markers
+- [x] **Map view** — Google Maps integration with user location marker
 - [ ] **Event discovery** — fetch/filter events by location, type, and date
 - [ ] **Hub Parks** — designated parks shown during city launch periods
 - [ ] **Gathering detail** — view host info, amenity tags, What to Bring checklist
