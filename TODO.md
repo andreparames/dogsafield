@@ -13,7 +13,7 @@
 
 ### Field Map (`lib/features/field_map/`)
 - [x] **Map view** — Google Maps integration with user location marker
-- [ ] **Event discovery** — fetch/filter events by location, type, and date
+- [x] **Event discovery** — fetched nearby events + My RSVPs toggle, map markers colored by EventType, bottom sheet on tap, gathering detail stub screen
 - [ ] **Hub Parks** — designated parks shown during city launch periods
 - [ ] **Gathering detail** — view host info, amenity tags, What to Bring checklist
 - [ ] **Attendee profiles** — browse RSVP list, read icebreaker stories
