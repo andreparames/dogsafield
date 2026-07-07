@@ -5,6 +5,19 @@ class RsvpRepository {
 
   RsvpRepository(this._client);
 
+  Future<Set<String>> fetchMyRsvpIds() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return {};
+
+    final rows = await _client
+        .from('attendance')
+        .select('event_id')
+        .eq('user_id', user.id)
+        .eq('status', 'confirmed');
+
+    return rows.map((r) => r['event_id'] as String).toSet();
+  }
+
   Future<void> rsvpToEvent(String eventId) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');

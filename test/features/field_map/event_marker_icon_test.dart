@@ -31,4 +31,22 @@ void main() {
       expect(eventTypeIcon(EventType.fieldGames), Icons.sports);
     });
   });
+
+  group('markerIconForType', () {
+    test('returns non-null descriptor for each event type', () {
+      expect(markerIconForType(EventType.packWalk), isNotNull);
+      expect(markerIconForType(EventType.dogPicnic), isNotNull);
+      expect(markerIconForType(EventType.fieldGames), isNotNull);
+    });
+
+    test('returns non-null descriptor with isRsvpd true', () {
+      final icon = markerIconForType(EventType.packWalk, isRsvpd: true);
+      expect(icon, isNotNull);
+    });
+
+    test('returns non-null descriptor for RSVPd events of any type', () {
+      expect(markerIconForType(EventType.dogPicnic, isRsvpd: true), isNotNull);
+      expect(markerIconForType(EventType.fieldGames, isRsvpd: true), isNotNull);
+    });
+  });
 }

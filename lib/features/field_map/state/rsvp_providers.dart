@@ -6,6 +6,11 @@ final rsvpRepositoryProvider = Provider<RsvpRepository>((ref) {
   return RsvpRepository(Supabase.instance.client);
 });
 
+final myRsvpIdsProvider = FutureProvider<Set<String>>((ref) async {
+  final repo = ref.watch(rsvpRepositoryProvider);
+  return repo.fetchMyRsvpIds();
+});
+
 final hasRsvpProvider = FutureProvider.family<bool, String>((ref, eventId) async {
   final repo = ref.watch(rsvpRepositoryProvider);
   return repo.hasRsvp(eventId);
@@ -47,6 +52,7 @@ class RsvpActionNotifier extends StateNotifier<RsvpActionState> {
       await repo.rsvpToEvent(_eventId);
       state = const RsvpActionSuccess();
       _ref.invalidate(hasRsvpProvider(_eventId));
+      _ref.invalidate(myRsvpIdsProvider);
     } catch (e) {
       state = RsvpActionError('Failed to RSVP: $e');
     }
@@ -60,6 +66,7 @@ class RsvpActionNotifier extends StateNotifier<RsvpActionState> {
       await repo.cancelRsvp(_eventId);
       state = const RsvpActionSuccess();
       _ref.invalidate(hasRsvpProvider(_eventId));
+      _ref.invalidate(myRsvpIdsProvider);
     } catch (e) {
       state = RsvpActionError('Failed to cancel RSVP: $e');
     }

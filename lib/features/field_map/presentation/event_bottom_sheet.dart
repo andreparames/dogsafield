@@ -19,126 +19,120 @@ class EventBottomSheet extends StatelessWidget {
     final dateStr = '${event.dateTime.month}/${event.dateTime.day}/${event.dateTime.year} '
         '${event.dateTime.hour.toString().padLeft(2, '0')}:${event.dateTime.minute.toString().padLeft(2, '0')}';
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.35,
-      minChildSize: 0.2,
-      maxChildSize: 0.6,
-      expand: false,
-      builder: (context, scrollController) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-          child: ListView(
-            controller: scrollController,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.onSurfaceVariant.withAlpha(80),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
             children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurfaceVariant.withAlpha(80),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Icon(eventTypeIcon(event.type),
-                      color: theme.colorScheme.primary, size: 28),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(event.title,
-                        style: theme.textTheme.titleLarge),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.label,
-                      size: 16, color: theme.colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 6),
-                  Text(eventTypeLabel(event.type),
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      )),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.calendar_today,
-                      size: 16, color: theme.colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 6),
-                  Text(dateStr,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      )),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.location_on,
-                      size: 16, color: theme.colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(event.locationName,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        )),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () => context.push('/field/gathering/${event.id}'),
-                child: const Text('View Details'),
-              ),
-              if (showRsvpAction) ...[
-                const SizedBox(height: 8),
-                OutlinedButton(
-                  onPressed: () {
-                    final messenger = ScaffoldMessenger.of(context);
-                    Navigator.pop(context);
-                    messenger.showSnackBar(
-                      const SnackBar(content: Text('Cancel RSVP — coming soon')),
-                    );
-                  },
-                  child: const Text('Cancel RSVP'),
-                ),
-              ],
-              if (event.amenityTags.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: event.amenityTags.map((tag) {
-                    return Chip(
-                      label: Text(tag,
-                          style: theme.textTheme.labelSmall),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity.compact,
-                    );
-                  }).toList(),
-                ),
-              ],
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.people,
-                      size: 16, color: theme.colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 6),
-                  Text('${event.attendeeIds.length} / ${event.maxAttendees}',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      )),
-                ],
+              Icon(eventTypeIcon(event.type),
+                  color: theme.colorScheme.primary, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(event.title,
+                    style: theme.textTheme.titleLarge),
               ),
             ],
           ),
-        );
-      },
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.label,
+                  size: 16, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(width: 6),
+              Text(eventTypeLabel(event.type),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  )),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.calendar_today,
+                  size: 16, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(width: 6),
+              Text(dateStr,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  )),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.location_on,
+                  size: 16, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(event.locationName,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    )),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: () => context.push('/field/gathering/${event.id}'),
+            child: const Text('View Details'),
+          ),
+          if (showRsvpAction) ...[
+            const SizedBox(height: 8),
+            OutlinedButton(
+              onPressed: () {
+                final messenger = ScaffoldMessenger.of(context);
+                Navigator.pop(context);
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('Cancel RSVP — coming soon')),
+                );
+              },
+              child: const Text('Cancel RSVP'),
+            ),
+          ],
+          if (event.amenityTags.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: event.amenityTags.map((tag) {
+                return Chip(
+                  label: Text(tag,
+                      style: theme.textTheme.labelSmall),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                );
+              }).toList(),
+            ),
+          ],
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.people,
+                  size: 16, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(width: 6),
+              Text('${event.attendeeIds.length} / ${event.maxAttendees}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  )),
+            ],
+          ),
+        ],
+      ),
+      ),
     );
   }
 }

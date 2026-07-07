@@ -78,9 +78,6 @@ void main() {
         ),
       );
 
-      await tester.drag(find.byType(ListView), const Offset(0, -200));
-      await tester.pumpAndSettle();
-
       expect(find.text('3 / 20'), findsOneWidget);
     });
 
@@ -95,9 +92,6 @@ void main() {
           ),
         ),
       );
-
-      await tester.drag(find.byType(ListView), const Offset(0, -200));
-      await tester.pumpAndSettle();
 
       expect(find.text('Heavy Shade'), findsOneWidget);
       expect(find.text('Fenced Area'), findsOneWidget);
@@ -144,9 +138,6 @@ void main() {
           ),
         ),
       );
-
-      await tester.drag(find.byType(ListView), const Offset(0, -100));
-      await tester.pumpAndSettle();
 
       expect(find.text('Cancel RSVP'), findsOneWidget);
     });
