@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../core/services/location_provider.dart';
 import '../../../core/services/location_service.dart';
@@ -34,6 +35,11 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     });
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/hosting/create'),
+        tooltip: 'Create Event',
+        child: const Icon(Icons.add),
+      ),
       body: locationAsync.when(
         data: (position) {
           final cameraPosition = CameraPosition(
