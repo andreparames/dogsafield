@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/dog.dart';
 import '../../../shared/models/event.dart';
 import '../../../shared/models/user_profile.dart';
+import 'attendee_profile.dart';
 import 'gathering_detail.dart';
 
 class GatheringRepository {
@@ -13,7 +14,13 @@ class GatheringRepository {
     final event = await _fetchEvent(eventId);
     final host = await _fetchProfile(event.hostId);
     final hostDog = await _fetchDog(event.hostId);
-    return GatheringDetail(event: event, host: host, hostDog: hostDog);
+    final attendees = await _fetchAttendees(eventId);
+    return GatheringDetail(
+      event: event,
+      host: host,
+      hostDog: hostDog,
+      attendees: attendees,
+    );
   }
 
   Future<DogEvent> _fetchEvent(String id) async {
@@ -45,6 +52,42 @@ class GatheringRepository {
 
     if (response.isEmpty) return null;
     return _rowToDog(response.first);
+  }
+
+  Future<List<AttendeeProfile>> _fetchAttendees(String eventId) async {
+    final attendanceRows = await _client
+        .from('attendance')
+        .select('user_id')
+        .eq('event_id', eventId)
+        .eq('status', 'confirmed');
+
+    if (attendanceRows.isEmpty) return [];
+
+    final userIds = attendanceRows.map((r) => r['user_id'] as String).toList();
+
+    final results = await Future.wait([
+      _client.from('profiles').select().inFilter('id', userIds),
+      _client.from('dogs').select().inFilter('owner_id', userIds),
+    ]);
+    final profileMap = <String, UserProfile>{};
+    for (final row in results[0]) {
+      final profile = _rowToProfile(row);
+      profileMap[profile.id] = profile;
+    }
+    final dogMap = <String, Dog>{};
+    for (final row in results[1]) {
+      final ownerId = row['owner_id'] as String;
+      dogMap.putIfAbsent(ownerId, () => _rowToDog(row));
+    }
+
+    return userIds.map((uid) {
+      final profile = profileMap[uid];
+      if (profile == null) return null;
+      return AttendeeProfile(
+        profile: profile,
+        dog: dogMap[uid],
+      );
+    }).whereType<AttendeeProfile>().toList();
   }
 
   DogEvent _rowToEvent(Map<String, dynamic> row) {

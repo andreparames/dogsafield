@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/models/dog.dart';
 import '../../../shared/models/event.dart';
 import '../../../shared/models/user_profile.dart';
+import '../data/attendee_profile.dart';
 import '../data/gathering_detail.dart';
 import '../state/gathering_providers.dart';
 import '../state/rsvp_providers.dart';
@@ -166,9 +167,13 @@ class _GatheringContent extends StatelessWidget {
           _sectionHeader(theme, 'Attendance'),
           const SizedBox(height: 8),
           Text(
-            '${event.attendeeIds.length} / ${event.maxAttendees} attending',
+            '${detail.attendees.length} / ${event.maxAttendees} attending',
             style: theme.textTheme.bodyLarge,
           ),
+          if (detail.attendees.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _AttendeeListSection(attendees: detail.attendees),
+          ],
           const SizedBox(height: 12),
           _JoinPackSection(event: event),
         ],
@@ -223,12 +228,15 @@ class _HostCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundImage: host.photoUrl != null
-                  ? NetworkImage(host.photoUrl!)
-                  : null,
-              child: host.photoUrl == null
-                  ? Icon(Icons.person, size: 28)
-                  : null,
+              child: host.photoUrl != null
+                  ? Image.network(
+                      host.photoUrl!,
+                      width: 56,
+                      height: 56,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 28),
+                    )
+                  : const Icon(Icons.person, size: 28),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -252,6 +260,93 @@ class _HostCard extends StatelessWidget {
                           color: theme.colorScheme.primary,
                         ),
                       ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+class _AttendeeListSection extends StatelessWidget {
+  final List<AttendeeProfile> attendees;
+
+  const _AttendeeListSection({required this.attendees});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: attendees.map((a) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: _AttendeeCard(attendee: a),
+      )).toList(),
+    );
+  }
+}
+
+class _AttendeeCard extends StatelessWidget {
+  final AttendeeProfile attendee;
+
+  const _AttendeeCard({required this.attendee});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final profile = attendee.profile;
+    final dog = attendee.dog;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 24,
+              child: profile.photoUrl != null
+                  ? Image.network(
+                      profile.photoUrl!,
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 24),
+                    )
+                  : const Icon(Icons.person, size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    profile.displayName ?? 'Unknown',
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  if (dog != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      '🐕 ${dog.name}${dog.breed != null ? ' · ${dog.breed}' : ''}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    if (dog.vibe != null)
+                      Text(
+                        '★ ${_vibeShortLabel(dog.vibe!)}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    if (dog.icebreakerAnswer != null && dog.icebreakerAnswer!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        '“${dog.icebreakerAnswer}”',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontStyle: FontStyle.italic,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ],
                 ],
               ),
@@ -305,10 +400,17 @@ class _JoinPackSection extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => FilledButton.icon(
-        onPressed: () => ref.read(rsvpActionProvider(event.id).notifier).joinPack(),
-        icon: const Icon(Icons.group_add),
-        label: const Text('Join Pack'),
+      error: (err, _) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Could not load RSVP status', style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => ref.invalidate(hasRsvpProvider(event.id)),
+            icon: const Icon(Icons.refresh, size: 18),
+            label: const Text('Retry'),
+          ),
+        ],
       ),
     );
   }
