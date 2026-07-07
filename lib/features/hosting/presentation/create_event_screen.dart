@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/services/location_provider.dart';
 import '../../../shared/models/event.dart';
 import '../state/hosting_provider.dart';
 import 'location_picker_screen.dart';
@@ -67,9 +68,18 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   }
 
   Future<void> _pickLocation() async {
+    var lat = _latitude;
+    var lng = _longitude;
+    if (lat == null || lng == null) {
+      final pos = ref.read(currentPositionProvider).valueOrNull;
+      if (pos != null) {
+        lat = pos.latitude;
+        lng = pos.longitude;
+      }
+    }
     final result = await context.push<LocationPickerResult>(
       '/hosting/location-picker',
-      extra: <String, dynamic>{'lat': _latitude ?? 0, 'lng': _longitude ?? 0, 'name': _locationNameCtrl.text},
+      extra: <String, dynamic>{'lat': lat ?? 0, 'lng': lng ?? 0, 'name': _locationNameCtrl.text},
     );
     if (result != null) {
       setState(() {
