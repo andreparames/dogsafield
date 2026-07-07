@@ -214,7 +214,7 @@ class _TrialSection extends StatelessWidget {
     final theme = Theme.of(context);
     final used = profile.trialRsvpsUsed;
     final maxFree = 3;
-    final remaining = maxFree - used;
+    final remaining = (maxFree - used).clamp(0, maxFree);
 
     return Card(
       child: Padding(
@@ -247,7 +247,7 @@ class _TrialSection extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             LinearProgressIndicator(
-              value: used / maxFree,
+              value: maxFree > 0 ? (used / maxFree).clamp(0.0, 1.0) : 0.0,
               minHeight: 6,
               borderRadius: BorderRadius.circular(3),
             ),

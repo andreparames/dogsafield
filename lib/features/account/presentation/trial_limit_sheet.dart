@@ -53,7 +53,7 @@ class TrialLimitSheet extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           LinearProgressIndicator(
-            value: used / maxFree,
+            value: maxFree > 0 ? (used / maxFree).clamp(0.0, 1.0) : 0.0,
             minHeight: 8,
             borderRadius: BorderRadius.circular(4),
           ),
