@@ -13,7 +13,7 @@ class TrialLimitSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final remaining = maxFree - used;
+    final remaining = (maxFree - used).clamp(0, maxFree);
 
     return Padding(
       padding: EdgeInsets.only(

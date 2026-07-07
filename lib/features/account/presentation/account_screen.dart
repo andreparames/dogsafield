@@ -20,12 +20,7 @@ class AccountScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Account'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => context.push('/account/settings'),
-          ),
-        ],
+        actions: [],
       ),
       body: detailAsync.when(
         data: (detail) => _AccountContent(detail: detail),
@@ -156,7 +151,7 @@ class _DogCard extends StatelessWidget {
               radius: 28,
               backgroundColor: theme.colorScheme.primaryContainer,
               child: Text(
-                dog.name[0].toUpperCase(),
+                (dog.name.isNotEmpty ? dog.name[0].toUpperCase() : '?'),
                 style: theme.textTheme.titleLarge?.copyWith(
                   color: theme.colorScheme.onPrimaryContainer,
                 ),
@@ -370,8 +365,11 @@ class _SignOutButton extends ConsumerWidget {
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: () async {
-          await ref.read(authServiceProvider).signOut();
-          ref.read(onboardingProvider.notifier).reset();
+          try {
+            await ref.read(authServiceProvider).signOut();
+            if (!context.mounted) return;
+            ref.read(onboardingProvider.notifier).reset();
+          } catch (_) {}
         },
         icon: const Icon(Icons.logout),
         label: const Text('Sign Out'),
