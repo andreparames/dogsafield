@@ -12,6 +12,7 @@
 - [x] **Skip onboarding** — returning users with existing profiles skip onboarding and go to the map
 
 ### Field Map (`lib/features/field_map/`)
+- [ ] **Multi-dog support** — `GatheringRepository._fetchDog` uses `.limit(1)` which silently drops dogs when a user has multiple; add `is_primary` flag to `dogs` table and query the primary dog
 - [x] **Map view** — Google Maps integration with user location marker
 - [ ] **Hide user location marker** — the red dot on current location is redundant, remove it
 - [ ] **RSVP filter: local toggle, no re-fetch** — load all markers once, hide/show based on RSVP flag instead of re-querying Supabase
