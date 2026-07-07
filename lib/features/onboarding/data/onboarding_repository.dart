@@ -17,6 +17,21 @@ class OnboardingRepository {
     return _client.storage.from('photos').getPublicUrl(path);
   }
 
+  Future<UserProfile?> fetchProfile(String id) async {
+    final rows = await _client.from('profiles').select().eq('id', id).limit(1);
+    if (rows.isEmpty) return null;
+    final row = rows.first;
+    return UserProfile(
+      id: row['id'] as String,
+      email: row['email'] as String,
+      displayName: row['display_name'] as String?,
+      photoUrl: row['photo_url'] as String?,
+      treatPolicy: row['treat_policy'] != null
+          ? TreatPolicy.values.firstWhere((e) => e.name == row['treat_policy'])
+          : null,
+    );
+  }
+
   Future<UserProfile> createProfile(UserProfile profile) async {
     await _client.from('profiles').upsert({
       'id': profile.id,

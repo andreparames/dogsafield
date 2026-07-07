@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dogsafield/features/hosting/data/hosting_repository.dart';
-import 'package:dogsafield/features/hosting/state/hosting_provider.dart';
 import 'package:dogsafield/features/onboarding/data/auth_service.dart';
 import 'package:dogsafield/features/onboarding/data/onboarding_repository.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
@@ -41,6 +40,7 @@ class FakeAuthService extends AuthService {
 class FakeOnboardingRepository implements OnboardingRepository {
   bool shouldFail = false;
   int uploadCallCount = 0;
+  UserProfile? existingProfile;
 
   @override
   Future<String> uploadPhoto(String path) async {
@@ -48,6 +48,9 @@ class FakeOnboardingRepository implements OnboardingRepository {
     if (shouldFail) throw Exception('Upload failed');
     return 'https://example.com/uploaded.jpg';
   }
+
+  @override
+  Future<UserProfile?> fetchProfile(String id) async => existingProfile;
 
   @override
   Future<UserProfile> createProfile(UserProfile profile) async {

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'features/onboarding/routes.dart';
@@ -12,8 +11,6 @@ import 'features/verification_loop/routes.dart';
 import 'features/connections/routes.dart';
 import 'features/messaging/routes.dart';
 
-final authRefreshNotifier = ValueNotifier(0);
-
 final _appRouter = GoRouter(
   refreshListenable: authRefreshNotifier,
   initialLocation: '/onboarding/welcome',
@@ -24,11 +21,11 @@ final _appRouter = GoRouter(
     final location = state.uri.toString();
 
     if (!authed && location != '/onboarding/welcome') return '/onboarding/welcome';
-    if (authed && location == '/onboarding/welcome') {
+    if (authed) {
       container.read(onboardingAutoInitProvider);
       final onboarding = container.read(onboardingProvider);
       if (onboarding.step == OnboardingStep.complete) return '/';
-      return '/onboarding/photo';
+      if (location == '/onboarding/welcome') return '/onboarding/photo';
     }
     return null;
   },
