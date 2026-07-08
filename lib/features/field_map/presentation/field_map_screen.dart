@@ -103,11 +103,14 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
                 markers: markers,
-                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
               ),
-              Positioned(
-                top: 16,
-                left: 16,
+              Positioned.fill(
+                child: SafeArea(
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 16,
+                        left: 16,
                 child: CircleAvatar(
                   backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                   child: IconButton(
@@ -142,14 +145,18 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                   ),
                 ),
               ),
-              Positioned(
-                top: 16,
-                right: 16,
-                child: IconButton(
-                  icon: Icon(Icons.chat_bubble_outline,
-                      color: theme.colorScheme.primary),
-                  tooltip: 'Feedback',
-                  onPressed: () => _showFeedbackDialog(context),
+                      Positioned(
+                        top: 16,
+                        right: 16,
+                        child: IconButton(
+                          icon: Icon(Icons.chat_bubble_outline,
+                              color: theme.colorScheme.primary),
+                          tooltip: 'Feedback',
+                          onPressed: () => _showFeedbackDialog(context),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
