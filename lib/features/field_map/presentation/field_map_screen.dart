@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../core/services/location_provider.dart';
 import '../../../core/services/location_service.dart';
+import '../../onboarding/state/onboarding_state.dart';
 import '../state/field_map_providers.dart';
 import '../state/rsvp_providers.dart';
 import '../state/feedback_providers.dart';
@@ -45,7 +46,14 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/hosting/create'),
+        onPressed: () {
+          final profile = ref.read(onboardingProvider).userProfile;
+          if (profile == null || !profile.hasSeenHostIntro) {
+            context.push('/hosting/responsibility');
+          } else {
+            context.push('/hosting/create');
+          }
+        },
         tooltip: 'Create Event',
         child: const Icon(Icons.add),
       ),

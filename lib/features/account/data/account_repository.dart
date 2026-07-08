@@ -57,6 +57,14 @@ class AccountRepository {
     }
   }
 
+  Future<void> markFieldIntroSeen(String userId) async {
+    await _client.from('profiles').update({'has_seen_field_intro': true}).eq('id', userId);
+  }
+
+  Future<void> markHostIntroSeen(String userId) async {
+    await _client.from('profiles').update({'has_seen_host_intro': true}).eq('id', userId);
+  }
+
   UserProfile _rowToProfile(Map<String, dynamic> row) {
     return UserProfile(
       id: row['id'] as String,
@@ -67,6 +75,8 @@ class AccountRepository {
       trialRsvpsUsed: row['trial_rsvps_used'] as int? ?? 0,
       isFoundingPack: row['is_founding_pack'] as bool? ?? false,
       isSuspended: row['is_suspended'] as bool? ?? false,
+      hasSeenFieldIntro: row['has_seen_field_intro'] as bool? ?? false,
+      hasSeenHostIntro: row['has_seen_host_intro'] as bool? ?? false,
       treatPolicy: row['treat_policy'] != null
           ? TreatPolicy.values.firstWhere((e) => e.name == row['treat_policy'])
           : null,

@@ -9,6 +9,8 @@ class UserProfile {
   final int trialRsvpsUsed;
   final bool isFoundingPack;
   final bool isSuspended;
+  final bool hasSeenFieldIntro;
+  final bool hasSeenHostIntro;
   final TreatPolicy? treatPolicy;
 
   const UserProfile({
@@ -20,6 +22,8 @@ class UserProfile {
     this.trialRsvpsUsed = 0,
     this.isFoundingPack = false,
     this.isSuspended = false,
+    this.hasSeenFieldIntro = false,
+    this.hasSeenHostIntro = false,
     this.treatPolicy,
   });
 
@@ -30,6 +34,8 @@ class UserProfile {
     int? trialRsvpsUsed,
     bool? isFoundingPack,
     bool? isSuspended,
+    bool? hasSeenFieldIntro,
+    bool? hasSeenHostIntro,
     TreatPolicy? treatPolicy,
   }) {
     return UserProfile(
@@ -41,6 +47,8 @@ class UserProfile {
       trialRsvpsUsed: trialRsvpsUsed ?? this.trialRsvpsUsed,
       isFoundingPack: isFoundingPack ?? this.isFoundingPack,
       isSuspended: isSuspended ?? this.isSuspended,
+      hasSeenFieldIntro: hasSeenFieldIntro ?? this.hasSeenFieldIntro,
+      hasSeenHostIntro: hasSeenHostIntro ?? this.hasSeenHostIntro,
       treatPolicy: treatPolicy ?? this.treatPolicy,
     );
   }
