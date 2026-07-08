@@ -239,11 +239,26 @@ class _TrialSection extends StatelessWidget {
                 Text('Trial RSVPs', style: theme.textTheme.titleSmall),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
-              'You can use up to $maxFree trial RSVPs to attend events without a Founding Pack subscription. '
-              'After that, upgrade to keep joining the pack.',
-              style: theme.textTheme.bodyMedium,
+              'You have $remaining of $maxFree free RSVPs remaining.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _TrialStat(label: 'Used', value: '$used'),
+                const SizedBox(width: 24),
+                _TrialStat(label: 'Remaining', value: '$remaining'),
+              ],
+            ),
+            const SizedBox(height: 12),
+            LinearProgressIndicator(
+              value: maxFree > 0 ? (used / maxFree).clamp(0.0, 1.0) : 0.0,
+              minHeight: 6,
+              borderRadius: BorderRadius.circular(3),
             ),
             if (remaining <= 0) ...[
               const SizedBox(height: 16),
@@ -259,6 +274,26 @@ class _TrialSection extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _TrialStat extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _TrialStat({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(value, style: theme.textTheme.titleLarge),
+        Text(label, style: theme.textTheme.bodySmall),
+      ],
     );
   }
 }
