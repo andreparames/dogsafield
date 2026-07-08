@@ -66,6 +66,11 @@ void main() {
   });
 
   group('discoveredEventsProvider', () {
+    Future<void> setupEvents(ProviderContainer container) async {
+      await container.read(allEventsProvider.future);
+      await container.read(myRsvpIdsProvider.future);
+    }
+
     test('returns all events when filter is false', () async {
       final events = [
         DogEvent(
@@ -88,9 +93,10 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
+      await setupEvents(container);
 
       container.read(rsvpFilterProvider.notifier).state = false;
-      final result = await container.read(discoveredEventsProvider.future);
+      final result = container.read(discoveredEventsProvider);
 
       expect(result, events);
     });
@@ -125,9 +131,10 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
+      await setupEvents(container);
 
       container.read(rsvpFilterProvider.notifier).state = true;
-      final result = await container.read(discoveredEventsProvider.future);
+      final result = container.read(discoveredEventsProvider);
 
       expect(result.length, 1);
       expect(result.single.id, '1');
@@ -156,19 +163,20 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
+      await setupEvents(container);
 
       container.read(rsvpFilterProvider.notifier).state = false;
-      final nearby = await container.read(discoveredEventsProvider.future);
+      final nearby = container.read(discoveredEventsProvider);
       expect(nearby, events);
 
       fieldRepo.nearbyEvents = []; // would be a new fetch if re-fetching
 
       container.read(rsvpFilterProvider.notifier).state = true;
-      final myRsvps = await container.read(discoveredEventsProvider.future);
+      final myRsvps = container.read(discoveredEventsProvider);
       expect(myRsvps, isEmpty); // still sees original events list, not the mutated one
     });
 
-    test('throws when repository fails', () async {
+    test('returns empty when repository fails', () async {
       fieldRepo.shouldFail = true;
 
       final container = ProviderContainer(
@@ -182,10 +190,11 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      expect(
-        () => container.read(discoveredEventsProvider.future),
-        throwsA(isA<Exception>()),
-      );
+      try {
+        await container.read(allEventsProvider.future);
+      } catch (_) {}
+      final result = container.read(discoveredEventsProvider);
+      expect(result, isEmpty);
     });
   });
 }

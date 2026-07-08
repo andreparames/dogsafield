@@ -32,7 +32,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final locationAsync = ref.watch(currentPositionProvider);
-    final eventsAsync = ref.watch(discoveredEventsProvider);
+    final events = ref.watch(discoveredEventsProvider);
     final rsvpIdsAsync = ref.watch(myRsvpIdsProvider);
     final showRsvps = ref.watch(rsvpFilterProvider);
 
@@ -40,6 +40,15 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       next.whenData((position) {
         _mapController?.animateCamera(
           CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)),
+        );
+      });
+    });
+
+    ref.listen(allEventsProvider, (_, next) {
+      next.whenOrNull(error: (error, _) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load events: $error')),
         );
       });
     });
@@ -67,35 +76,24 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           final markers = <Marker>{};
 
           final rsvpIds = rsvpIdsAsync.asData?.value ?? {};
-          eventsAsync.when(
-            data: (events) {
-              for (final event in events) {
-                markers.add(
-                  Marker(
-                    markerId: MarkerId(event.id),
-                    position: LatLng(event.latitude, event.longitude),
-                    icon: markerIconForType(event.type, isRsvpd: rsvpIds.contains(event.id)),
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (_) => EventBottomSheet(
-                          event: event,
-                          showRsvpAction: showRsvps,
-                        ),
-                      );
-                    },
-                  ),
-                );
-              }
-            },
-            loading: () {},
-            error: (error, _) {
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Failed to load events: $error')),
-              );
-            },
-          );
+          for (final event in events) {
+            markers.add(
+              Marker(
+                markerId: MarkerId(event.id),
+                position: LatLng(event.latitude, event.longitude),
+                icon: markerIconForType(event.type, isRsvpd: rsvpIds.contains(event.id)),
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (_) => EventBottomSheet(
+                      event: event,
+                      showRsvpAction: showRsvps,
+                    ),
+                  );
+                },
+              ),
+            );
+          }
 
           return Stack(
             children: [
@@ -105,6 +103,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
                 markers: markers,
+                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
               ),
               Positioned(
                 top: 16,
