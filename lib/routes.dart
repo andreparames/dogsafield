@@ -8,6 +8,7 @@ import 'features/account/presentation/suspend_screen.dart';
 import 'features/account/routes.dart';
 import 'features/field_map/routes.dart';
 import 'features/hosting/routes.dart';
+import 'features/info/routes.dart';
 import 'features/verification_loop/routes.dart';
 import 'features/connections/routes.dart';
 import 'features/messaging/routes.dart';
@@ -29,6 +30,12 @@ final _appRouter = GoRouter(
       if (onboarding.step == OnboardingStep.complete) return '/';
       if (location == '/onboarding/welcome') return '/onboarding/photo';
     }
+    if (authed && location == '/') {
+      container.read(onboardingAutoInitProvider);
+      final onboarding = container.read(onboardingProvider);
+      final profile = onboarding.userProfile;
+      if (profile != null && !profile.hasSeenFieldIntro) return '/field/intro';
+    }
     return null;
   },
   routes: [
@@ -44,6 +51,7 @@ final _appRouter = GoRouter(
     ...accountRoutes,
     ...fieldMapRoutes,
     ...hostingRoutes,
+    ...infoRoutes,
     ...verificationLoopRoutes,
     ...connectionsRoutes,
     ...messagingRoutes,

@@ -36,8 +36,8 @@
 - [x] **Delete account** — fully removes all data via `delete_my_account()` RPC; confirmation dialog with "type DELETE" gate
 
 ### Info screens
-- [ ] **Field intro screen** — first time accessing the Field, show an illustrated explainer of how it works
-- [x] **Host responsibility screen** — first time tapping "add new event", show tips about showing up and hosting etiquette
+- [x] **Field intro screen** — first time accessing the Field, show an illustrated explainer of how it works; wire redirect in auth flow
+- [x] **Host responsibility screen** — wire to trigger on first "+" tap via `has_seen_host_intro` profile flag
 
 ### Hosting (`lib/features/hosting/`)
 - [x] **CreateEventScreen** — form with event type, title, description, location, date/time, max attendees, what-to-bring
