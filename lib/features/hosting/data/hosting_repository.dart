@@ -56,10 +56,13 @@ class HostingRepository {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
 
-    await _client.from('events')
+    final result = await _client.from('events')
         .update({'is_cancelled': true})
         .eq('id', eventId)
-        .eq('host_id', user.id);
+        .eq('host_id', user.id)
+        .select();
+
+    if (result.isEmpty) throw Exception('Event not found or not authorized');
   }
 
   Future<List<DogEvent>> fetchMyEvents() async {
@@ -81,8 +84,12 @@ class HostingRepository {
     final response = await _client.from('attendance')
         .select('''
           user_id,
-          profiles!inner(id, display_name, photo_url),
-          dogs!inner(owner_id, name, breed)
+          profiles!inner (
+            id,
+            display_name,
+            photo_url,
+            dogs!owner_id (name, breed)
+          )
         ''')
         .eq('event_id', eventId);
 

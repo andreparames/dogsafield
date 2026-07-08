@@ -50,8 +50,9 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       _type = existing.type;
       _latitude = existing.latitude;
       _longitude = existing.longitude;
-      _dateTime = existing.dateTime;
-      _time = TimeOfDay.fromDateTime(existing.dateTime);
+      final localDt = existing.dateTime.toLocal();
+      _dateTime = localDt;
+      _time = TimeOfDay.fromDateTime(localDt);
       _maxAttendees = existing.maxAttendees;
       _whatToBring.addAll(existing.whatToBring);
     } else if (widget.initialLatitude != 0 || widget.initialLongitude != 0) {
@@ -140,6 +141,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       dateTime: dt,
       maxAttendees: _maxAttendees,
       whatToBring: _whatToBring.toList(),
+      amenityTags: _isEditing ? widget.existingEvent!.amenityTags : [],
     );
 
     if (_isEditing) {
@@ -150,11 +152,12 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
 
     if (!mounted) return;
 
-    if (ref.read(hostingActionProvider) is HostingActionError) {
+    final state = ref.read(hostingActionProvider);
+    if (state is HostingActionError) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text((ref.read(hostingActionProvider) as HostingActionError).message)),
+        SnackBar(content: Text(state.message)),
       );
-    } else {
+    } else if (state is HostingActionSuccess) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(_isEditing ? 'Event updated!' : 'Event created!')),
       );

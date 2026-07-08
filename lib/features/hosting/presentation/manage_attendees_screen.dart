@@ -128,10 +128,11 @@ class _ManageAttendeesScreenState extends ConsumerState<ManageAttendeesScreen> {
                   itemBuilder: (context, index) {
                     final row = attendees[index];
                     final profile = row['profiles'] as Map<String, dynamic>?;
-                    final dog = row['dogs'] as Map<String, dynamic>?;
+                    final dogsList = profile?['dogs'] as List<dynamic>?;
+                    final firstDog = (dogsList?.isNotEmpty == true) ? dogsList!.first as Map<String, dynamic>? : null;
                     final displayName = profile?['display_name'] as String? ?? 'Unknown';
                     final photoUrl = profile?['photo_url'] as String?;
-                    final dogName = dog?['name'] as String?;
+                    final dogName = firstDog?['name'] as String?;
                     final userId = row['user_id'] as String;
 
                     return ListTile(

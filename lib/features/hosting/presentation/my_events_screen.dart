@@ -139,21 +139,21 @@ class _EventCard extends ConsumerWidget {
             ),
             if (!isCancelled) ...[
               const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                alignment: WrapAlignment.end,
                 children: [
                   OutlinedButton.icon(
                     onPressed: () => context.push('/hosting/manage-attendees', extra: event),
                     icon: const Icon(Icons.people, size: 18),
                     label: const Text('Attendees'),
                   ),
-                  const SizedBox(width: 8),
                   OutlinedButton.icon(
                     onPressed: () => context.push('/hosting/edit', extra: event),
                     icon: const Icon(Icons.edit, size: 18),
                     label: const Text('Edit'),
                   ),
-                  const SizedBox(width: 8),
                   OutlinedButton.icon(
                     onPressed: () => _confirmCancel(context, ref),
                     icon: const Icon(Icons.cancel_outlined, size: 18),

@@ -177,7 +177,7 @@ void main() {
       expect(events.first.title, 'Event 1');
     });
 
-    test('filters cancelled events from activeEventsProvider', () async {
+    test('activeEventsProvider filters out cancelled events', () async {
       final repo = FakeHostingRepository();
       repo.myEvents = [
         DogEvent(
@@ -202,8 +202,9 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      final allEvents = await container.read(myEventsProvider.future);
-      final active = allEvents.where((e) => !e.isCancelled).toList();
+      await container.read(myEventsProvider.future);
+      final activeAsync = container.read(activeEventsProvider);
+      final active = activeAsync.requireValue;
       expect(active.length, 1);
       expect(active.first.title, 'Active');
     });

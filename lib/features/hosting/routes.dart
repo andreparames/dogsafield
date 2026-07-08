@@ -16,7 +16,8 @@ List<RouteBase> hostingRoutes = [
     path: '/hosting/edit',
     name: 'editEvent',
     builder: (context, state) {
-      final event = state.extra as DogEvent;
+      final event = state.extra as DogEvent?;
+      if (event == null) return const CreateEventScreen();
       return CreateEventScreen(existingEvent: event);
     },
   ),
@@ -41,7 +42,8 @@ List<RouteBase> hostingRoutes = [
     path: '/hosting/manage-attendees',
     name: 'manageAttendees',
     builder: (context, state) {
-      final event = state.extra as DogEvent;
+      final event = state.extra as DogEvent?;
+      if (event == null) return const MyEventsScreen();
       return ManageAttendeesScreen(event: event);
     },
   ),
