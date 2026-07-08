@@ -65,14 +65,16 @@ class HostResponsibilityScreen extends ConsumerWidget {
                 final auth = ref.read(authServiceProvider);
                 final user = auth.currentUser;
                 if (user != null) {
-                  await repo.markHostIntroSeen(user.id);
+                  try {
+                    await repo.markHostIntroSeen(user.id);
+                  } catch (_) {}
                 }
+                if (!context.mounted) return;
                 final onboardingState = ref.read(onboardingProvider);
                 final existing = onboardingState.userProfile;
                 if (existing != null) {
                   ref.read(onboardingProvider.notifier).setUserProfile(existing.copyWith(hasSeenHostIntro: true));
                 }
-                if (!context.mounted) return;
                 context.go('/hosting/create');
               },
               icon: const Icon(Icons.check),

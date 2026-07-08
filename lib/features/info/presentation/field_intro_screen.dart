@@ -59,14 +59,16 @@ class FieldIntroScreen extends ConsumerWidget {
                 final auth = ref.read(authServiceProvider);
                 final user = auth.currentUser;
                 if (user != null) {
-                  await repo.markFieldIntroSeen(user.id);
+                  try {
+                    await repo.markFieldIntroSeen(user.id);
+                  } catch (_) {}
                 }
+                if (!context.mounted) return;
                 final onboardingState = ref.read(onboardingProvider);
                 final existing = onboardingState.userProfile;
                 if (existing != null) {
                   ref.read(onboardingProvider.notifier).setUserProfile(existing.copyWith(hasSeenFieldIntro: true));
                 }
-                if (!context.mounted) return;
                 context.go('/');
               },
               icon: const Icon(Icons.check),
