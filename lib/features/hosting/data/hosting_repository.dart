@@ -27,6 +27,44 @@ class HostingRepository {
     return _rowToEvent(response);
   }
 
+  Future<DogEvent> updateEvent(DogEvent event) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+
+    final response = await _client.from('events')
+        .update({
+          'type': event.type.name,
+          'title': event.title,
+          'description': event.description,
+          'location_name': event.locationName,
+          'latitude': event.latitude,
+          'longitude': event.longitude,
+          'date_time': event.dateTime.toUtc().toIso8601String(),
+          'max_attendees': event.maxAttendees,
+          'what_to_bring': event.whatToBring,
+          'amenity_tags': event.amenityTags,
+        })
+        .eq('id', event.id)
+        .eq('host_id', user.id)
+        .select()
+        .single();
+
+    return _rowToEvent(response);
+  }
+
+  Future<void> cancelEvent(String eventId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+
+    final result = await _client.from('events')
+        .update({'is_cancelled': true})
+        .eq('id', eventId)
+        .eq('host_id', user.id)
+        .select();
+
+    if (result.isEmpty) throw Exception('Event not found or not authorized');
+  }
+
   Future<List<DogEvent>> fetchMyEvents() async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
@@ -37,6 +75,35 @@ class HostingRepository {
         .order('date_time', ascending: true);
 
     return response.map((row) => _rowToEvent(row)).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAttendees(String eventId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+
+    final response = await _client.from('attendance')
+        .select('''
+          user_id,
+          profiles!inner (
+            id,
+            display_name,
+            photo_url,
+            dogs!owner_id (name, breed)
+          )
+        ''')
+        .eq('event_id', eventId);
+
+    return response;
+  }
+
+  Future<void> removeAttendee(String eventId, String userId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+
+    await _client.from('attendance')
+        .delete()
+        .eq('event_id', eventId)
+        .eq('user_id', userId);
   }
 
   DogEvent _rowToEvent(Map<String, dynamic> row) {
@@ -53,6 +120,7 @@ class HostingRepository {
       maxAttendees: row['max_attendees'] as int,
       whatToBring: (row['what_to_bring'] as List<dynamic>?)?.cast<String>() ?? [],
       amenityTags: (row['amenity_tags'] as List<dynamic>?)?.cast<String>() ?? [],
+      isCancelled: row['is_cancelled'] as bool? ?? false,
     );
   }
 }

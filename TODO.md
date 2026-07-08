@@ -37,13 +37,20 @@
 
 ### Info screens
 - [ ] **Field intro screen** — first time accessing the Field, show an illustrated explainer of how it works
-- [ ] **Host responsibility screen** — first time tapping "add new event", show tips about showing up and hosting etiquette
+- [x] **Host responsibility screen** — first time tapping "add new event", show tips about showing up and hosting etiquette
 
 ### Hosting (`lib/features/hosting/`)
-- [x] **CreateEventScreen** — form with template (Dog Picnic/Pack Walk/Field Games), title, description, location, date/time picker, max attendees, what-to-bring checklist
-- [x] **HostingRepository** — Supabase insert + fetch for events table
+- [x] **CreateEventScreen** — form with event type, title, description, location, date/time, max attendees, what-to-bring
+- [x] **HostingRepository** — `createEvent()`, `fetchMyEvents()`
 - [x] **Publish to Field** — submit event to Supabase with RLS (host_id = auth.uid())
 - [x] **Location & time picker** — select park/trail from map, assign date/time window
+- [x] **Host responsibility screen** — first-time host education before create flow
+- [x] **My Events dashboard** — list host's events with attendee counts, edit/delete actions
+- [x] **Edit Event** — re-use create screen in edit mode with pre-populated fields
+- [x] **Cancel / Delete Event** — confirmation dialog, soft-delete via `is_cancelled` column
+- [x] **Attendee management** — RSVP list with names/dogs, host can remove attendees
+- [x] **Hosting state notifiers** — sealed-class notifiers for create, edit, delete
+- [x] **Tests** — widget tests for new screens, provider tests for notifiers
 
 ### Verification Loop (`lib/features/verification_loop/`)
 - [ ] **Post-event trigger** — push notification 2 hours after gathering start

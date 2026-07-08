@@ -14,6 +14,7 @@ class DogEvent {
   final List<String> whatToBring;
   final List<String> amenityTags;
   final List<String> attendeeIds;
+  final bool isCancelled;
 
   const DogEvent({
     required this.id,
@@ -29,6 +30,7 @@ class DogEvent {
     this.whatToBring = const [],
     this.amenityTags = const [],
     this.attendeeIds = const [],
+    this.isCancelled = false,
   });
 
   DogEvent copyWith({
@@ -45,6 +47,7 @@ class DogEvent {
     List<String>? whatToBring,
     List<String>? amenityTags,
     List<String>? attendeeIds,
+    bool? isCancelled,
   }) {
     return DogEvent(
       id: id ?? this.id,
@@ -60,6 +63,7 @@ class DogEvent {
       whatToBring: whatToBring ?? this.whatToBring,
       amenityTags: amenityTags ?? this.amenityTags,
       attendeeIds: attendeeIds ?? this.attendeeIds,
+      isCancelled: isCancelled ?? this.isCancelled,
     );
   }
 }
