@@ -54,6 +54,19 @@ if (-not $deviceId) { throw "Could not find Android emulator device." }
 
 log "Detected device: $deviceId"
 
+log "Verifying device is still online..."
+$verified = $false
+for ($i = 0; $i -lt 15; $i++) {
+  $lines = flutter devices 2>&1 | Out-String
+  if ($lines -match [regex]::Escape($deviceId)) {
+    $verified = $true
+    break
+  }
+  Start-Sleep -Seconds 2
+}
+if (-not $verified) { throw "Device $deviceId went offline after boot." }
+log "Device $deviceId verified."
+
 if (-not $NoBuild) {
   if (-not (Test-Path $DotEnv)) {
     Write-Warning ".env not found at $DotEnv. Supabase credentials won't be set."
