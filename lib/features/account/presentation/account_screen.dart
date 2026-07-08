@@ -219,6 +219,30 @@ class _TrialSection extends StatelessWidget {
 
   const _TrialSection({required this.profile});
 
+  void _showTrialInfo(BuildContext context, ThemeData theme) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('About Trial RSVPs', style: theme.textTheme.titleMedium),
+            const SizedBox(height: 12),
+            Text(
+              'You can use up to 3 trial RSVPs to attend events without a Founding Pack subscription. '
+              'Each RSVP gives you full access to the event. '
+              'After your trial runs out, upgrade to keep joining the pack.',
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -237,6 +261,11 @@ class _TrialSection extends StatelessWidget {
                 Icon(Icons.card_giftcard, color: theme.colorScheme.primary),
                 const SizedBox(width: 8),
                 Text('Trial RSVPs', style: theme.textTheme.titleSmall),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => _showTrialInfo(context, theme),
+                  child: Icon(Icons.info_outline, size: 20, color: theme.colorScheme.onSurfaceVariant),
+                ),
               ],
             ),
             const SizedBox(height: 8),
