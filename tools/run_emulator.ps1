@@ -14,6 +14,11 @@ $runLog  = Join-Path $LogDir "run_$timestamp.log"
 
 function log($msg) { Write-Host $msg -ForegroundColor Cyan }
 
+# Fresh adb server to avoid stale connections
+log "Restarting adb server..."
+adb kill-server 2>&1 | Out-Null
+adb start-server 2>&1 | Out-Null
+
 log "Starting emulator AVD: $EmulatorAvd"
 $launchResult = flutter emulators --launch $EmulatorAvd 2>&1 | Out-String
 if ($LASTEXITCODE -ne 0) {
@@ -37,35 +42,29 @@ $bootElapsed = [math]::Round(((Get-Date) - $bootStart).TotalSeconds, 1)
 
 log "Emulator booted in ${bootElapsed}s. Log saved: $bootLog"
 
-$deviceId = $null
-$attempts = 0
-while (-not $deviceId -and $attempts -lt 30) {
-  $lines = flutter devices 2>&1 | Out-String
-  $m = [regex]::Match($lines, "(emulator-\d+)")
-  if ($m.Success) {
-    $deviceId = $m.Groups[1].Value
-  } else {
-    Start-Sleep -Seconds 2
-    $attempts++
-  }
-}
-
-if (-not $deviceId) { throw "Could not find Android emulator device." }
-
-log "Detected device: $deviceId"
-
-log "Verifying device is still online..."
-$verified = $false
-for ($i = 0; $i -lt 15; $i++) {
-  $lines = flutter devices 2>&1 | Out-String
-  if ($lines -match [regex]::Escape($deviceId)) {
-    $verified = $true
+# Wait for adb to show device as "device" (connected, not just booted)
+log "Waiting for adb connection..."
+$adbConnected = $false
+for ($i = 0; $i -lt 30; $i++) {
+  $devices = adb devices 2>&1 | Out-String
+  if ($devices -match "emulator-\d+\s+device") {
+    $adbConnected = $true
     break
   }
   Start-Sleep -Seconds 2
 }
-if (-not $verified) { throw "Device $deviceId went offline after boot." }
-log "Device $deviceId verified."
+if (-not $adbConnected) { throw "ADB device did not come online." }
+
+# Extract device ID from adb devices output
+$devicesStr = adb devices 2>&1 | Out-String
+$m = [regex]::Match($devicesStr, "(emulator-\d+)\s+device")
+$deviceId = $m.Groups[1].Value
+if (-not $deviceId) { throw "Could not find Android emulator device." }
+
+log "Detected device: $deviceId"
+
+# Ensure adb is fully ready
+adb -s $deviceId wait-for-device 2>&1 | Out-Null
 
 if (-not $NoBuild) {
   if (-not (Test-Path $DotEnv)) {
