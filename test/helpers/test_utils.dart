@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dogsafield/features/account/data/account_repository.dart';
 import 'package:dogsafield/features/account/state/account_providers.dart';
+import 'package:dogsafield/features/connections/data/connection_repository.dart';
+import 'package:dogsafield/features/connections/state/connection_providers.dart';
 import 'package:dogsafield/features/field_map/data/field_map_repository.dart';
 import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
 import 'package:dogsafield/features/field_map/data/gathering_repository.dart';
@@ -232,9 +234,39 @@ class FakeRsvpRepository implements RsvpRepository {
   }
 }
 
+class FakeConnectionRepository implements ConnectionRepository {
+  bool shouldFail = false;
+  int blockCallCount = 0;
+  int unblockCallCount = 0;
+  List<Map<String, dynamic>> blockedUsers = [];
+
+  @override
+  Future<void> setBlockTier(String targetUserId, int tier, {String? reportReason}) async {
+    if (shouldFail) throw Exception('Block failed');
+    if (tier == 0) {
+      unblockCallCount++;
+    } else {
+      blockCallCount++;
+    }
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchBlockedUsers() async {
+    if (shouldFail) throw Exception('Fetch failed');
+    return blockedUsers;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchBlockers() async {
+    if (shouldFail) throw Exception('Fetch failed');
+    return [];
+  }
+}
+
 final fakeAuthService = FakeAuthService();
 final fakeOnboardingRepository = FakeOnboardingRepository();
 final fakeAccountRepository = FakeAccountRepository();
+final fakeConnectionRepository = FakeConnectionRepository();
 
 Widget createTestApp(Widget child) {
   final router = GoRouter(
@@ -250,6 +282,7 @@ Widget createTestApp(Widget child) {
       GoRoute(path: '/hosting/create', builder: (_, __) => const SizedBox()),
       GoRoute(path: '/field/intro', builder: (_, __) => const SizedBox()),
       GoRoute(path: '/', builder: (_, __) => const SizedBox()),
+      GoRoute(path: '/connections/blocked', builder: (_, __) => const SizedBox()),
     ],
   );
   return ProviderScope(
@@ -258,6 +291,7 @@ Widget createTestApp(Widget child) {
       authStateProvider.overrideWith((ref) => Stream.empty()),
       onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
       accountRepositoryProvider.overrideWithValue(fakeAccountRepository),
+      connectionRepositoryProvider.overrideWithValue(fakeConnectionRepository),
     ],
     child: MaterialApp.router(routerConfig: router),
   );
