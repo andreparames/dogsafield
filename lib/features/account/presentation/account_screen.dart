@@ -79,6 +79,15 @@ class _AccountContent extends StatelessWidget {
             const SizedBox(height: 24),
             _SafetySection(profile: profile),
           ],
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => context.push('/hosting/my-events'),
+              icon: const Icon(Icons.event),
+              label: const Text('My Events'),
+            ),
+          ),
           const SizedBox(height: 32),
           _AccountActions(),
           const SizedBox(height: 24),

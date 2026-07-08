@@ -72,7 +72,13 @@ class FakeOnboardingRepository implements OnboardingRepository {
 class FakeHostingRepository implements HostingRepository {
   bool shouldFail = false;
   int createCallCount = 0;
+  int updateCallCount = 0;
+  int cancelCallCount = 0;
   DogEvent? lastCreated;
+  DogEvent? lastUpdated;
+  List<DogEvent> myEvents = [];
+  List<Map<String, dynamic>> attendees = [];
+  bool? lastCancelledId;
 
   @override
   Future<DogEvent> createEvent(DogEvent event) async {
@@ -83,8 +89,37 @@ class FakeHostingRepository implements HostingRepository {
   }
 
   @override
+  Future<DogEvent> updateEvent(DogEvent event) async {
+    updateCallCount++;
+    if (shouldFail) throw Exception('Update failed');
+    lastUpdated = event;
+    return event;
+  }
+
+  @override
+  Future<void> cancelEvent(String eventId) async {
+    cancelCallCount++;
+    if (shouldFail) throw Exception('Cancel failed');
+    lastCancelledId = true;
+    myEvents = myEvents.map((e) => e.id == eventId ? e.copyWith(isCancelled: true) : e).toList();
+  }
+
+  @override
   Future<List<DogEvent>> fetchMyEvents() async {
-    return [];
+    if (shouldFail) throw Exception('Fetch failed');
+    return myEvents;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchAttendees(String eventId) async {
+    if (shouldFail) throw Exception('Fetch failed');
+    return attendees;
+  }
+
+  @override
+  Future<void> removeAttendee(String eventId, String userId) async {
+    if (shouldFail) throw Exception('Remove failed');
+    attendees.removeWhere((a) => a['user_id'] == userId);
   }
 }
 

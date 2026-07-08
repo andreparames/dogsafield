@@ -11,8 +11,14 @@ const _bringOptions = ['Long line leash', 'Human lunch', 'Dog treats', 'Water bo
 class CreateEventScreen extends ConsumerStatefulWidget {
   final double initialLatitude;
   final double initialLongitude;
+  final DogEvent? existingEvent;
 
-  const CreateEventScreen({super.key, this.initialLatitude = 0, this.initialLongitude = 0});
+  const CreateEventScreen({
+    super.key,
+    this.initialLatitude = 0,
+    this.initialLongitude = 0,
+    this.existingEvent,
+  });
 
   @override
   ConsumerState<CreateEventScreen> createState() => _CreateEventScreenState();
@@ -30,12 +36,25 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   TimeOfDay _time = const TimeOfDay(hour: 10, minute: 0);
   int _maxAttendees = 20;
   final Set<String> _whatToBring = {};
-  bool _isSubmitting = false;
+
+  bool get _isEditing => widget.existingEvent != null;
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialLatitude != 0 || widget.initialLongitude != 0) {
+    final existing = widget.existingEvent;
+    if (existing != null) {
+      _titleCtrl.text = existing.title;
+      _descCtrl.text = existing.description ?? '';
+      _locationNameCtrl.text = existing.locationName;
+      _type = existing.type;
+      _latitude = existing.latitude;
+      _longitude = existing.longitude;
+      _dateTime = existing.dateTime;
+      _time = TimeOfDay.fromDateTime(existing.dateTime);
+      _maxAttendees = existing.maxAttendees;
+      _whatToBring.addAll(existing.whatToBring);
+    } else if (widget.initialLatitude != 0 || widget.initialLongitude != 0) {
       _latitude = widget.initialLatitude;
       _longitude = widget.initialLongitude;
     }
@@ -107,43 +126,54 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       return;
     }
 
-    setState(() => _isSubmitting = true);
-    try {
-      final repo = ref.read(hostingRepositoryProvider);
-      final dt = DateTime(_dateTime.year, _dateTime.month, _dateTime.day, _time.hour, _time.minute);
-      await repo.createEvent(DogEvent(
-        id: '',
-        hostId: '',
-        type: _type!,
-        title: _titleCtrl.text.trim(),
-        description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
-        locationName: _locationNameCtrl.text.trim().isEmpty ? 'Selected Location' : _locationNameCtrl.text.trim(),
-        latitude: _latitude!,
-        longitude: _longitude!,
-        dateTime: dt,
-        maxAttendees: _maxAttendees,
-        whatToBring: _whatToBring.toList(),
-      ));
-      if (!mounted) return;
+    final notifier = ref.read(hostingActionProvider.notifier);
+    final dt = DateTime(_dateTime.year, _dateTime.month, _dateTime.day, _time.hour, _time.minute);
+    final event = DogEvent(
+      id: _isEditing ? widget.existingEvent!.id : '',
+      hostId: _isEditing ? widget.existingEvent!.hostId : '',
+      type: _type!,
+      title: _titleCtrl.text.trim(),
+      description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+      locationName: _locationNameCtrl.text.trim().isEmpty ? 'Selected Location' : _locationNameCtrl.text.trim(),
+      latitude: _latitude!,
+      longitude: _longitude!,
+      dateTime: dt,
+      maxAttendees: _maxAttendees,
+      whatToBring: _whatToBring.toList(),
+    );
+
+    if (_isEditing) {
+      await notifier.updateEvent(event);
+    } else {
+      await notifier.createEvent(event);
+    }
+
+    if (!mounted) return;
+
+    if (ref.read(hostingActionProvider) is HostingActionError) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Event created!')),
+        SnackBar(content: Text((ref.read(hostingActionProvider) as HostingActionError).message)),
       );
-      context.pop();
-    } catch (e) {
-      if (!mounted) return;
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to create event: $e')),
+        SnackBar(content: Text(_isEditing ? 'Event updated!' : 'Event created!')),
       );
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go('/');
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final actionState = ref.watch(hostingActionProvider);
+    final isLoading = actionState is HostingActionLoading;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Event')),
+      appBar: AppBar(title: Text(_isEditing ? 'Edit Event' : 'Create Event')),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -213,10 +243,10 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
             ),
             const SizedBox(height: 32),
             FilledButton(
-              onPressed: _isSubmitting ? null : _submit,
-              child: _isSubmitting
+              onPressed: isLoading ? null : _submit,
+              child: isLoading
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('Publish to Field'),
+                  : Text(_isEditing ? 'Save Changes' : 'Publish to Field'),
             ),
           ],
         ),
