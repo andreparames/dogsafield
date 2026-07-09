@@ -126,6 +126,18 @@ class ConnectionActionNotifier extends StateNotifier<ConnectionActionState> {
   void reset() => state = const ConnectionActionIdle();
 }
 
+final blockedUserIdsProvider = FutureProvider<Set<String>>((ref) async {
+  final repo = ref.watch(connectionRepositoryProvider);
+  final rows = await repo.fetchBlockedUsers();
+  return rows.map((r) => r['user_id_b'] as String).toSet();
+});
+
+final blockerIdsProvider = FutureProvider<Set<String>>((ref) async {
+  final repo = ref.watch(connectionRepositoryProvider);
+  final rows = await repo.fetchBlockers();
+  return rows.map((r) => r['user_id_a'] as String).toSet();
+});
+
 final connectionActionProvider =
     StateNotifierProvider<ConnectionActionNotifier, ConnectionActionState>((ref) {
   return ConnectionActionNotifier(ref);

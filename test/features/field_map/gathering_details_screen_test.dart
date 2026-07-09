@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dogsafield/features/field_map/data/attendee_profile.dart';
 import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
+import 'package:dogsafield/features/connections/state/connection_providers.dart';
 import 'package:dogsafield/features/field_map/presentation/gathering_details_screen.dart';
 import 'package:dogsafield/features/field_map/state/gathering_providers.dart';
 import 'package:dogsafield/features/field_map/state/rsvp_providers.dart';
@@ -32,6 +33,8 @@ void main() {
         authStateProvider.overrideWith((ref) => Stream.empty()),
         gatheringRepositoryProvider.overrideWithValue(gatheringRepo),
         rsvpRepositoryProvider.overrideWithValue(rsvpRepo),
+        blockedUserIdsProvider.overrideWith((ref) => Future.value(<String>{})),
+        blockerIdsProvider.overrideWith((ref) => Future.value(<String>{})),
       ],
       child: createTestApp(GatheringDetailsScreen(eventId: eventId)),
     );

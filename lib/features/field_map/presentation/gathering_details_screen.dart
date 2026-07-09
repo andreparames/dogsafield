@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../shared/models/dog.dart';
 import '../../../shared/models/event.dart';
 import '../../../shared/models/user_profile.dart';
+import '../../connections/presentation/report_dialog.dart';
+import '../../connections/state/connection_providers.dart';
 import '../../onboarding/state/auth_provider.dart';
 import '../data/attendee_profile.dart';
 import '../data/gathering_detail.dart';
@@ -288,16 +290,32 @@ class _AttendeeListSection extends StatelessWidget {
   }
 }
 
-class _AttendeeCard extends StatelessWidget {
+class _AttendeeCard extends ConsumerWidget {
   final AttendeeProfile attendee;
 
   const _AttendeeCard({required this.attendee});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final profile = attendee.profile;
     final dog = attendee.dog;
+    final isCurrentUser =
+        ref.read(authServiceProvider).currentUser?.id == attendee.profile.id;
+
+    ref.listen<ConnectionActionState>(connectionActionProvider, (prev, next) {
+      if (next is ConnectionActionError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.message)),
+        );
+        ref.read(connectionActionProvider.notifier).reset();
+      } else if (next is ConnectionActionSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User blocked')),
+        );
+        ref.read(connectionActionProvider.notifier).reset();
+      }
+    });
 
     return Card(
       child: Padding(
@@ -352,6 +370,57 @@ class _AttendeeCard extends StatelessWidget {
                   ],
                 ],
               ),
+            ),
+            if (!isCurrentUser)
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () => _showBlockBottomSheet(context, ref),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showBlockBottomSheet(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.block),
+              title: const Text('Block'),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                ref.read(connectionActionProvider.notifier).blockUser(attendee.profile.id);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.visibility_off),
+              title: const Text('Block & Hide'),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                ref.read(connectionActionProvider.notifier).blockAndHide(attendee.profile.id);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.flag),
+              title: const Text('Block, Hide & Report'),
+              onTap: () async {
+                Navigator.of(ctx).pop();
+                final reason = await showDialog<String>(
+                  context: context,
+                  builder: (_) => const ReportDialog(),
+                );
+                if (reason != null && reason.isNotEmpty) {
+                  ref.read(connectionActionProvider.notifier).blockHideAndReport(
+                    attendee.profile.id,
+                    reason,
+                  );
+                }
+              },
             ),
           ],
         ),
