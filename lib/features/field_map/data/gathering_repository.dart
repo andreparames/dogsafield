@@ -28,13 +28,25 @@ class GatheringRepository {
     final attendees = await _fetchAttendees(eventId);
 
     if (_cache != null) {
+      final attendanceRows = await _client
+          .from('attendance')
+          .select('user_id')
+          .eq('event_id', eventId)
+          .eq('status', 'confirmed');
+      for (final row in attendanceRows) {
+        await _cache.upsertAttendance(
+          eventId,
+          row['user_id'] as String,
+          'confirmed',
+        );
+      }
       await _cache.upsertEvents([event]);
       await _cache.upsertProfiles([host]);
       if (hostDog != null) await _cache.upsertDogs([hostDog]);
-      for (final a in attendees) {
-        await _cache.upsertProfiles([a.profile]);
-        if (a.dog != null) await _cache.upsertDogs([a.dog!]);
-      }
+      await _cache.upsertProfiles(attendees.map((a) => a.profile).toList());
+      await _cache.upsertDogs(
+        attendees.where((a) => a.dog != null).map((a) => a.dog!).toList(),
+      );
     }
 
     return GatheringDetail(

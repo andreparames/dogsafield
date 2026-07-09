@@ -5,7 +5,9 @@ import 'database.dart';
 import 'local_cache_service.dart';
 
 final localDatabaseProvider = Provider<AppDatabase>((ref) {
-  return AppDatabase();
+  final db = AppDatabase();
+  ref.onDispose(db.close);
+  return db;
 });
 
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {

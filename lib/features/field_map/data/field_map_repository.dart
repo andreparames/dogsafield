@@ -81,6 +81,13 @@ class FieldMapRepository {
     final events = response.map((row) => _rowToEvent(row)).toList();
 
     if (_cache != null) {
+      for (final row in attendanceRows) {
+        await _cache.upsertAttendance(
+          row['event_id'] as String,
+          user.id,
+          'confirmed',
+        );
+      }
       await _cache.upsertEvents(events);
     }
 

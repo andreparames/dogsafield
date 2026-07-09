@@ -18,16 +18,20 @@ class LocalCacheService {
   Future<void> upsertEvents(List<DogEvent> events) async {
     for (final event in events) {
       await _db.into(_db.eventsTable).insertOnConflictUpdate(
-        EventsTableCompanion.insert(
-          id: event.id,
-          hostId: event.hostId,
-          type: event.type.name,
-          title: event.title,
-          eventDate: event.dateTime.toUtc().toIso8601String(),
-          locationName: event.locationName,
-          latitude: event.latitude,
-          longitude: event.longitude,
-          maxAttendees: event.maxAttendees,
+        EventsTableCompanion(
+          id: Value(event.id),
+          hostId: Value(event.hostId),
+          type: Value(event.type.name),
+          title: Value(event.title),
+          description: Value<String?>(event.description),
+          eventDate: Value(event.dateTime.toUtc().toIso8601String()),
+          locationName: Value(event.locationName),
+          latitude: Value(event.latitude),
+          longitude: Value(event.longitude),
+          maxAttendees: Value(event.maxAttendees),
+          whatToBring: Value<String?>(jsonEncode(event.whatToBring)),
+          amenityTags: Value<String?>(jsonEncode(event.amenityTags)),
+          isCancelled: Value<int?>(event.isCancelled ? 1 : 0),
         ),
       );
     }
@@ -80,6 +84,14 @@ class LocalCacheService {
         status: Value<String?>(status),
       ),
     );
+    await _setLastSync('attendance');
+  }
+
+  Future<void> deleteAttendance(String eventId, String userId) async {
+    await (_db.delete(_db.attendanceTable)
+      ..where((t) => t.eventId.equals(eventId))
+      ..where((t) => t.userId.equals(userId))
+    ).go();
     await _setLastSync('attendance');
   }
 
@@ -183,11 +195,19 @@ class LocalCacheService {
     await _prefs.setInt('sync_ts_$table', DateTime.now().millisecondsSinceEpoch);
   }
 
+  T? _safeEnum<T extends Enum>(List<T> values, String? name) {
+    if (name == null) return null;
+    for (final v in values) {
+      if (v.name == name) return v;
+    }
+    return null;
+  }
+
   DogEvent _toDogEvent(EventsTableData row) {
     return DogEvent(
       id: row.id,
       hostId: row.hostId,
-      type: EventType.values.firstWhere((e) => e.name == row.type),
+      type: _safeEnum(EventType.values, row.type) ?? EventType.packWalk,
       title: row.title,
       description: row.description,
       locationName: row.locationName,
@@ -217,9 +237,7 @@ class LocalCacheService {
       isSuspended: row.isSuspended == 1,
       hasSeenFieldIntro: row.hasSeenFieldIntro == 1,
       hasSeenHostIntro: row.hasSeenHostIntro == 1,
-      treatPolicy: row.treatPolicy != null
-          ? TreatPolicy.values.firstWhere((e) => e.name == row.treatPolicy)
-          : null,
+      treatPolicy: _safeEnum(TreatPolicy.values, row.treatPolicy),
     );
   }
 
@@ -230,9 +248,7 @@ class LocalCacheService {
       name: row.name,
       age: row.age,
       breed: row.breed,
-      vibe: row.vibe != null
-          ? SocialVibe.values.firstWhere((e) => e.name == row.vibe)
-          : null,
+      vibe: _safeEnum(SocialVibe.values, row.vibe),
       icebreakerAnswer: row.icebreakerAnswer,
     );
   }

@@ -50,6 +50,10 @@ class RsvpRepository {
       'user_id': user.id,
       'status': 'confirmed',
     });
+
+    if (_cache != null) {
+      await _cache.upsertAttendance(eventId, user.id, 'confirmed');
+    }
   }
 
   Future<void> cancelRsvp(String eventId) async {
@@ -61,6 +65,10 @@ class RsvpRepository {
         .delete()
         .eq('event_id', eventId)
         .eq('user_id', user.id);
+
+    if (_cache != null) {
+      await _cache.deleteAttendance(eventId, user.id);
+    }
   }
 
   Future<bool> hasRsvp(String eventId) async {

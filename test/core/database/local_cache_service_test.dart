@@ -54,10 +54,35 @@ void main() {
       final result = await cache.getEventById('nonexistent');
       expect(result, isNull);
     });
+
+    test('stores and retrieves all event fields round-trip', () async {
+      final event = DogEvent(
+        id: 'evt-full',
+        hostId: 'host-1',
+        type: EventType.packWalk,
+        title: 'Full Event',
+        description: 'A detailed description',
+        locationName: 'Park',
+        latitude: 40.0,
+        longitude: -73.0,
+        dateTime: DateTime.utc(2026, 7, 10, 12, 0),
+        maxAttendees: 10,
+        whatToBring: ['water', 'snacks'],
+        amenityTags: ['parking', 'shade'],
+        isCancelled: true,
+      );
+      await cache.upsertEvents([event]);
+      final result = await cache.getEventById('evt-full');
+      expect(result, isNotNull);
+      expect(result!.description, 'A detailed description');
+      expect(result.whatToBring, ['water', 'snacks']);
+      expect(result.amenityTags, ['parking', 'shade']);
+      expect(result.isCancelled, isTrue);
+    });
   });
 
   group('getNearbyEvents', () {
-    test('returns only events within radius', () async {
+    test('returns events within radius', () async {
       final center = DogEvent(
         id: 'center',
         hostId: 'h1',
@@ -72,6 +97,23 @@ void main() {
       await cache.upsertEvents([center]);
       final result = await cache.getNearbyEvents(latitude: 40.0, longitude: -73.0, radiusKm: 10);
       expect(result.length, 1);
+    });
+
+    test('excludes events outside radius', () async {
+      final far = DogEvent(
+        id: 'far',
+        hostId: 'h1',
+        type: EventType.packWalk,
+        title: 'Far',
+        locationName: 'Loc',
+        latitude: 50.0,
+        longitude: -73.0,
+        dateTime: DateTime.now().add(const Duration(days: 1)),
+        maxAttendees: 10,
+      );
+      await cache.upsertEvents([far]);
+      final result = await cache.getNearbyEvents(latitude: 40.0, longitude: -73.0, radiusKm: 10);
+      expect(result, isEmpty);
     });
   });
 
@@ -125,6 +167,25 @@ void main() {
       final ids = await cache.getMyRsvpIds('unknown');
       expect(ids, isEmpty);
     });
+
+    test('getMyRsvpEvents returns events for user RSVPs', () async {
+      final event = DogEvent(
+        id: 'rsvp-evt',
+        hostId: 'h1',
+        type: EventType.packWalk,
+        title: 'RSVP Event',
+        locationName: 'Loc',
+        latitude: 40.0,
+        longitude: -73.0,
+        dateTime: DateTime.now().add(const Duration(days: 1)),
+        maxAttendees: 10,
+      );
+      await cache.upsertEvents([event]);
+      await cache.upsertAttendance('rsvp-evt', 'user-1', 'confirmed');
+      final result = await cache.getMyRsvpEvents('user-1');
+      expect(result.length, 1);
+      expect(result.first.id, 'rsvp-evt');
+    });
   });
 
   group('upsertAttendanceBatch', () {
@@ -135,6 +196,15 @@ void main() {
       ]);
       final ids = await cache.getAttendeeIds('evt-1');
       expect(ids, ['user-1', 'user-2']);
+    });
+  });
+
+  group('deleteAttendance', () {
+    test('removes attendance record', () async {
+      await cache.upsertAttendance('evt-1', 'user-1', 'confirmed');
+      await cache.deleteAttendance('evt-1', 'user-1');
+      final ids = await cache.getAttendeeIds('evt-1');
+      expect(ids, isEmpty);
     });
   });
 
