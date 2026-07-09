@@ -210,20 +210,13 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              controller.dispose();
-              Navigator.pop(ctx);
-            },
+            onPressed: () => Navigator.pop(ctx),
             child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () async {
               final message = controller.text.trim();
-              if (message.isEmpty) {
-                controller.dispose();
-                return;
-              }
-              controller.dispose();
+              if (message.isEmpty) return;
               try {
                 await ref.read(feedbackProvider.notifier).submit(message);
                 if (!ctx.mounted) return;
@@ -242,7 +235,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           ),
         ],
       ),
-    );
+    ).then((_) => controller.dispose());
   }
 
   Future<void> _retry() async {
