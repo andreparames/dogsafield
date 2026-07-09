@@ -63,17 +63,11 @@ void main() {
 
   group('SafetyBoundariesScreen submission', () {
     testWidgets('shows error when userProfile is null', (WidgetTester tester) async {
-      final container = ProviderContainer(
-        overrides: [
-          authServiceProvider.overrideWithValue(fakeAuthService),
-          authStateProvider.overrideWith((ref) => Stream.empty()),
-          onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
-        ],
-      );
+      final container = await createContainerWithCache();
+      addTearDown(container.dispose);
       container.read(onboardingProvider.notifier).setDog(
         Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
       );
-      addTearDown(container.dispose);
 
       final router = goRouterForTest(
         route: '/test',
@@ -101,13 +95,8 @@ void main() {
     });
 
     testWidgets('succeeds when userProfile is set via initFromAuth', (WidgetTester tester) async {
-      final container = ProviderContainer(
-        overrides: [
-          authServiceProvider.overrideWithValue(fakeAuthService),
-          authStateProvider.overrideWith((ref) => Stream.empty()),
-          onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
-        ],
-      );
+      final container = await createContainerWithCache();
+      addTearDown(container.dispose);
       container.read(onboardingProvider.notifier).initFromAuth(
         'u1',
         'a@b.com',
@@ -116,7 +105,6 @@ void main() {
       container.read(onboardingProvider.notifier).setDog(
         Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
       );
-      addTearDown(container.dispose);
 
       final router = goRouterForTest(
         route: '/test',

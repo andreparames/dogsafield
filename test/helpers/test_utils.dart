@@ -1,7 +1,12 @@
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:dogsafield/core/database/database.dart';
+import 'package:dogsafield/core/database/local_cache_service.dart';
+import 'package:dogsafield/core/database/providers.dart';
 import 'package:dogsafield/features/account/data/account_repository.dart';
 import 'package:dogsafield/features/account/state/account_providers.dart';
 import 'package:dogsafield/features/connections/data/connection_repository.dart';
@@ -261,6 +266,27 @@ class FakeConnectionRepository implements ConnectionRepository {
     if (shouldFail) throw Exception('Fetch failed');
     return [];
   }
+}
+
+Future<ProviderContainer> createContainerWithCache({
+  List<Override> additionalOverrides = const [],
+}) async {
+  SharedPreferences.setMockInitialValues({});
+  final prefs = await SharedPreferences.getInstance();
+  final db = AppDatabase(executor: NativeDatabase.memory());
+  final cache = LocalCacheService(db: db, prefs: prefs);
+  final container = ProviderContainer(
+    overrides: [
+      sharedPreferencesProvider.overrideWithValue(prefs),
+      localDatabaseProvider.overrideWithValue(db),
+      localCacheServiceProvider.overrideWithValue(cache),
+      authServiceProvider.overrideWithValue(fakeAuthService),
+      authStateProvider.overrideWith((ref) => Stream.empty()),
+      onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
+      ...additionalOverrides,
+    ],
+  );
+  return container;
 }
 
 final fakeAuthService = FakeAuthService();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/database/providers.dart';
 import '../../../shared/models/user_profile.dart';
 import '../state/onboarding_state.dart';
 import '../state/auth_provider.dart';
@@ -77,6 +78,7 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
 
     final onboarding = ref.read(onboardingProvider);
     final repo = ref.read(onboardingRepositoryProvider);
+    final cache = ref.read(localCacheServiceProvider);
     final notifier = ref.read(onboardingProvider.notifier);
     notifier.setSubmitting(true);
 
@@ -96,6 +98,15 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
 
       if (onboarding.dog != null) {
         await repo.createDogProfile(onboarding.dog!).timeout(const Duration(seconds: 15));
+      }
+
+      final updatedProfile = onboarding.userProfile!.copyWith(
+        photoUrl: photoUrl,
+        treatPolicy: _selected,
+      );
+      await cache.upsertProfiles([updatedProfile]);
+      if (onboarding.dog != null) {
+        await cache.upsertDogs([onboarding.dog!]);
       }
 
       notifier.setStep(OnboardingStep.complete);
