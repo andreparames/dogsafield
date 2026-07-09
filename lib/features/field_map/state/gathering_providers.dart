@@ -17,8 +17,8 @@ final gatheringDetailProvider =
     FutureProvider.family<GatheringDetail, String>((ref, eventId) async {
   final repo = ref.watch(gatheringRepositoryProvider);
   final detail = await repo.fetchGatheringDetail(eventId);
-  final blockedIds = await ref.watch(blockedUserIdsProvider.future);
-  final blockerIds = await ref.watch(blockerIdsProvider.future);
+  final blockedIds = await ref.watch(blockedUserIdsProvider.future).catchError((_) => <String>{});
+  final blockerIds = await ref.watch(blockerIdsProvider.future).catchError((_) => <String>{});
   return GatheringDetail(
     event: detail.event,
     host: detail.host,

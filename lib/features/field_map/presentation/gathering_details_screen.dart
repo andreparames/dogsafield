@@ -23,6 +23,20 @@ class GatheringDetailsScreen extends ConsumerWidget {
     final detailAsync = ref.watch(gatheringDetailProvider(eventId));
     final theme = Theme.of(context);
 
+    ref.listen<ConnectionActionState>(connectionActionProvider, (prev, next) {
+      if (next is ConnectionActionError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.message)),
+        );
+        ref.read(connectionActionProvider.notifier).reset();
+      } else if (next is ConnectionActionSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User blocked')),
+        );
+        ref.read(connectionActionProvider.notifier).reset();
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gathering Details'),
@@ -302,20 +316,6 @@ class _AttendeeCard extends ConsumerWidget {
     final dog = attendee.dog;
     final isCurrentUser =
         ref.read(authServiceProvider).currentUser?.id == attendee.profile.id;
-
-    ref.listen<ConnectionActionState>(connectionActionProvider, (prev, next) {
-      if (next is ConnectionActionError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.message)),
-        );
-        ref.read(connectionActionProvider.notifier).reset();
-      } else if (next is ConnectionActionSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User blocked')),
-        );
-        ref.read(connectionActionProvider.notifier).reset();
-      }
-    });
 
     return Card(
       child: Padding(
