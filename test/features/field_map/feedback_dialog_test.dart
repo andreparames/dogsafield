@@ -1,57 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-/// Mirrors the fixed _FeedbackDialog StatefulWidget from FieldMapScreen.
-class _FeedbackDialog extends StatefulWidget {
-  const _FeedbackDialog({required this.onSubmit});
-
-  final Future<void> Function(String message) onSubmit;
-
-  @override
-  State<_FeedbackDialog> createState() => _FeedbackDialogState();
-}
-
-class _FeedbackDialogState extends State<_FeedbackDialog> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Send Feedback'),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        maxLines: 4,
-        decoration: const InputDecoration(
-          hintText: 'Share your thoughts, suggestions, or report an issue...',
-          border: OutlineInputBorder(),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () async {
-            final message = _controller.text.trim();
-            if (message.isEmpty) return;
-            await widget.onSubmit(message);
-            if (!context.mounted) return;
-            Navigator.pop(context);
-          },
-          child: const Text('Send'),
-        ),
-      ],
-    );
-  }
-}
+import 'package:dogsafield/features/field_map/presentation/feedback_dialog.dart';
 
 class FeedbackDialogHost extends StatefulWidget {
   const FeedbackDialogHost({super.key});
@@ -68,7 +17,7 @@ class _FeedbackDialogHostState extends State<FeedbackDialogHost> {
       body: ElevatedButton(
         onPressed: () => showDialog(
           context: context,
-          builder: (_) => const _FeedbackDialog(onSubmit: _dummySubmit),
+          builder: (_) => const FeedbackDialog(onSubmit: _dummySubmit),
         ),
         child: const Text('Open Feedback'),
       ),
@@ -91,9 +40,11 @@ void main() {
 
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsNothing);
   });
 
-  testWidgets('does not crash when submitted after typing', (tester) async {
+  testWidgets('shows success snackbar after submitting', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(home: FeedbackDialogHost()),
     );
@@ -105,5 +56,8 @@ void main() {
 
     await tester.tap(find.text('Send'));
     await tester.pumpAndSettle();
+
+    expect(find.text('Thanks for your feedback!'), findsOneWidget);
+    expect(find.byType(AlertDialog), findsNothing);
   });
 }
