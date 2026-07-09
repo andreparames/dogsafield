@@ -41,6 +41,9 @@ class ConnectionRepository {
             is_verified,
             trial_rsvps_used,
             is_founding_pack,
+            is_suspended,
+            has_seen_field_intro,
+            has_seen_host_intro,
             treat_policy
           )
         ''')
