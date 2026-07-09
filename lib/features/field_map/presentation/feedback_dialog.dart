@@ -51,7 +51,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
             } catch (e) {
               if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Failed to send feedback: $e')),
+                const SnackBar(content: Text('Failed to send feedback. Please try again.')),
               );
             }
           },
