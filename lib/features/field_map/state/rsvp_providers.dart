@@ -1,9 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/database/providers.dart';
 import '../data/rsvp_repository.dart';
 
 final rsvpRepositoryProvider = Provider<RsvpRepository>((ref) {
-  return RsvpRepository(Supabase.instance.client);
+  return RsvpRepository(
+    Supabase.instance.client,
+    ref.watch(localCacheServiceProvider),
+    ref.watch(connectivityServiceProvider),
+  );
 });
 
 final myRsvpIdsProvider = FutureProvider<Set<String>>((ref) async {

@@ -60,6 +60,7 @@ void main() {
         ),
         hostDog: Dog(
           id: 'dog-1',
+          ownerId: 'host-1',
           name: 'Buddy',
           breed: 'Golden Retriever',
           vibe: SocialVibe.zoomieKing,
@@ -116,6 +117,7 @@ void main() {
         ),
         hostDog: Dog(
           id: 'dog-1',
+          ownerId: 'host-1',
           name: 'Buddy',
           breed: 'Golden Retriever',
           vibe: SocialVibe.zoomieKing,
@@ -234,6 +236,7 @@ void main() {
             profile: UserProfile(id: 'u1', email: 'u1@test.com', displayName: 'Dave'),
             dog: Dog(
               id: 'dog-1',
+              ownerId: 'u1',
               name: 'Rex',
               breed: 'German Shepherd',
               vibe: SocialVibe.zoomieKing,

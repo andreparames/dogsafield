@@ -1,17 +1,32 @@
 import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/database/connectivity_service.dart';
+import '../../../core/database/local_cache_service.dart';
 import '../../../shared/models/event.dart';
 
 class FieldMapRepository {
   final SupabaseClient _client;
+  final LocalCacheService? _cache;
+  final ConnectivityService? _connectivity;
 
-  FieldMapRepository(this._client);
+  FieldMapRepository(this._client, [this._cache, this._connectivity]);
 
   Future<List<DogEvent>> fetchEventsNearby({
     required double latitude,
     required double longitude,
     double radiusKm = 50,
   }) async {
+    if (_cache != null && _connectivity != null) {
+      final online = await _connectivity.isOnline;
+      if (!online) {
+        return _cache.getNearbyEvents(
+          latitude: latitude,
+          longitude: longitude,
+          radiusKm: radiusKm,
+        );
+      }
+    }
+
     const double kmPerDegree = 111.0;
     final double latDelta = radiusKm / kmPerDegree;
     final double lonDelta = radiusKm / (kmPerDegree * cos(latitude * pi / 180));
@@ -26,12 +41,25 @@ class FieldMapRepository {
         .gte('date_time', DateTime.now().toUtc().toIso8601String())
         .order('date_time', ascending: true);
 
-    return response.map((row) => _rowToEvent(row)).toList();
+    final events = response.map((row) => _rowToEvent(row)).toList();
+
+    if (_cache != null) {
+      await _cache.upsertEvents(events);
+    }
+
+    return events;
   }
 
   Future<List<DogEvent>> fetchMyRsvps() async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
+
+    if (_cache != null && _connectivity != null) {
+      final online = await _connectivity.isOnline;
+      if (!online) {
+        return _cache.getMyRsvpEvents(user.id);
+      }
+    }
 
     final attendanceRows = await _client
         .from('attendance')
@@ -50,7 +78,20 @@ class FieldMapRepository {
         .gte('date_time', DateTime.now().toUtc().toIso8601String())
         .order('date_time', ascending: true);
 
-    return response.map((row) => _rowToEvent(row)).toList();
+    final events = response.map((row) => _rowToEvent(row)).toList();
+
+    if (_cache != null) {
+      for (final row in attendanceRows) {
+        await _cache.upsertAttendance(
+          row['event_id'] as String,
+          user.id,
+          'confirmed',
+        );
+      }
+      await _cache.upsertEvents(events);
+    }
+
+    return events;
   }
 
   DogEvent _rowToEvent(Map<String, dynamic> row) {

@@ -68,7 +68,7 @@ void main() {
     });
 
     test('setDog stores dog', () {
-      final dog = Dog(id: '1', name: 'Buddy');
+      final dog = Dog(id: '1', ownerId: 'u1', name: 'Buddy');
       notifier.setDog(dog);
       expect(notifier.state.dog, dog);
       expect(notifier.state.dog!.name, 'Buddy');
@@ -85,7 +85,7 @@ void main() {
     test('reset returns to initial state', () {
       notifier.setStep(OnboardingStep.complete);
       notifier.setPhotoUrl('https://example.com/p.jpg');
-      notifier.setDog(Dog(id: '1', name: 'Buddy'));
+      notifier.setDog(Dog(id: '1', ownerId: 'u1', name: 'Buddy'));
       notifier.setLoading(true);
       notifier.setSubmitting(true);
       notifier.setSubmissionError('some error');
@@ -101,8 +101,8 @@ void main() {
     });
 
     test('setDog replaces previous dog', () {
-      notifier.setDog(Dog(id: '1', name: 'Buddy'));
-      notifier.setDog(Dog(id: '2', name: 'Max', age: 5));
+      notifier.setDog(Dog(id: '1', ownerId: 'u1', name: 'Buddy'));
+      notifier.setDog(Dog(id: '2', ownerId: 'u1', name: 'Max', age: 5));
 
       expect(notifier.state.dog!.id, '2');
       expect(notifier.state.dog!.name, 'Max');

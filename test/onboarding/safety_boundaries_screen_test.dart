@@ -43,7 +43,7 @@ void main() {
       UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
     );
     container.read(onboardingProvider.notifier).setDog(
-      Dog(id: 'd1', name: 'Buddy'),
+        Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
     );
     addTearDown(container.dispose);
 
@@ -85,7 +85,7 @@ void main() {
       UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
     );
     container.read(onboardingProvider.notifier).setDog(
-      Dog(id: 'd1', name: 'Buddy'),
+        Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
     );
     container.read(onboardingProvider.notifier).setLocalPhotoPath('/tmp/photo.png');
     addTearDown(container.dispose);
@@ -130,7 +130,7 @@ void main() {
       UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
     );
     container.read(onboardingProvider.notifier).setDog(
-      Dog(id: 'd1', name: 'Buddy'),
+        Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
     );
     addTearDown(container.dispose);
 

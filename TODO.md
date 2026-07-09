@@ -72,6 +72,27 @@
 - [ ] Screens: `ChatListScreen`, `DirectMessageScreen`
 
 
+### Offline Read-Only Support
+
+**Phase 1 — Add Drift**
+- [ ] Add dependencies: `drift`, `sqlite_flutter_libs`, `connectivity_plus`, `path_provider`, `path`
+- [ ] Create `lib/core/database/` with Drift tables mirroring Supabase: `events`, `profiles`, `dogs`, `attendance`
+- [ ] Create `AppDatabase` class (Drift `_$AppDatabase`)
+
+**Phase 2 — Cache layer**
+- [ ] Create `LocalCacheService` with upsert methods for each table and read methods matching repository queries (nearby events, gathering detail, RSVP IDs)
+- [ ] Store last-sync timestamp per table in SharedPreferences
+- [ ] Create connectivity wrapper (`connectivity_plus` stream)
+
+**Phase 3 — Wire into repositories**
+- [ ] Inject `LocalCacheService` + connectivity into `FieldMapRepository`, `GatheringRepository`, `RsvpRepository`
+- [ ] Each read method: online → fetch from Supabase + upsert cache; offline → read from Drift
+- [ ] Add Riverpod providers: `localDatabaseProvider`, `localCacheServiceProvider`, `connectivityProvider`
+- [ ] **Unit tests** — `LocalCacheService` upsert/read/miss methods with in-memory Drift; connectivity wrapper emits correct states
+- [ ] **Widget tests** — screens render cached data when offline (mock `LocalCacheService` + connectivity)
+- [ ] **Integration/end-to-end** — simulate offline: repositories return cached data, no Supabase calls fire
+- [ ] Verify existing tests still pass after repository refactors
+
 ### Polish
 - [ ] **Map edge-to-edge inset** — Field map should not overlap Android status bar (battery, clock, etc.)
 - [ ] **Marker flicker on filter toggle** — markers should not flash/re-render when switching between Nearby and My RSVPs

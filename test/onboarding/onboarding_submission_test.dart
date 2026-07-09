@@ -71,7 +71,7 @@ void main() {
         ],
       );
       container.read(onboardingProvider.notifier).setDog(
-        Dog(id: 'd1', name: 'Buddy'),
+        Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
       );
       addTearDown(container.dispose);
 
@@ -114,7 +114,7 @@ void main() {
         'Alice',
       );
       container.read(onboardingProvider.notifier).setDog(
-        Dog(id: 'd1', name: 'Buddy'),
+        Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
       );
       addTearDown(container.dispose);
 

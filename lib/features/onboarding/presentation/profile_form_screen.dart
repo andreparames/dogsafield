@@ -83,8 +83,16 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
       );
       return;
     }
+    final userProfile = ref.read(onboardingProvider).userProfile;
+    if (userProfile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile not ready. Please try again.')),
+      );
+      return;
+    }
     final dog = Dog(
       id: const Uuid().v4(),
+      ownerId: userProfile.id,
       name: name,
       age: int.tryParse(_ageCtrl.text.trim()),
       breed: _breedCtrl.text.trim().isEmpty ? null : _breedCtrl.text.trim(),

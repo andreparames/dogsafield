@@ -34,9 +34,7 @@ git push origin feature-name
 ```
 
 ### 5. Create PR
-```powershell
-gh pr create --title "Short title" --body "Bullet list of changes"
-```
+Use the GitHub MCP `create_pull_request` tool — do NOT use `gh` CLI.
 
 ### 6. CodeRabbit loop
 Wait **10 minutes** after pushing/commenting before checking.
@@ -56,14 +54,10 @@ Wait **10 minutes** after pushing/commenting before checking.
 9. If clean → proceed
 ```
 
-To check CodeRabbit's latest response:
-```powershell
-gh pr view <number> --comments --json "comments" --jq "[.comments[] | select(.author.login == \"coderabbitai\") | .body][-1]"
-```
+To check CodeRabbit's latest response, use the GitHub MCP `pull_request_read` tool with `method: "get_comments"` and filter for `coderabbitai` author — do NOT use `gh` CLI.
 
-### 7. Merge or stop
-- If user said to merge: `gh pr merge <number> --squash --subject "Title" --body "Body"`
-- If user said "do NOT merge": stop and report
+### 7. Stop — do NOT merge
+Never merge a pull request. Stop here and report back to the user with the PR URL.
 
 ## Commit message style
 - Prefix: `feature:`, `fix:`, `refactor:`, `test:`, `docs:`

@@ -86,6 +86,7 @@ class AccountRepository {
   Dog _rowToDog(Map<String, dynamic> row) {
     return Dog(
       id: row['id'] as String,
+      ownerId: row['owner_id'] as String,
       name: row['name'] as String,
       age: row['age'] as int?,
       breed: row['breed'] as String?,
