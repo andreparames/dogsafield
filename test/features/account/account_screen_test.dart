@@ -63,7 +63,7 @@ void main() {
       await tester.pumpWidget(createAccountApp(
         AccountDetail(
           profile: UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
-          dog: Dog(id: 'd1', name: 'Buddy', breed: 'Labrador', vibe: SocialVibe.zoomieKing),
+          dog: Dog(id: 'd1', ownerId: 'u1', name: 'Buddy', breed: 'Labrador', vibe: SocialVibe.zoomieKing),
         ),
       ));
       await tester.pumpAndSettle();
@@ -183,7 +183,7 @@ void main() {
       await tester.pumpWidget(createAccountApp(
         AccountDetail(
           profile: UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
-          dog: Dog(id: 'd1', name: 'Buddy', icebreakerAnswer: 'He ate my shoe'),
+          dog: Dog(id: 'd1', ownerId: 'u1', name: 'Buddy', icebreakerAnswer: 'He ate my shoe'),
         ),
       ));
       await tester.pumpAndSettle();

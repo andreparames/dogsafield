@@ -83,8 +83,10 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
       );
       return;
     }
+    final userId = ref.read(onboardingProvider).userProfile?.id ?? '';
     final dog = Dog(
       id: const Uuid().v4(),
+      ownerId: userId,
       name: name,
       age: int.tryParse(_ageCtrl.text.trim()),
       breed: _breedCtrl.text.trim().isEmpty ? null : _breedCtrl.text.trim(),

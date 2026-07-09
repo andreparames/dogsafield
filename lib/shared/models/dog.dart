@@ -6,6 +6,7 @@ enum SocialVibe {
 
 class Dog {
   final String id;
+  final String ownerId;
   final String name;
   final int? age;
   final String? breed;
@@ -14,6 +15,7 @@ class Dog {
 
   const Dog({
     required this.id,
+    required this.ownerId,
     required this.name,
     this.age,
     this.breed,
@@ -22,6 +24,7 @@ class Dog {
   });
 
   Dog copyWith({
+    String? ownerId,
     String? name,
     int? age,
     String? breed,
@@ -30,6 +33,7 @@ class Dog {
   }) {
     return Dog(
       id: id,
+      ownerId: ownerId ?? this.ownerId,
       name: name ?? this.name,
       age: age ?? this.age,
       breed: breed ?? this.breed,

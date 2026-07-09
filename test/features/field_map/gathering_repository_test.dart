@@ -33,6 +33,7 @@ void main() {
         ),
         hostDog: Dog(
           id: 'dog-1',
+          ownerId: 'host-1',
           name: 'Buddy',
           breed: 'Golden Retriever',
           vibe: SocialVibe.zoomieKing,

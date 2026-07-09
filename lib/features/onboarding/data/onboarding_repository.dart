@@ -50,7 +50,7 @@ class OnboardingRepository {
     if (user == null) throw Exception('No authenticated user');
     await _client.from('dogs').insert({
       'id': dog.id,
-      'owner_id': user.id,
+      'owner_id': dog.ownerId.isNotEmpty ? dog.ownerId : user.id,
       'name': dog.name,
       'age': dog.age,
       'breed': dog.breed,

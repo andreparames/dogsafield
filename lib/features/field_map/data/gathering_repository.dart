@@ -1,4 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/database/connectivity_service.dart';
+import '../../../core/database/local_cache_service.dart';
 import '../../../shared/models/dog.dart';
 import '../../../shared/models/event.dart';
 import '../../../shared/models/user_profile.dart';
@@ -7,14 +9,62 @@ import 'gathering_detail.dart';
 
 class GatheringRepository {
   final SupabaseClient _client;
+  final LocalCacheService? _cache;
+  final ConnectivityService? _connectivity;
 
-  GatheringRepository(this._client);
+  GatheringRepository(this._client, [this._cache, this._connectivity]);
 
   Future<GatheringDetail> fetchGatheringDetail(String eventId) async {
+    if (_cache != null && _connectivity != null) {
+      final online = await _connectivity.isOnline;
+      if (!online) {
+        return _buildFromCache(eventId);
+      }
+    }
+
     final event = await _fetchEvent(eventId);
     final host = await _fetchProfile(event.hostId);
     final hostDog = await _fetchDog(event.hostId);
     final attendees = await _fetchAttendees(eventId);
+
+    if (_cache != null) {
+      await _cache.upsertEvents([event]);
+      await _cache.upsertProfiles([host]);
+      if (hostDog != null) await _cache.upsertDogs([hostDog]);
+      for (final a in attendees) {
+        await _cache.upsertProfiles([a.profile]);
+        if (a.dog != null) await _cache.upsertDogs([a.dog!]);
+      }
+    }
+
+    return GatheringDetail(
+      event: event,
+      host: host,
+      hostDog: hostDog,
+      attendees: attendees,
+    );
+  }
+
+  Future<GatheringDetail> _buildFromCache(String eventId) async {
+    final c = _cache;
+    if (c == null) throw Exception('Cache not available');
+    final event = await c.getEventById(eventId);
+    if (event == null) throw Exception('Event not found in cache');
+
+    final host = await c.getProfile(event.hostId);
+    if (host == null) throw Exception('Host not found in cache');
+
+    final hostDog = await c.getDog(event.hostId);
+    final attendeeIds = await c.getAttendeeIds(eventId);
+
+    final attendees = <AttendeeProfile>[];
+    for (final uid in attendeeIds) {
+      final profile = await c.getProfile(uid);
+      if (profile == null) continue;
+      final dog = await c.getDog(uid);
+      attendees.add(AttendeeProfile(profile: profile, dog: dog));
+    }
+
     return GatheringDetail(
       event: event,
       host: host,
@@ -125,6 +175,7 @@ class GatheringRepository {
   Dog _rowToDog(Map<String, dynamic> row) {
     return Dog(
       id: row['id'] as String,
+      ownerId: row['owner_id'] as String,
       name: row['name'] as String,
       age: row['age'] as int?,
       breed: row['breed'] as String?,

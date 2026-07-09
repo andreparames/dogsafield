@@ -1,12 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/database/providers.dart';
 import '../../../core/services/location_provider.dart';
 import '../../../shared/models/event.dart';
 import '../data/field_map_repository.dart';
 import 'rsvp_providers.dart';
 
 final fieldMapRepositoryProvider = Provider<FieldMapRepository>((ref) {
-  return FieldMapRepository(Supabase.instance.client);
+  return FieldMapRepository(
+    Supabase.instance.client,
+    ref.watch(localCacheServiceProvider),
+    ref.watch(connectivityServiceProvider),
+  );
 });
 
 final rsvpFilterProvider = StateProvider<bool>((ref) => false);

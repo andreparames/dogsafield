@@ -1,21 +1,44 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/database/connectivity_service.dart';
+import '../../../core/database/local_cache_service.dart';
 
 class RsvpRepository {
   final SupabaseClient _client;
+  final LocalCacheService? _cache;
+  final ConnectivityService? _connectivity;
 
-  RsvpRepository(this._client);
+  RsvpRepository(this._client, [this._cache, this._connectivity]);
 
   Future<Set<String>> fetchMyRsvpIds() async {
     final user = _client.auth.currentUser;
     if (user == null) return {};
 
+    if (_cache != null && _connectivity != null) {
+      final online = await _connectivity.isOnline;
+      if (!online) {
+        return _cache.getMyRsvpIds(user.id);
+      }
+    }
+
     final rows = await _client
         .from('attendance')
-        .select('event_id')
+        .select('event_id, user_id, status')
         .eq('user_id', user.id)
         .eq('status', 'confirmed');
 
-    return rows.map((r) => r['event_id'] as String).toSet();
+    final ids = rows.map((r) => r['event_id'] as String).toSet();
+
+    if (_cache != null) {
+      for (final row in rows) {
+        await _cache.upsertAttendance(
+          row['event_id'] as String,
+          row['user_id'] as String,
+          row['status'] as String,
+        );
+      }
+    }
+
+    return ids;
   }
 
   Future<void> rsvpToEvent(String eventId) async {
