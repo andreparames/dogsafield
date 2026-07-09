@@ -88,6 +88,7 @@ class HostingActionNotifier extends StateNotifier<HostingActionState> {
       final repo = _ref.read(hostingRepositoryProvider);
       await repo.cancelEvent(eventId);
       _ref.invalidate(myEventsProvider);
+      _ref.invalidate(allEventsProvider);
       state = const HostingActionSuccess();
     } catch (e) {
       state = const HostingActionError('Failed to cancel event. Please try again.');
