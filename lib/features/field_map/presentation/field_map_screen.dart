@@ -7,8 +7,9 @@ import '../../../core/services/location_provider.dart';
 import '../../../core/services/location_service.dart';
 import '../../onboarding/state/onboarding_state.dart';
 import '../state/field_map_providers.dart';
-import '../state/rsvp_providers.dart';
 import '../state/feedback_providers.dart';
+import '../state/rsvp_providers.dart';
+import 'feedback_dialog.dart';
 import 'event_bottom_sheet.dart';
 import 'event_marker_icon.dart';
 
@@ -200,48 +201,12 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   }
 
   void _showFeedbackDialog(BuildContext context) {
-    final controller = TextEditingController();
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Send Feedback'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLines: 4,
-          decoration: const InputDecoration(
-            hintText: 'Share your thoughts, suggestions, or report an issue...',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final message = controller.text.trim();
-              if (message.isEmpty) return;
-              try {
-                await ref.read(feedbackProvider.notifier).submit(message);
-                if (!ctx.mounted) return;
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Thanks for your feedback!')),
-                );
-              } catch (e) {
-                if (!ctx.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to send feedback: $e')),
-                );
-              }
-            },
-            child: const Text('Send'),
-          ),
-        ],
+      builder: (_) => FeedbackDialog(
+        onSubmit: (message) => ref.read(feedbackProvider.notifier).submit(message),
       ),
-    ).then((_) => controller.dispose());
+    );
   }
 
   Future<void> _retry() async {
