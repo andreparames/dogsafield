@@ -63,3 +63,6 @@ run_app.bat
 # Local build artifacts and screenshots
 *.apk
 screenshot.png
+
+# OpenCode config (personal, not for sharing)
+opencode.json
