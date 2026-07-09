@@ -89,21 +89,16 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
         notifier.setPhotoUrl(photoUrl);
       }
 
-      await repo.createProfile(
-        onboarding.userProfile!.copyWith(
-          photoUrl: photoUrl,
-          treatPolicy: _selected,
-        ),
-      ).timeout(const Duration(seconds: 15));
+      final updatedProfile = onboarding.userProfile!.copyWith(
+        photoUrl: photoUrl,
+        treatPolicy: _selected,
+      );
+      await repo.createProfile(updatedProfile).timeout(const Duration(seconds: 15));
 
       if (onboarding.dog != null) {
         await repo.createDogProfile(onboarding.dog!).timeout(const Duration(seconds: 15));
       }
 
-      final updatedProfile = onboarding.userProfile!.copyWith(
-        photoUrl: photoUrl,
-        treatPolicy: _selected,
-      );
       await cache.upsertProfiles([updatedProfile]);
       if (onboarding.dog != null) {
         await cache.upsertDogs([onboarding.dog!]);
