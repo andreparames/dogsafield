@@ -32,20 +32,14 @@ void main() {
   });
 
   testWidgets('submits and navigates to home with valid data', (WidgetTester tester) async {
-    final container = ProviderContainer(
-      overrides: [
-        authServiceProvider.overrideWithValue(fakeAuthService),
-        authStateProvider.overrideWith((ref) => Stream.empty()),
-        onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
-      ],
-    );
+    final container = await createContainerWithCache();
+    addTearDown(container.dispose);
     container.read(onboardingProvider.notifier).setUserProfile(
       UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
     );
     container.read(onboardingProvider.notifier).setDog(
         Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
     );
-    addTearDown(container.dispose);
 
     final router = GoRouter(
       initialLocation: '/test',
@@ -74,13 +68,12 @@ void main() {
 
   testWidgets('uploads photo and persists returned URL to state', (WidgetTester tester) async {
     final repo = FakeOnboardingRepository();
-    final container = ProviderContainer(
-      overrides: [
-        authServiceProvider.overrideWithValue(fakeAuthService),
-        authStateProvider.overrideWith((ref) => Stream.empty()),
+    final container = await createContainerWithCache(
+      additionalOverrides: [
         onboardingRepositoryProvider.overrideWithValue(repo),
       ],
     );
+    addTearDown(container.dispose);
     container.read(onboardingProvider.notifier).setUserProfile(
       UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
     );
@@ -88,7 +81,6 @@ void main() {
         Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
     );
     container.read(onboardingProvider.notifier).setLocalPhotoPath('/tmp/photo.png');
-    addTearDown(container.dispose);
 
     final router = GoRouter(
       initialLocation: '/test',
@@ -119,20 +111,18 @@ void main() {
 
   testWidgets('shows error message when submission fails', (WidgetTester tester) async {
     final repo = FakeOnboardingRepository()..shouldFail = true;
-    final container = ProviderContainer(
-      overrides: [
-        authServiceProvider.overrideWithValue(fakeAuthService),
-        authStateProvider.overrideWith((ref) => Stream.empty()),
+    final container = await createContainerWithCache(
+      additionalOverrides: [
         onboardingRepositoryProvider.overrideWithValue(repo),
       ],
     );
+    addTearDown(container.dispose);
     container.read(onboardingProvider.notifier).setUserProfile(
       UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
     );
     container.read(onboardingProvider.notifier).setDog(
         Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
     );
-    addTearDown(container.dispose);
 
     final router = GoRouter(
       initialLocation: '/test',

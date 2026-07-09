@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/database/providers.dart';
 import '../data/auth_service.dart';
 import '../data/onboarding_repository.dart';
 import 'onboarding_state.dart';
@@ -50,6 +51,18 @@ Future<void> _checkExistingProfile(Ref ref) async {
     notifier.setStep(OnboardingStep.complete);
     authRefreshNotifier.value++;
   } catch (_) {
+    final cache = ref.read(localCacheServiceProvider);
+    final cached = await cache.getProfile(user.id);
+    if (cached == null) return;
+    if (cached.isSuspended) {
+      suspendedNotifier.value = true;
+      authRefreshNotifier.value++;
+      return;
+    }
+    final notifier = ref.read(onboardingProvider.notifier);
+    notifier.setUserProfile(cached);
+    notifier.setStep(OnboardingStep.complete);
+    authRefreshNotifier.value++;
   }
 }
 
