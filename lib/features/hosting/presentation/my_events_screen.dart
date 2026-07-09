@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/database/providers.dart';
 import '../../../shared/models/event.dart';
 import '../../field_map/presentation/event_marker_icon.dart';
 import '../state/hosting_provider.dart';
@@ -100,6 +101,7 @@ class _EventCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isCancelled = event.isCancelled;
+    final isOnline = ref.watch(connectivityProvider).valueOrNull ?? true;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -149,11 +151,21 @@ class _EventCard extends ConsumerWidget {
                     icon: const Icon(Icons.people, size: 18),
                     label: const Text('Attendees'),
                   ),
-                  OutlinedButton.icon(
-                    onPressed: () => context.push('/hosting/edit', extra: event),
-                    icon: const Icon(Icons.edit, size: 18),
-                    label: const Text('Edit'),
-                  ),
+                  isOnline
+                      ? OutlinedButton.icon(
+                          onPressed: () => context.push('/hosting/edit', extra: event),
+                          icon: const Icon(Icons.edit, size: 18),
+                          label: const Text('Edit'),
+                        )
+                      : Tooltip(
+                          message: "Can't edit while offline",
+                          triggerMode: TooltipTriggerMode.tap,
+                          child: OutlinedButton.icon(
+                            onPressed: null,
+                            icon: const Icon(Icons.edit, size: 18),
+                            label: const Text('Edit'),
+                          ),
+                        ),
                   OutlinedButton.icon(
                     onPressed: () => _confirmCancel(context, ref),
                     icon: const Icon(Icons.cancel_outlined, size: 18),
