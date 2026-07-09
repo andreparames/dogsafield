@@ -26,6 +26,8 @@ class OnboardingRepository {
       email: row['email'] as String,
       displayName: row['display_name'] as String?,
       photoUrl: row['photo_url'] as String?,
+      hasSeenFieldIntro: row['has_seen_field_intro'] as bool? ?? false,
+      hasSeenHostIntro: row['has_seen_host_intro'] as bool? ?? false,
       treatPolicy: (row['treat_policy'] as String?) != null
           ? TreatPolicy.values.cast<TreatPolicy?>().firstWhere((e) => e!.name == row['treat_policy'], orElse: () => null)
           : null,
