@@ -29,7 +29,7 @@ final blockedUsersProvider = FutureProvider<List<ConnectionStatus>>((ref) async 
         hasSeenFieldIntro: profileData['has_seen_field_intro'] as bool? ?? false,
         hasSeenHostIntro: profileData['has_seen_host_intro'] as bool? ?? false,
         treatPolicy: profileData['treat_policy'] != null
-            ? TreatPolicy.values.firstWhere((p) => p.name == profileData['treat_policy'])
+            ? TreatPolicy.values.where((p) => p.name == profileData['treat_policy']).firstOrNull
             : null,
       );
     }

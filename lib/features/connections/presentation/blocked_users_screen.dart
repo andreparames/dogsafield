@@ -43,12 +43,13 @@ class BlockedUsersScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final connection = blocked[index];
               final profile = connection.blockedUserProfile;
+              final isLoading = ref.watch(connectionActionProvider) is ConnectionActionLoading;
               final tierLabel = switch (connection.blockTier) {
-                1 => 'Blocked',
-                2 => 'Blocked & Hidden',
-                3 => 'Reported',
-                _ => 'Blocked',
-              };
+                 1 => 'Blocked',
+                 2 => 'Blocked & Hidden',
+                 3 => 'Blocked, Hidden & Reported',
+                 _ => 'Blocked',
+               };
 
               return ListTile(
                 leading: CircleAvatar(
@@ -65,8 +66,12 @@ class BlockedUsersScreen extends ConsumerWidget {
                 title: Text(profile?.displayName ?? 'Unknown'),
                 subtitle: Text(tierLabel),
                 trailing: TextButton(
-                  onPressed: () => ref.read(connectionActionProvider.notifier).unblockUser(connection.userIdB),
-                  child: const Text('Unblock'),
+                  onPressed: isLoading
+                      ? null
+                      : () => ref.read(connectionActionProvider.notifier).unblockUser(connection.userIdB),
+                  child: isLoading
+                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('Unblock'),
                 ),
               );
             },

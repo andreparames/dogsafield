@@ -22,7 +22,7 @@ class ConnectionRepository {
       'user_id_b': targetUserId,
       'block_tier': tier,
       'are_packmates': false,
-      if (reportReason != null) 'report_reason': reportReason,
+      'report_reason': reportReason,
     }, onConflict: 'user_id_a, user_id_b');
   }
 
