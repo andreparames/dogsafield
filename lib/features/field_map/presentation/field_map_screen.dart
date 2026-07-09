@@ -200,48 +200,12 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   }
 
   void _showFeedbackDialog(BuildContext context) {
-    final controller = TextEditingController();
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Send Feedback'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLines: 4,
-          decoration: const InputDecoration(
-            hintText: 'Share your thoughts, suggestions, or report an issue...',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final message = controller.text.trim();
-              if (message.isEmpty) return;
-              try {
-                await ref.read(feedbackProvider.notifier).submit(message);
-                if (!ctx.mounted) return;
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Thanks for your feedback!')),
-                );
-              } catch (e) {
-                if (!ctx.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to send feedback: $e')),
-                );
-              }
-            },
-            child: const Text('Send'),
-          ),
-        ],
+      builder: (_) => _FeedbackDialog(
+        onSubmit: (message) => ref.read(feedbackProvider.notifier).submit(message),
       ),
-    ).then((_) => controller.dispose());
+    );
   }
 
   Future<void> _retry() async {
@@ -276,5 +240,68 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     }
 
     ref.invalidate(currentPositionProvider);
+  }
+}
+
+class _FeedbackDialog extends StatefulWidget {
+  const _FeedbackDialog({required this.onSubmit});
+
+  final Future<void> Function(String message) onSubmit;
+
+  @override
+  State<_FeedbackDialog> createState() => _FeedbackDialogState();
+}
+
+class _FeedbackDialogState extends State<_FeedbackDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Send Feedback'),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        maxLines: 4,
+        decoration: const InputDecoration(
+          hintText: 'Share your thoughts, suggestions, or report an issue...',
+          border: OutlineInputBorder(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () async {
+            final message = _controller.text.trim();
+            if (message.isEmpty) return;
+            try {
+              await widget.onSubmit(message);
+              if (!context.mounted) return;
+              Navigator.pop(context);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Thanks for your feedback!')),
+                );
+              }
+            } catch (e) {
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to send feedback: $e')),
+              );
+            }
+          },
+          child: const Text('Send'),
+        ),
+      ],
+    );
   }
 }
