@@ -161,7 +161,7 @@ class _EventCard extends ConsumerWidget {
                           message: "Can't edit while offline",
                           triggerMode: TooltipTriggerMode.tap,
                           child: OutlinedButton.icon(
-                            onPressed: null,
+                            onPressed: () {},
                             icon: const Icon(Icons.edit, size: 18),
                             label: const Text('Edit'),
                           ),
