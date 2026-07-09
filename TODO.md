@@ -47,6 +47,7 @@
 - [x] **Host responsibility screen** — first-time host education before create flow
 - [x] **My Events dashboard** — list host's events with attendee counts, edit/delete actions
 - [x] **Edit Event** — re-use create screen in edit mode with pre-populated fields
+- [ ] **RSVP notifications on edit** — push notification to RSVP'd attendees when host edits event
 - [x] **Cancel / Delete Event** — confirmation dialog, soft-delete via `is_cancelled` column
 - [x] **Attendee management** — RSVP list with names/dogs, host can remove attendees
 - [x] **Hosting state notifiers** — sealed-class notifiers for create, edit, delete

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/event.dart';
+import '../../field_map/state/field_map_providers.dart';
 import '../data/hosting_repository.dart';
 
 final hostingRepositoryProvider = Provider<HostingRepository>((ref) {
@@ -59,6 +60,7 @@ class HostingActionNotifier extends StateNotifier<HostingActionState> {
       final repo = _ref.read(hostingRepositoryProvider);
       await repo.createEvent(event);
       _ref.invalidate(myEventsProvider);
+      _ref.invalidate(allEventsProvider);
       state = const HostingActionSuccess();
     } catch (e) {
       state = const HostingActionError('Failed to create event. Please try again.');
@@ -72,6 +74,7 @@ class HostingActionNotifier extends StateNotifier<HostingActionState> {
       final repo = _ref.read(hostingRepositoryProvider);
       await repo.updateEvent(event);
       _ref.invalidate(myEventsProvider);
+      _ref.invalidate(allEventsProvider);
       state = const HostingActionSuccess();
     } catch (e) {
       state = const HostingActionError('Failed to update event. Please try again.');

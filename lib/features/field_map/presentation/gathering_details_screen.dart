@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/dog.dart';
 import '../../../shared/models/event.dart';
 import '../../../shared/models/user_profile.dart';
@@ -175,7 +177,7 @@ class _GatheringContent extends StatelessWidget {
             _AttendeeListSection(attendees: detail.attendees),
           ],
           const SizedBox(height: 12),
-          _JoinPackSection(event: event),
+          _HostActions(event: event),
         ],
       ),
     );
@@ -355,6 +357,25 @@ class _AttendeeCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _HostActions extends ConsumerWidget {
+  final DogEvent event;
+
+  const _HostActions({required this.event});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == event.hostId) {
+      return FilledButton.icon(
+        onPressed: () => context.push('/hosting/edit', extra: event),
+        icon: const Icon(Icons.edit),
+        label: const Text('Edit Event'),
+      );
+    }
+    return _JoinPackSection(event: event);
   }
 }
 
