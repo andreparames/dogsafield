@@ -5,7 +5,6 @@ import '../../onboarding/state/auth_provider.dart';
 import '../../onboarding/state/onboarding_state.dart';
 import '../state/account_providers.dart';
 import 'founding_pack_badge.dart';
-import 'trial_limit_sheet.dart';
 import '../../../shared/models/user_profile.dart';
 import '../../../shared/models/dog.dart';
 
@@ -220,6 +219,30 @@ class _TrialSection extends StatelessWidget {
 
   const _TrialSection({required this.profile});
 
+  void _showTrialInfo(BuildContext context, ThemeData theme) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('About Trial RSVPs', style: theme.textTheme.titleMedium),
+            const SizedBox(height: 12),
+            Text(
+              'You can use up to 3 trial RSVPs to attend events without a Founding Pack subscription. '
+              'Each RSVP gives you full access to the event. '
+              'After your trial runs out, upgrade to keep joining the pack.',
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -240,13 +263,17 @@ class _TrialSection extends StatelessWidget {
                 Text('Trial RSVPs', style: theme.textTheme.titleSmall),
                 const Spacer(),
                 GestureDetector(
-                  onTap: () => showModalBottomSheet(
-                    context: context,
-                    builder: (_) => TrialLimitSheet(used: used, maxFree: maxFree),
-                  ),
+                  onTap: () => _showTrialInfo(context, theme),
                   child: Icon(Icons.info_outline, size: 20, color: theme.colorScheme.onSurfaceVariant),
                 ),
               ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'You have $remaining of $maxFree free RSVPs remaining.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 12),
             Row(

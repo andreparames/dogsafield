@@ -72,6 +72,11 @@
 - [ ] Screens: `ChatListScreen`, `DirectMessageScreen`
 
 
+### Polish
+- [ ] **Map edge-to-edge inset** — Field map should not overlap Android status bar (battery, clock, etc.)
+- [ ] **Marker flicker on filter toggle** — markers should not flash/re-render when switching between Nearby and My RSVPs
+- [ ] **Trial RSVPs info card** — replace repeated data with a short paragraph explaining the trial period
+
 ## Second phase
 
 ### Account (`lib/features/account/`)
