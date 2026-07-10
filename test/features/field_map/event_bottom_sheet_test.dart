@@ -1,7 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dogsafield/features/field_map/presentation/event_bottom_sheet.dart';
+import 'package:dogsafield/features/field_map/state/gathering_providers.dart';
 import 'package:dogsafield/shared/models/event.dart';
+
+Widget _wrap({required Widget child}) {
+  return ProviderScope(
+    overrides: [
+      attendanceCountProvider.overrideWithProvider(
+        FutureProvider.family.autoDispose<int, String>((ref, eventId) async {
+          return 3;
+        }),
+      ),
+    ],
+    child: MaterialApp(
+      home: Scaffold(
+        body: SizedBox(height: 600, child: child),
+      ),
+    ),
+  );
+}
 
 void main() {
   final testEvent = DogEvent(
@@ -22,106 +41,46 @@ void main() {
 
   group('EventBottomSheet', () {
     testWidgets('displays event title', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              height: 600,
-              child: EventBottomSheet(event: testEvent),
-            ),
-          ),
-        ),
-      );
+      await tester.pumpWidget(_wrap(child: EventBottomSheet(event: testEvent)));
 
       expect(find.text('Riverside Pack Walk'), findsOneWidget);
     });
 
     testWidgets('displays event type label', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              height: 600,
-              child: EventBottomSheet(event: testEvent),
-            ),
-          ),
-        ),
-      );
+      await tester.pumpWidget(_wrap(child: EventBottomSheet(event: testEvent)));
 
       expect(find.text('Pack Walk'), findsOneWidget);
     });
 
     testWidgets('displays location name', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              height: 600,
-              child: EventBottomSheet(event: testEvent),
-            ),
-          ),
-        ),
-      );
+      await tester.pumpWidget(_wrap(child: EventBottomSheet(event: testEvent)));
 
       expect(find.text('Riverside Park'), findsOneWidget);
     });
 
     testWidgets('displays attendee count', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              height: 600,
-              child: EventBottomSheet(event: testEvent),
-            ),
-          ),
-        ),
-      );
+      await tester.pumpWidget(_wrap(child: EventBottomSheet(event: testEvent)));
+      await tester.pump();
 
       expect(find.text('3 / 20'), findsOneWidget);
     });
 
     testWidgets('displays amenity tags as chips', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              height: 600,
-              child: EventBottomSheet(event: testEvent),
-            ),
-          ),
-        ),
-      );
+      await tester.pumpWidget(_wrap(child: EventBottomSheet(event: testEvent)));
 
       expect(find.text('Heavy Shade'), findsOneWidget);
       expect(find.text('Fenced Area'), findsOneWidget);
     });
 
     testWidgets('shows View Details button immediately without scrolling', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              height: 600,
-              child: EventBottomSheet(event: testEvent),
-            ),
-          ),
-        ),
-      );
+      await tester.pumpWidget(_wrap(child: EventBottomSheet(event: testEvent)));
 
       expect(find.text('View Details'), findsOneWidget);
     });
 
     testWidgets('does not show Cancel RSVP when showRsvpAction is false', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              height: 600,
-              child: EventBottomSheet(event: testEvent, showRsvpAction: false),
-            ),
-          ),
-        ),
+        _wrap(child: EventBottomSheet(event: testEvent, showRsvpAction: false)),
       );
 
       expect(find.text('Cancel RSVP'), findsNothing);
@@ -129,14 +88,7 @@ void main() {
 
     testWidgets('shows Cancel RSVP when showRsvpAction is true', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              height: 600,
-              child: EventBottomSheet(event: testEvent, showRsvpAction: true),
-            ),
-          ),
-        ),
+        _wrap(child: EventBottomSheet(event: testEvent, showRsvpAction: true)),
       );
 
       expect(find.text('Cancel RSVP'), findsOneWidget);
