@@ -61,11 +61,15 @@
 - [ ] Screens: `RollCallScreen`, `MutualMatchScreen`
 
 ### Connections (`lib/features/connections/`)
-- [ ] **Tier 1 — Block** — cut DM, revoke Packmate, remove from each other's view
-- [ ] **Tier 2 — Block & Hide** — hide hosted events, omit from attendee lists; notify blocker if blocked user joins same event
-- [ ] **Tier 3 — Block, Hide & Report** — free-text report routed to Trust & Safety queue
-- [ ] **Visibility filter queries** — consumed by field_map, hosting, verification_loop
-- [ ] Screens: `BlockedUsersScreen`, `ReportDialog`
+- [x] **Tier 1 — Block** — data layer, state notifier, UI via attendee card overflow menu
+- [x] **Tier 2 — Block & Hide** — data layer, state notifier, UI via attendee card overflow menu
+- [x] **Tier 3 — Block, Hide & Report** — data layer, state notifier, ReportDialog wired into flow
+- [x] **Visibility filter queries** — `blockedUserIdsProvider`/`blockerIdsProvider` consumed by field_map (events) and gathering (attendees)
+- [x] Screens: `BlockedUsersScreen`, `ReportDialog`
+- [ ] **Messaging integration** — cut DM on block (depends on messaging feature)
+- [ ] **Packmate revocation enforcement** — downstream effects beyond DB write
+- [ ] **Blocker notification** — alert host when blocked user RSVPs to their event
+- [ ] **Trust & Safety queue** — admin routing for Tier 3 reports
 
 ### Messaging (`lib/features/messaging/`)
 - [ ] **Real-time chat** — DM streams (depends on connections/ for permission checks)
@@ -76,23 +80,27 @@
 ### Offline Read-Only Support
 
 **Phase 1 — Add Drift**
-- [ ] Add dependencies: `drift`, `sqlite_flutter_libs`, `connectivity_plus`, `path_provider`, `path`
-- [ ] Create `lib/core/database/` with Drift tables mirroring Supabase: `events`, `profiles`, `dogs`, `attendance`
-- [ ] Create `AppDatabase` class (Drift `_$AppDatabase`)
+- [x] Add dependencies: `drift`, `sqlite_flutter_libs`, `connectivity_plus`, `path_provider`, `path`
+- [x] Create `lib/core/database/` with Drift tables mirroring Supabase: `events`, `profiles`, `dogs`, `attendance`
+- [x] Create `AppDatabase` class (Drift `_$AppDatabase`)
 
 **Phase 2 — Cache layer**
-- [ ] Create `LocalCacheService` with upsert methods for each table and read methods matching repository queries (nearby events, gathering detail, RSVP IDs)
-- [ ] Store last-sync timestamp per table in SharedPreferences
-- [ ] Create connectivity wrapper (`connectivity_plus` stream)
+- [x] Create `LocalCacheService` with upsert methods for each table and read methods matching repository queries (nearby events, gathering detail, RSVP IDs)
+- [x] Store last-sync timestamp per table in SharedPreferences
+- [x] Create connectivity wrapper (`connectivity_plus` stream)
 
 **Phase 3 — Wire into repositories**
-- [ ] Inject `LocalCacheService` + connectivity into `FieldMapRepository`, `GatheringRepository`, `RsvpRepository`
-- [ ] Each read method: online → fetch from Supabase + upsert cache; offline → read from Drift
-- [ ] Add Riverpod providers: `localDatabaseProvider`, `localCacheServiceProvider`, `connectivityProvider`
-- [ ] **Unit tests** — `LocalCacheService` upsert/read/miss methods with in-memory Drift; connectivity wrapper emits correct states
+- [x] Inject `LocalCacheService` + connectivity into `FieldMapRepository`, `GatheringRepository`, `RsvpRepository`
+- [x] Each read method: online → fetch from Supabase + upsert cache; offline → read from Drift
+- [x] Add Riverpod providers: `localDatabaseProvider`, `localCacheServiceProvider`, `connectivityProvider`
+- [x] **Unit tests** — `LocalCacheService` upsert/read/miss methods with in-memory Drift; connectivity wrapper emits correct states
 - [ ] **Widget tests** — screens render cached data when offline (mock `LocalCacheService` + connectivity)
 - [ ] **Integration/end-to-end** — simulate offline: repositories return cached data, no Supabase calls fire
-- [ ] Verify existing tests still pass after repository refactors
+- [x] Verify existing tests still pass after repository refactors
+
+**Phase 4 — Offline profile persistence**
+- [x] Cache user profile and dog locally after onboarding creation
+- [x] Fall back to local cache when fetching existing profile while offline
 
 ### Polish
 - [ ] **Map edge-to-edge inset** — Field map should not overlap Android status bar (battery, clock, etc.)

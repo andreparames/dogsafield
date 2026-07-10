@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/connection_status.dart';
@@ -9,40 +10,45 @@ final connectionRepositoryProvider = Provider<ConnectionRepository>((ref) {
 });
 
 final blockedUsersProvider = FutureProvider<List<ConnectionStatus>>((ref) async {
-  final repo = ref.watch(connectionRepositoryProvider);
-  final rows = await repo.fetchBlockedUsers();
+  try {
+    final repo = ref.watch(connectionRepositoryProvider);
+    final rows = await repo.fetchBlockedUsers();
 
-  final results = <ConnectionStatus>[];
-  for (final row in rows) {
-    final profileData = row['profiles'] as Map<String, dynamic>?;
-    UserProfile? profile;
-    if (profileData != null) {
-      profile = UserProfile(
-        id: profileData['id'] as String,
-        email: profileData['email'] as String,
-        displayName: profileData['display_name'] as String?,
-        photoUrl: profileData['photo_url'] as String?,
-        isVerified: profileData['is_verified'] as bool? ?? false,
-        trialRsvpsUsed: profileData['trial_rsvps_used'] as int? ?? 0,
-        isFoundingPack: profileData['is_founding_pack'] as bool? ?? false,
-        isSuspended: profileData['is_suspended'] as bool? ?? false,
-        hasSeenFieldIntro: profileData['has_seen_field_intro'] as bool? ?? false,
-        hasSeenHostIntro: profileData['has_seen_host_intro'] as bool? ?? false,
-        treatPolicy: profileData['treat_policy'] != null
-            ? TreatPolicy.values.where((p) => p.name == profileData['treat_policy']).firstOrNull
-            : null,
-      );
+    final results = <ConnectionStatus>[];
+    for (final row in rows) {
+      final profileData = row['profiles'] as Map<String, dynamic>?;
+      UserProfile? profile;
+      if (profileData != null) {
+        profile = UserProfile(
+          id: profileData['id'] as String,
+          email: profileData['email'] as String,
+          displayName: profileData['display_name'] as String?,
+          photoUrl: profileData['photo_url'] as String?,
+          isVerified: profileData['is_verified'] as bool? ?? false,
+          trialRsvpsUsed: profileData['trial_rsvps_used'] as int? ?? 0,
+          isFoundingPack: profileData['is_founding_pack'] as bool? ?? false,
+          isSuspended: profileData['is_suspended'] as bool? ?? false,
+          hasSeenFieldIntro: profileData['has_seen_field_intro'] as bool? ?? false,
+          hasSeenHostIntro: profileData['has_seen_host_intro'] as bool? ?? false,
+          treatPolicy: profileData['treat_policy'] != null
+              ? TreatPolicy.values.where((p) => p.name == profileData['treat_policy']).firstOrNull
+              : null,
+        );
+      }
+      results.add(ConnectionStatus(
+        userIdA: row['user_id_a'] as String,
+        userIdB: row['user_id_b'] as String,
+        arePackmates: row['are_packmates'] as bool? ?? false,
+        blockTier: row['block_tier'] as int? ?? 0,
+        reportReason: row['report_reason'] as String?,
+        blockedUserProfile: profile,
+      ));
     }
-    results.add(ConnectionStatus(
-      userIdA: row['user_id_a'] as String,
-      userIdB: row['user_id_b'] as String,
-      arePackmates: row['are_packmates'] as bool? ?? false,
-      blockTier: row['block_tier'] as int? ?? 0,
-      reportReason: row['report_reason'] as String?,
-      blockedUserProfile: profile,
-    ));
+    return results;
+  } catch (e) {
+    debugPrint('blockedUsersProvider error: $e');
+    return [];
   }
-  return results;
 });
 
 sealed class ConnectionActionState {
@@ -125,6 +131,18 @@ class ConnectionActionNotifier extends StateNotifier<ConnectionActionState> {
 
   void reset() => state = const ConnectionActionIdle();
 }
+
+final blockedUserIdsProvider = FutureProvider<Set<String>>((ref) async {
+  final repo = ref.watch(connectionRepositoryProvider);
+  final rows = await repo.fetchBlockedUsers();
+  return rows.map((r) => r['user_id_b'] as String).toSet();
+});
+
+final blockerIdsProvider = FutureProvider<Set<String>>((ref) async {
+  final repo = ref.watch(connectionRepositoryProvider);
+  final rows = await repo.fetchBlockers();
+  return rows.map((r) => r['user_id_a'] as String).toSet();
+});
 
 final connectionActionProvider =
     StateNotifierProvider<ConnectionActionNotifier, ConnectionActionState>((ref) {

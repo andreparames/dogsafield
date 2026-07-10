@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/database/providers.dart';
 import '../../../core/services/location_provider.dart';
 import '../../../shared/models/event.dart';
+import '../../connections/state/connection_providers.dart';
 import '../data/field_map_repository.dart';
 import 'rsvp_providers.dart';
 
@@ -28,7 +29,9 @@ final allEventsProvider = FutureProvider<List<DogEvent>>((ref) async {
 final discoveredEventsProvider = Provider<List<DogEvent>>((ref) {
   final showRsvps = ref.watch(rsvpFilterProvider);
   final allEvents = ref.watch(allEventsProvider).valueOrNull ?? [];
-  if (!showRsvps) return allEvents;
+  final blockedIds = ref.watch(blockedUserIdsProvider).valueOrNull ?? <String>{};
+  final visible = allEvents.where((e) => !blockedIds.contains(e.hostId)).toList();
+  if (!showRsvps) return visible;
   final rsvpIds = ref.watch(myRsvpIdsProvider).valueOrNull ?? {};
-  return allEvents.where((e) => rsvpIds.contains(e.id)).toList();
+  return visible.where((e) => rsvpIds.contains(e.id)).toList();
 });

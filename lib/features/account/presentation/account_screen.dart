@@ -87,6 +87,15 @@ class _AccountContent extends StatelessWidget {
               label: const Text('My Events'),
             ),
           ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => context.push('/connections/blocked'),
+              icon: const Icon(Icons.block),
+              label: const Text('Blocked Users'),
+            ),
+          ),
           const SizedBox(height: 32),
           _AccountActions(),
           const SizedBox(height: 24),

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
+import 'package:dogsafield/features/connections/state/connection_providers.dart';
 import 'package:dogsafield/features/field_map/state/gathering_providers.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
 import 'package:dogsafield/shared/models/event.dart';
@@ -41,6 +42,8 @@ void main() {
           authServiceProvider.overrideWithValue(fakeAuthService),
           authStateProvider.overrideWith((ref) => Stream.empty()),
           gatheringRepositoryProvider.overrideWithValue(repo),
+          blockedUserIdsProvider.overrideWith((ref) => Future.value(<String>{})),
+          blockerIdsProvider.overrideWith((ref) => Future.value(<String>{})),
         ],
       );
       addTearDown(container.dispose);
@@ -58,6 +61,8 @@ void main() {
           authServiceProvider.overrideWithValue(fakeAuthService),
           authStateProvider.overrideWith((ref) => Stream.empty()),
           gatheringRepositoryProvider.overrideWithValue(repo),
+          blockedUserIdsProvider.overrideWith((ref) => Future.value(<String>{})),
+          blockerIdsProvider.overrideWith((ref) => Future.value(<String>{})),
         ],
       );
       addTearDown(container.dispose);
