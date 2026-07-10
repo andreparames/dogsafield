@@ -99,10 +99,10 @@ class EventBottomSheet extends ConsumerWidget {
                 final messenger = ScaffoldMessenger.of(context);
                 Navigator.pop(context);
                 messenger.showSnackBar(
-                  const SnackBar(content: Text('Cancel RSVP — coming soon')),
+                  const SnackBar(content: Text('Leave Pack — coming soon')),
                 );
               },
-              child: const Text('Cancel RSVP'),
+              child: const Text('Leave Pack'),
             ),
           ],
           if (event.amenityTags.isNotEmpty) ...[

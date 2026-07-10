@@ -78,20 +78,20 @@ void main() {
       expect(find.text('View Details'), findsOneWidget);
     });
 
-    testWidgets('does not show Cancel RSVP when showRsvpAction is false', (tester) async {
+    testWidgets('does not show Leave Pack when showRsvpAction is false', (tester) async {
       await tester.pumpWidget(
         _wrap(child: EventBottomSheet(event: testEvent, showRsvpAction: false)),
       );
 
-      expect(find.text('Cancel RSVP'), findsNothing);
+      expect(find.text('Leave Pack'), findsNothing);
     });
 
-    testWidgets('shows Cancel RSVP when showRsvpAction is true', (tester) async {
+    testWidgets('shows Leave Pack when showRsvpAction is true', (tester) async {
       await tester.pumpWidget(
         _wrap(child: EventBottomSheet(event: testEvent, showRsvpAction: true)),
       );
 
-      expect(find.text('Cancel RSVP'), findsOneWidget);
+      expect(find.text('Leave Pack'), findsOneWidget);
     });
   });
 }

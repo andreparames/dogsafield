@@ -135,7 +135,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                       ),
                       ButtonSegment(
                         value: true,
-                        label: Text('My RSVPs'),
+                        label: Text('My Packs'),
                         icon: Icon(Icons.bookmark),
                       ),
                     ],

@@ -102,6 +102,11 @@
 - [x] Cache user profile and dog locally after onboarding creation
 - [x] Fall back to local cache when fetching existing profile while offline
 
+### Privacy
+- [ ] **Audit API data exposure** — review every table/endpoint the app queries; ensure only necessary fields are returned (e.g. profiles should not expose email, is_suspended, intro flags to other users)
+- [ ] **Server-enforced profile field minimization** — use column-level privileges or security barrier views so the Data API cannot return sensitive profile columns (email, is_verified, trial_rsvps_used, is_founding_pack, is_suspended, intro flags, treat_policy) to other users even from a malicious client. Only the row owner should be able to read their own sensitive fields
+- [ ] **Blocked user data isolation** — confirm blocked users cannot see each other's profiles/events/attendance beyond block-tier rules
+
 ### Polish
 - [ ] **Map edge-to-edge inset** — Field map should not overlap Android status bar (battery, clock, etc.)
 - [ ] **Marker flicker on filter toggle** — markers should not flash/re-render when switching between Nearby and My RSVPs
