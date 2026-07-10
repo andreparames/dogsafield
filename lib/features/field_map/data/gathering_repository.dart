@@ -100,8 +100,9 @@ class GatheringRepository {
         .from('profiles_public')
         .select()
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
+    if (response == null) throw Exception('Profile not found or not visible');
     return _rowToProfile(response);
   }
 

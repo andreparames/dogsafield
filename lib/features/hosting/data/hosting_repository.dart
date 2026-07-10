@@ -98,9 +98,9 @@ class HostingRepository {
         .select('owner_id, name, breed')
         .inFilter('owner_id', userIds);
 
-    final dogMap = <String, Map<String, dynamic>>{};
+    final dogMap = <String, List<Map<String, dynamic>>>{};
     for (final d in dogs) {
-      dogMap.putIfAbsent(d['owner_id'] as String, () => d);
+      (dogMap[d['owner_id'] as String] ??= []).add(d);
     }
 
     final result = <Map<String, dynamic>>[];
@@ -113,7 +113,7 @@ class HostingRepository {
           'id': profile['id'],
           'display_name': profile['display_name'],
           'photo_url': profile['photo_url'],
-          'dogs': dogMap[uid] != null ? [dogMap[uid]] : [],
+          'dogs': dogMap[uid] ?? [],
         },
       };
       result.add(entry);
