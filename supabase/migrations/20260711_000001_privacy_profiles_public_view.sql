@@ -60,3 +60,11 @@ create policy "Attendance is publicly readable"
         and connections.user_id_b = auth.uid()
     )
   );
+
+-- Optimize repeated block-check subqueries in profiles_public, events RLS, and
+-- attendance RLS with a partial composite index on the two query columns.
+-- `auth.uid()` drives the user_id_b lookup in every subquery; the PK already
+-- covers user_id_a as the leading column of (user_id_a, user_id_b).
+create index if not exists idx_connections_block_check
+  on connections (user_id_a, user_id_b)
+  where block_tier > 0;
