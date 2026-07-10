@@ -3,6 +3,7 @@ name: Coderabbit Review Trigger
 on:
   schedule:
     - cron: '*/15 * * * *'
+  pull_request:
   workflow_dispatch:
 
 permissions:
