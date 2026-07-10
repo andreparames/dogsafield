@@ -14,7 +14,7 @@ final gatheringRepositoryProvider = Provider<GatheringRepository>((ref) {
 });
 
 final gatheringDetailProvider =
-    FutureProvider.family<GatheringDetail, String>((ref, eventId) async {
+    FutureProvider.family.autoDispose<GatheringDetail, String>((ref, eventId) async {
   final repo = ref.watch(gatheringRepositoryProvider);
   final detail = await repo.fetchGatheringDetail(eventId);
   final blockedIds = await ref.watch(blockedUserIdsProvider.future).catchError((_) => <String>{});
@@ -27,4 +27,15 @@ final gatheringDetailProvider =
         .where((a) => !blockedIds.contains(a.profile.id) && !blockerIds.contains(a.profile.id))
         .toList(),
   );
+});
+
+final attendanceCountProvider =
+    FutureProvider.family.autoDispose<int, String>((ref, eventId) async {
+  final client = Supabase.instance.client;
+  final response = await client
+      .from('attendance')
+      .select('id')
+      .eq('event_id', eventId)
+      .eq('status', 'confirmed');
+  return response.length;
 });

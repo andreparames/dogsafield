@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/models/event.dart';
+import '../state/gathering_providers.dart';
 import 'event_marker_icon.dart';
 
-class EventBottomSheet extends StatelessWidget {
+class EventBottomSheet extends ConsumerWidget {
   final DogEvent event;
   final bool showRsvpAction;
 
@@ -14,7 +16,7 @@ class EventBottomSheet extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final dateStr = '${event.dateTime.month}/${event.dateTime.day}/${event.dateTime.year} '
         '${event.dateTime.hour.toString().padLeft(2, '0')}:${event.dateTime.minute.toString().padLeft(2, '0')}';
@@ -124,10 +126,20 @@ class EventBottomSheet extends StatelessWidget {
               Icon(Icons.people,
                   size: 16, color: theme.colorScheme.onSurfaceVariant),
               const SizedBox(width: 6),
-              Text('${event.attendeeIds.length} / ${event.maxAttendees}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  )),
+              ref.watch(attendanceCountProvider(event.id)).when(
+                data: (count) => Text('$count / ${event.maxAttendees}',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    )),
+                loading: () => Text('... / ${event.maxAttendees}',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    )),
+                error: (_, __) => Text('? / ${event.maxAttendees}',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    )),
+              ),
             ],
           ),
         ],
