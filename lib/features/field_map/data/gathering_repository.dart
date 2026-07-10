@@ -97,7 +97,7 @@ class GatheringRepository {
 
   Future<UserProfile> _fetchProfile(String id) async {
     final response = await _client
-        .from('profiles')
+        .from('profiles_public')
         .select()
         .eq('id', id)
         .single();
@@ -128,7 +128,7 @@ class GatheringRepository {
     final userIds = attendanceRows.map((r) => r['user_id'] as String).toList();
 
     final results = await Future.wait([
-      _client.from('profiles').select().inFilter('id', userIds),
+      _client.from('profiles_public').select().inFilter('id', userIds),
       _client.from('dogs').select().inFilter('owner_id', userIds),
     ]);
     final profileMap = <String, UserProfile>{};
@@ -172,11 +172,9 @@ class GatheringRepository {
   UserProfile _rowToProfile(Map<String, dynamic> row) {
     return UserProfile(
       id: row['id'] as String,
-      email: row['email'] as String,
+      email: '',
       displayName: row['display_name'] as String?,
       photoUrl: row['photo_url'] as String?,
-      isVerified: row['is_verified'] as bool? ?? false,
-      trialRsvpsUsed: row['trial_rsvps_used'] as int? ?? 0,
       isFoundingPack: row['is_founding_pack'] as bool? ?? false,
       treatPolicy: row['treat_policy'] != null
           ? TreatPolicy.values.firstWhere((e) => e.name == row['treat_policy'])

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dogsafield/features/field_map/data/attendee_profile.dart';
 import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
 import 'package:dogsafield/features/connections/state/connection_providers.dart';
 import 'package:dogsafield/features/field_map/state/gathering_providers.dart';
@@ -43,7 +44,6 @@ void main() {
           authServiceProvider.overrideWithValue(fakeAuthService),
           authStateProvider.overrideWith((ref) => Stream.empty()),
           gatheringRepositoryProvider.overrideWithValue(repo),
-          blockedUserIdsProvider.overrideWith((ref) => Future.value(<String>{})),
           blockerIdsProvider.overrideWith((ref) => Future.value(<String>{})),
         ],
       );
@@ -56,13 +56,59 @@ void main() {
       expect(result.host.displayName, 'John');
     });
 
+    test('filters out blockerIds but not blockedIds from attendees', () async {
+      final detail = GatheringDetail(
+        event: DogEvent(
+          id: 'evt-2',
+          hostId: 'host-2',
+          type: EventType.packWalk,
+          title: 'Walk',
+          locationName: 'Trail',
+          latitude: 38.7,
+          longitude: -9.1,
+          dateTime: DateTime(2026, 7, 12, 10, 0),
+          maxAttendees: 10,
+        ),
+        host: UserProfile(id: 'host-2', email: 'host@test.com', displayName: 'Host'),
+        attendees: [
+          AttendeeProfile(
+            profile: UserProfile(id: 'blocked-user', email: '', displayName: 'Blocked'),
+          ),
+          AttendeeProfile(
+            profile: UserProfile(id: 'blocker-user', email: '', displayName: 'Blocker'),
+          ),
+          AttendeeProfile(
+            profile: UserProfile(id: 'normal-user', email: '', displayName: 'Normal'),
+          ),
+        ],
+      );
+      repo.detail = detail;
+
+      final container = ProviderContainer(
+        overrides: [
+          authServiceProvider.overrideWithValue(fakeAuthService),
+          authStateProvider.overrideWith((ref) => Stream.empty()),
+          gatheringRepositoryProvider.overrideWithValue(repo),
+          blockedUserIdsProvider.overrideWith((ref) => Future.value(<String>{'blocked-user'})),
+          blockerIdsProvider.overrideWith((ref) => Future.value(<String>{'blocker-user'})),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final result = await container.read(gatheringDetailProvider('evt-2').future);
+
+      expect(result.attendees.length, 2);
+      expect(result.attendees.any((a) => a.profile.id == 'blocked-user'), isTrue);
+      expect(result.attendees.any((a) => a.profile.id == 'blocker-user'), isFalse);
+      expect(result.attendees.any((a) => a.profile.id == 'normal-user'), isTrue);
+    });
+
     test('throws when eventId does not exist', () async {
       final container = ProviderContainer(
         overrides: [
           authServiceProvider.overrideWithValue(fakeAuthService),
           authStateProvider.overrideWith((ref) => Stream.empty()),
           gatheringRepositoryProvider.overrideWithValue(repo),
-          blockedUserIdsProvider.overrideWith((ref) => Future.value(<String>{})),
           blockerIdsProvider.overrideWith((ref) => Future.value(<String>{})),
         ],
       );

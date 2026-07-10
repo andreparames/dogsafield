@@ -36,10 +36,10 @@ final allEventsProvider = FutureProvider<List<DogEvent>>((ref) async {
 
 final discoveredEventsProvider = Provider<List<DogEvent>>((ref) {
   final showRsvps = ref.watch(rsvpFilterProvider);
-  final allEvents = ref.watch(allEventsProvider).value ?? [];
-  final blockedIds = ref.watch(blockedUserIdsProvider).value ?? <String>{};
-  final visible = allEvents.where((e) => !blockedIds.contains(e.hostId)).toList();
+  final allEvents = ref.watch(allEventsProvider).valueOrNull ?? [];
+  final blockerIds = ref.watch(blockerIdsProvider).valueOrNull ?? <String>{};
+  final visible = allEvents.where((e) => !blockerIds.contains(e.hostId)).toList();
   if (!showRsvps) return visible;
-  final rsvpIds = ref.watch(myRsvpIdsProvider).value ?? {};
+  final rsvpIds = ref.watch(myRsvpIdsProvider).valueOrNull ?? {};
   return visible.where((e) => rsvpIds.contains(e.id)).toList();
 });

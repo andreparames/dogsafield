@@ -82,18 +82,43 @@ class HostingRepository {
     if (user == null) throw Exception('Not authenticated');
 
     final response = await _client.from('attendance')
-        .select('''
-          user_id,
-          profiles!inner (
-            id,
-            display_name,
-            photo_url,
-            dogs!owner_id (name, breed)
-          )
-        ''')
+        .select('user_id')
         .eq('event_id', eventId);
 
-    return response;
+    if (response.isEmpty) return [];
+
+    final userIds = response.map((r) => r['user_id'] as String).toList();
+    final profiles = await _client.from('profiles_public')
+        .select('id, display_name, photo_url')
+        .inFilter('id', userIds);
+
+    final profileMap = {for (final p in profiles) p['id'] as String: p};
+
+    final dogs = await _client.from('dogs')
+        .select('owner_id, name, breed')
+        .inFilter('owner_id', userIds);
+
+    final dogMap = <String, Map<String, dynamic>>{};
+    for (final d in dogs) {
+      dogMap.putIfAbsent(d['owner_id'] as String, () => d);
+    }
+
+    final result = <Map<String, dynamic>>[];
+    for (final uid in userIds) {
+      final profile = profileMap[uid];
+      if (profile == null) continue;
+      final entry = <String, dynamic>{
+        'user_id': uid,
+        'profiles': {
+          'id': profile['id'],
+          'display_name': profile['display_name'],
+          'photo_url': profile['photo_url'],
+          'dogs': dogMap[uid] != null ? [dogMap[uid]] : [],
+        },
+      };
+      result.add(entry);
+    }
+    return result;
   }
 
   Future<void> removeAttendee(String eventId, String userId) async {
