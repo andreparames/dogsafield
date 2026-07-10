@@ -62,4 +62,5 @@ jobs:
                 issue_number: pr.number,
                 body: '@coderabbitai review'
               });
+              break;
             }
