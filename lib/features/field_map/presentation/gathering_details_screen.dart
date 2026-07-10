@@ -492,7 +492,7 @@ class _JoinPackSection extends ConsumerWidget {
           return OutlinedButton.icon(
             onPressed: () => ref.read(rsvpActionProvider(event.id).notifier).cancelRsvp(),
             icon: const Icon(Icons.bookmark_remove),
-            label: const Text('Cancel RSVP'),
+            label: const Text('Leave Pack'),
           );
         }
         return FilledButton.icon(
@@ -505,7 +505,7 @@ class _JoinPackSection extends ConsumerWidget {
       error: (err, _) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Could not load RSVP status', style: Theme.of(context).textTheme.bodySmall),
+          Text('Could not load pack status', style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: () => ref.invalidate(hasRsvpProvider(event.id)),

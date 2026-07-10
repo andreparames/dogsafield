@@ -290,7 +290,7 @@ void main() {
       expect(find.text('Join Pack'), findsOneWidget);
     });
 
-    testWidgets('shows Cancel RSVP after joining', (tester) async {
+    testWidgets('shows Leave Pack after joining', (tester) async {
       gatheringRepo.detail = GatheringDetail(
         event: DogEvent(
           id: 'evt-1',
@@ -310,10 +310,10 @@ void main() {
       await tester.pumpWidget(buildScreen('evt-1'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Cancel RSVP'), findsOneWidget);
+      expect(find.text('Leave Pack'), findsOneWidget);
     });
 
-    testWidgets('tapping Join Pack calls RSVP and shows Cancel RSVP', (tester) async {
+    testWidgets('tapping Join Pack calls RSVP and shows Leave Pack', (tester) async {
       gatheringRepo.detail = GatheringDetail(
         event: DogEvent(
           id: 'evt-1',
@@ -336,7 +336,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(rsvpRepo.rsvpEvents.contains('evt-1'), true);
-      expect(find.text('Cancel RSVP'), findsOneWidget);
+      expect(find.text('Leave Pack'), findsOneWidget);
     });
   });
 }
