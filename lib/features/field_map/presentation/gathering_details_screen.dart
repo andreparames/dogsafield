@@ -318,6 +318,7 @@ class _AttendeeCard extends ConsumerWidget {
         ref.read(authServiceProvider).currentUser?.id == attendee.profile.id;
 
     return Card(
+      color: isCurrentUser ? theme.colorScheme.primaryContainer : null,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -340,9 +341,20 @@ class _AttendeeCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    profile.displayName ?? 'Unknown',
-                    style: theme.textTheme.titleSmall,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          profile.displayName ?? 'Unknown',
+                          style: theme.textTheme.titleSmall,
+                        ),
+                      ),
+                      if (isCurrentUser)
+                        Text('(you)',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onPrimaryContainer,
+                            )),
+                    ],
                   ),
                   if (dog != null) ...[
                     const SizedBox(height: 4),

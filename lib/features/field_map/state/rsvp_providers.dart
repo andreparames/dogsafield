@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/database/providers.dart';
 import '../data/rsvp_repository.dart';
+import 'gathering_providers.dart';
 
 final rsvpRepositoryProvider = Provider<RsvpRepository>((ref) {
   return RsvpRepository(
@@ -58,6 +59,7 @@ class RsvpActionNotifier extends StateNotifier<RsvpActionState> {
       state = const RsvpActionSuccess();
       _ref.invalidate(hasRsvpProvider(_eventId));
       _ref.invalidate(myRsvpIdsProvider);
+      _ref.invalidate(gatheringDetailProvider(_eventId));
     } catch (e) {
       state = RsvpActionError('Failed to RSVP: $e');
     }
@@ -72,6 +74,7 @@ class RsvpActionNotifier extends StateNotifier<RsvpActionState> {
       state = const RsvpActionSuccess();
       _ref.invalidate(hasRsvpProvider(_eventId));
       _ref.invalidate(myRsvpIdsProvider);
+      _ref.invalidate(gatheringDetailProvider(_eventId));
     } catch (e) {
       state = RsvpActionError('Failed to cancel RSVP: $e');
     }
