@@ -36,7 +36,7 @@ jobs:
               let cooldownMinutes = 0;
 
               for (const comment of comments) {
-                const match = comment.body.match(/Next review available in:\s*(\d+)\s*minutes?/i);
+                const match = comment.body.match(/\*{0,2}Next review available in:\*{0,2}\s*\*{0,2}(\d+)\s*\*{0,2}minutes?/i);
                 if (match) {
                   if (!cooldownComment || new Date(comment.updated_at) > new Date(cooldownComment.updated_at)) {
                     cooldownComment = comment;
