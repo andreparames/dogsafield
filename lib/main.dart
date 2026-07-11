@@ -35,8 +35,11 @@ void main() async {
   final db = AppDatabase();
   final cache = LocalCacheService(db: db, prefs: prefs);
 
+  final plugin = FlutterLocalNotificationsPlugin();
+  final launchDetails = await plugin.getNotificationAppLaunchDetails();
+
   final notificationService = NotificationService(
-    FlutterLocalNotificationsPlugin(),
+    plugin,
     prefs,
     onNotificationTap: navigateToEvent,
     eventLookup: cache.getEventById,
@@ -52,4 +55,13 @@ void main() async {
       child: const DogsAfieldApp(),
     ),
   );
+
+  if (launchDetails?.didNotificationLaunchApp ?? false) {
+    final payload = launchDetails!.notificationResponse?.payload;
+    if (payload != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        navigateToEvent(payload);
+      });
+    }
+  }
 }

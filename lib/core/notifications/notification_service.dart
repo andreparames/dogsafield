@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -40,6 +41,12 @@ class NotificationService {
       settings,
       onDidReceiveNotificationResponse: _onNotificationResponse,
     );
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      await _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+    }
 
     await reschedulePending();
   }
@@ -130,34 +137,25 @@ class NotificationService {
       final raw = _prefs.getString(key);
       if (raw == null) continue;
 
+      String? eventId;
+      String? eventTitle;
+      DateTime? scheduleTime;
       try {
         final data = jsonDecode(raw) as Map<String, dynamic>;
-        final eventId = data['eventId'] as String;
-        final eventTitle = data['eventTitle'] as String;
-        final scheduleTime = DateTime.parse(data['scheduleTime'] as String);
-
-        if (scheduleTime.isBefore(now)) {
-          await _prefs.remove(key);
-          continue;
-        }
-
-        await _zonedSchedule(
-          eventId: eventId,
-          eventTitle: eventTitle,
-          scheduleTime: scheduleTime,
-        );
+        eventId = data['eventId'] as String;
+        eventTitle = data['eventTitle'] as String;
+        scheduleTime = DateTime.parse(data['scheduleTime'] as String);
       } catch (_) {
         final lookup = _eventLookup;
         if (lookup != null) {
           final event = await lookup(raw);
           if (event != null) {
-            final scheduleTime =
-                event.dateTime.add(const Duration(hours: 2));
-            if (!scheduleTime.isBefore(now)) {
+            final st = event.dateTime.add(const Duration(hours: 2));
+            if (!st.isBefore(now)) {
               await _zonedSchedule(
                 eventId: event.id,
                 eventTitle: event.title,
-                scheduleTime: scheduleTime,
+                scheduleTime: st,
               );
               final id = event.id.hashCode;
               await _prefs.setString(
@@ -165,7 +163,7 @@ class NotificationService {
                 jsonEncode({
                   'eventId': event.id,
                   'eventTitle': event.title,
-                  'scheduleTime': scheduleTime.toIso8601String(),
+                  'scheduleTime': st.toIso8601String(),
                 }),
               );
               continue;
@@ -173,7 +171,19 @@ class NotificationService {
           }
         }
         await _prefs.remove(key);
+        continue;
       }
+
+      if (scheduleTime.isBefore(now)) {
+        await _prefs.remove(key);
+        continue;
+      }
+
+      await _zonedSchedule(
+        eventId: eventId,
+        eventTitle: eventTitle,
+        scheduleTime: scheduleTime,
+      );
     }
   }
 }

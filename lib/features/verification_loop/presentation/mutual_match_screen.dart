@@ -5,23 +5,33 @@ import '../../field_map/data/gathering_detail.dart';
 import '../../field_map/state/gathering_providers.dart';
 import '../state/verification_providers.dart';
 
-class MutualMatchScreen extends ConsumerWidget {
+class MutualMatchScreen extends ConsumerStatefulWidget {
   final String eventId;
 
   const MutualMatchScreen({super.key, required this.eventId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final matchAsync = ref.watch(matchViewDataProvider(eventId));
-    final detailAsync = ref.watch(gatheringDetailProvider(eventId));
-    final syncState = ref.watch(packmateSyncProvider(eventId));
+  ConsumerState<MutualMatchScreen> createState() => _MutualMatchScreenState();
+}
+
+class _MutualMatchScreenState extends ConsumerState<MutualMatchScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(packmateSyncProvider(widget.eventId).notifier).sync();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final matchAsync = ref.watch(matchViewDataProvider(widget.eventId));
+    final detailAsync = ref.watch(gatheringDetailProvider(widget.eventId));
     final theme = Theme.of(context);
 
-    if (syncState is PackmateSyncIdle) {
-      ref.read(packmateSyncProvider(eventId).notifier).sync();
-    }
-
-    ref.listen<PackmateSyncState>(packmateSyncProvider(eventId), (_, next) {
+    ref.listen<PackmateSyncState>(packmateSyncProvider(widget.eventId), (_, next) {
       if (next is PackmateSyncDone && next.failedCount > 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -44,7 +54,10 @@ class MutualMatchScreen extends ConsumerWidget {
       body: matchAsync.when(
         data: (matchData) {
           return detailAsync.when(
-            data: (detail) => _buildContent(matchData, detail, theme, context),
+            data: (detail) => RefreshIndicator(
+              onRefresh: () => ref.read(packmateSyncProvider(widget.eventId).notifier).sync(),
+              child: _buildContent(matchData, detail, theme, context),
+            ),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, _) => Center(child: Text('Error: $e')),
           );
@@ -106,7 +119,7 @@ class MutualMatchScreen extends ConsumerWidget {
                 title: Text(attendee?.profile.displayName ?? 'Unknown'),
                 subtitle: const Text('They said they met you. Confirm back!'),
                 trailing: TextButton(
-                  onPressed: () => context.push('/verification/roll-call/$eventId'),
+                  onPressed: () => context.push('/verification/roll-call/${widget.eventId}'),
                   child: const Text('Check in'),
                 ),
               ),

@@ -86,6 +86,7 @@ class VerificationRepository {
 
   Future<PackmateSyncResult> resolveAndSaveMatches(String eventId) async {
     final matches = await resolveMatches(eventId);
+    final processedKeys = <String>{};
     final failedKeys = <String>{};
 
     for (final entry in matches.entries) {
@@ -93,25 +94,13 @@ class VerificationRepository {
         final key = entry.key.compareTo(matchedId) < 0
             ? '${entry.key}:$matchedId'
             : '$matchedId:${entry.key}';
-        if (failedKeys.contains(key)) continue;
+        if (!processedKeys.add(key)) continue;
         try {
           await setPackmates(entry.key, matchedId);
         } catch (e) {
           failedKeys.add(key);
-          debugPrint('Failed to save packmate connection ($matchedId): $e');
+          debugPrint('Failed to save packmate connection ($key): $e');
         }
-      }
-    }
-
-    if (failedKeys.isNotEmpty) {
-      for (final key in failedKeys) {
-        final parts = key.split(':');
-        final a = parts[0];
-        final b = parts[1];
-        matches[a]?.remove(b);
-        if (matches[a]?.isEmpty == true) matches.remove(a);
-        matches[b]?.remove(a);
-        if (matches[b]?.isEmpty == true) matches.remove(b);
       }
     }
 
