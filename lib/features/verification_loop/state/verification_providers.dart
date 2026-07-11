@@ -74,11 +74,13 @@ class MatchViewData {
   final Set<String> mutualMatchIds;
   final Set<String> pendingOutgoingIds;
   final Set<String> pendingIncomingIds;
+  final String? syncErrorMessage;
 
   const MatchViewData({
     required this.mutualMatchIds,
     required this.pendingOutgoingIds,
     required this.pendingIncomingIds,
+    this.syncErrorMessage,
   });
 }
 
@@ -89,7 +91,7 @@ final matchViewDataProvider =
   if (user == null) throw Exception('Not authenticated');
 
   final allEntries = await repo.fetchAllEntries(eventId);
-  final matches = await repo.resolveAndSaveMatches(eventId);
+  final result = await repo.resolveAndSaveMatches(eventId);
 
   final myConfirmedIds = allEntries
       .where((e) => e['observer_id'] as String == user.id)
@@ -101,11 +103,14 @@ final matchViewDataProvider =
       .map((e) => e['observer_id'] as String)
       .toSet();
 
-  final myMatches = matches[user.id] ?? <String>{};
+  final myMatches = result.matches[user.id] ?? <String>{};
 
   return MatchViewData(
     mutualMatchIds: myMatches,
     pendingOutgoingIds: myConfirmedIds.difference(myMatches),
     pendingIncomingIds: confirmedMeIds.difference(myMatches),
+    syncErrorMessage: result.failedCount > 0
+        ? 'Some connections couldn\'t be saved. Pull down to retry.'
+        : null,
   );
 });

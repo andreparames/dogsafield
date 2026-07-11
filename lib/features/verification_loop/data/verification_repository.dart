@@ -1,6 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+class PackmateSyncResult {
+  final Map<String, Set<String>> matches;
+  final int failedCount;
+
+  const PackmateSyncResult({required this.matches, required this.failedCount});
+}
+
 class VerificationRepository {
   final SupabaseClient _client;
 
@@ -77,17 +84,37 @@ class VerificationRepository {
     }, onConflict: 'user_id_a, user_id_b');
   }
 
-  Future<Map<String, Set<String>>> resolveAndSaveMatches(String eventId) async {
+  Future<PackmateSyncResult> resolveAndSaveMatches(String eventId) async {
     final matches = await resolveMatches(eventId);
+    final failedKeys = <String>{};
+
     for (final entry in matches.entries) {
       for (final matchedId in entry.value) {
+        final key = entry.key.compareTo(matchedId) < 0
+            ? '${entry.key}:$matchedId'
+            : '$matchedId:${entry.key}';
+        if (failedKeys.contains(key)) continue;
         try {
           await setPackmates(entry.key, matchedId);
         } catch (e) {
+          failedKeys.add(key);
           debugPrint('Failed to save packmate connection ($matchedId): $e');
         }
       }
     }
-    return matches;
+
+    if (failedKeys.isNotEmpty) {
+      for (final key in failedKeys) {
+        final parts = key.split(':');
+        final a = parts[0];
+        final b = parts[1];
+        matches[a]?.remove(b);
+        if (matches[a]?.isEmpty == true) matches.remove(a);
+        matches[b]?.remove(a);
+        if (matches[b]?.isEmpty == true) matches.remove(b);
+      }
+    }
+
+    return PackmateSyncResult(matches: matches, failedCount: failedKeys.length);
   }
 }

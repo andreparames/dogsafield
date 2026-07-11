@@ -16,6 +16,19 @@ class MutualMatchScreen extends ConsumerWidget {
     final detailAsync = ref.watch(gatheringDetailProvider(eventId));
     final theme = Theme.of(context);
 
+    ref.listen<AsyncValue<MatchViewData>>(matchViewDataProvider(eventId), (_, next) {
+      next.whenOrNull(data: (data) {
+        if (data.syncErrorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(data.syncErrorMessage!),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      });
+    });
+
     return Scaffold(
       appBar: AppBar(title: const Text('Who you met')),
       body: matchAsync.when(
