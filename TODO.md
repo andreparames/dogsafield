@@ -54,11 +54,11 @@
 - [x] **Tests** — widget tests for new screens, provider tests for notifiers
 
 ### Verification Loop (`lib/features/verification_loop/`)
-- [ ] **Post-event trigger** — push notification 2 hours after gathering start
-- [ ] **Attendance roll call** — peer-driven check-off of dogs seen at the event
-- [ ] **Cross-reference engine** — mutual confirmation or host fallback to authorize connections
-- [ ] **Packmate unlock** — permanently enable DM channel upon verification
-- [ ] Screens: `RollCallScreen`, `MutualMatchScreen`
+- [x] **Post-event trigger** — local notification "Who'd you meet?" scheduled 2h after event start; check-in section shown on past-event detail screen
+- [x] **Check-in/confirmation** — "Who'd you meet?" screen to check off people you met at the event
+- [x] **Cross-reference engine** — mutual confirmation matching; sets `are_packmates = true` on mutual meet
+- [x] **Packmate unlock** — `are_packmates` column set to `true` in `connections` table upon mutual meet
+- [x] Screens: "Who'd you meet?", "Who you met"
 
 ### Connections (`lib/features/connections/`)
 - [x] **Tier 1 — Block** — data layer, state notifier, UI via attendee card overflow menu
@@ -111,6 +111,7 @@
 - [ ] **Map edge-to-edge inset** — Field map should not overlap Android status bar (battery, clock, etc.)
 - [ ] **Marker flicker on filter toggle** — markers should not flash/re-render when switching between Nearby and My RSVPs
 - [ ] **Trial RSVPs info card** — replace repeated data with a short paragraph explaining the trial period
+- [ ] **Move "add event" FAB** — the add-event button sits on top of the map's zoom controls; reposition it so it doesn't overlap
 
 ## Second phase
 

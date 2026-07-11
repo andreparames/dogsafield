@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/notifications/providers.dart';
 import '../../../shared/models/dog.dart';
 import '../../../shared/models/event.dart';
 import '../../../shared/models/user_profile.dart';
 import '../../connections/presentation/report_dialog.dart';
 import '../../connections/state/connection_providers.dart';
 import '../../onboarding/state/auth_provider.dart';
+import '../../verification_loop/state/verification_providers.dart';
 import '../data/attendee_profile.dart';
 import '../data/gathering_detail.dart';
 import '../state/gathering_providers.dart';
@@ -194,6 +196,10 @@ class _GatheringContent extends StatelessWidget {
           ],
           const SizedBox(height: 12),
           _HostActions(event: event),
+          if (event.dateTime.isBefore(DateTime.now())) ...[
+            const SizedBox(height: 16),
+            _RollCallSection(event: event),
+          ],
         ],
       ),
     );
@@ -476,6 +482,20 @@ class _JoinPackSection extends ConsumerWidget {
           SnackBar(content: Text(next.message)),
         );
         ref.read(rsvpActionProvider(event.id).notifier).reset();
+      } else if (next is RsvpActionSuccess) {
+        final notif = ref.read(notificationServiceProvider);
+        notif.cancelRollCallReminder(event.id).then((_) {
+          ref.invalidate(hasRsvpProvider(event.id));
+          return ref.read(hasRsvpProvider(event.id).future);
+        }).then((hasRsvp) {
+          if (hasRsvp) {
+            notif.scheduleRollCallReminder(
+              eventId: event.id,
+              eventDateTime: event.dateTime,
+              eventTitle: event.title,
+            );
+          }
+        });
       }
     });
 
@@ -514,6 +534,60 @@ class _JoinPackSection extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _RollCallSection extends ConsumerWidget {
+  final DogEvent event;
+
+  const _RollCallSection({required this.event});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final myEntries = ref.watch(myRollCallEntriesProvider(event.id));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Who\'d you meet?', style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          fontWeight: FontWeight.w600,
+        )),
+        const SizedBox(height: 8),
+        myEntries.when(
+          data: (entries) {
+            if (entries.isNotEmpty) {
+              return Column(
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () => context.push('/verification/matches/${event.id}'),
+                    icon: const Icon(Icons.people),
+                    label: const Text('Who you met'),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    onPressed: () => context.push('/verification/roll-call/${event.id}'),
+                    icon: const Icon(Icons.edit, size: 18),
+                    label: const Text('Edit who you met'),
+                  ),
+                ],
+              );
+            }
+            return FilledButton.icon(
+              onPressed: () => context.push('/verification/roll-call/${event.id}'),
+              icon: const Icon(Icons.rate_review),
+              label: const Text('Who\'d you meet?'),
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => FilledButton.icon(
+            onPressed: () => context.push('/verification/roll-call/${event.id}'),
+            icon: const Icon(Icons.rate_review),
+            label: const Text('Who\'d you meet?'),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'features/onboarding/routes.dart';
@@ -13,7 +14,10 @@ import 'features/verification_loop/routes.dart';
 import 'features/connections/routes.dart';
 import 'features/messaging/routes.dart';
 
+final _navigatorKey = GlobalKey<NavigatorState>();
+
 final _appRouter = GoRouter(
+  navigatorKey: _navigatorKey,
   refreshListenable: authRefreshNotifier,
   initialLocation: '/onboarding/welcome',
   redirect: (context, state) {
@@ -59,3 +63,7 @@ final _appRouter = GoRouter(
 );
 
 GoRouter get appRouter => _appRouter;
+
+void navigateToEvent(String eventId) {
+  _navigatorKey.currentContext?.go('/field/gathering/$eventId');
+}
