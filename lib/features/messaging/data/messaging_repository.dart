@@ -29,25 +29,30 @@ class MessagingRepository {
       return a == userId ? b : a;
     }).toList();
 
+    final conversationIds = rows.map((r) => r['id'] as String).toList();
+
     final profiles = await _client.from('profiles_public')
         .select('id, display_name, photo_url')
         .inFilter('id', otherUserIds);
 
     final profileMap = {for (final p in profiles) p['id'] as String: p};
+    final unreadMap = await _fetchUnreadCounts(conversationIds, userId);
 
     return rows.map((r) {
       final a = r['user_a'] as String;
       final b = r['user_b'] as String;
       final otherId = a == userId ? b : a;
+      final convoId = r['id'] as String;
       final profile = profileMap[otherId];
 
       return Conversation(
-        id: r['id'] as String,
+        id: convoId,
         otherUserId: otherId,
         otherUserName: profile?['display_name'] as String?,
         otherUserPhoto: profile?['photo_url'] as String?,
         lastMessageAt: DateTime.parse(r['last_message_at'] as String),
         lastMessageContent: r['last_message_content'] as String?,
+        unreadCount: unreadMap[convoId] ?? 0,
       );
     }).toList();
   }
@@ -76,25 +81,30 @@ class MessagingRepository {
         return a == userId ? b : a;
       }).toList();
 
+      final conversationIds = rows.map((r) => r['id'] as String).toList();
+
       final profiles = await _client.from('profiles_public')
           .select('id, display_name, photo_url')
           .inFilter('id', otherUserIds);
 
       final profileMap = {for (final p in profiles) p['id'] as String: p};
+      final unreadMap = await _fetchUnreadCounts(conversationIds, userId);
 
       return rows.map((r) {
         final a = r['user_a'] as String;
         final b = r['user_b'] as String;
         final otherId = a == userId ? b : a;
+        final convoId = r['id'] as String;
         final profile = profileMap[otherId];
 
         return Conversation(
-          id: r['id'] as String,
+          id: convoId,
           otherUserId: otherId,
           otherUserName: profile?['display_name'] as String?,
           otherUserPhoto: profile?['photo_url'] as String?,
           lastMessageAt: DateTime.parse(r['last_message_at'] as String),
           lastMessageContent: r['last_message_content'] as String?,
+          unreadCount: unreadMap[convoId] ?? 0,
         );
       }).toList();
     });
@@ -184,6 +194,21 @@ class MessagingRepository {
     if (connection == null) return false;
     if (connection['block_tier'] as int > 0) return false;
     return connection['are_packmates'] as bool;
+  }
+
+  Future<Map<String, int>> _fetchUnreadCounts(List<String> conversationIds, String userId) async {
+    if (conversationIds.isEmpty) return {};
+    final rows = await _client.from('messages')
+        .select('conversation_id')
+        .inFilter('conversation_id', conversationIds)
+        .neq('sender_id', userId)
+        .isFilter('read_at', null);
+    final map = <String, int>{};
+    for (final r in rows) {
+      final cid = r['conversation_id'] as String;
+      map[cid] = (map[cid] ?? 0) + 1;
+    }
+    return map;
   }
 
   Message _rowToMessage(Map<String, dynamic> row) {

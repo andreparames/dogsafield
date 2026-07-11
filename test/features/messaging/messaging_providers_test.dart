@@ -6,6 +6,11 @@ import 'package:dogsafield/features/messaging/state/messaging_providers.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
 import '../../helpers/test_utils.dart';
 
+final _overrides = <dynamic>[
+  authServiceProvider.overrideWithValue(fakeAuthService),
+  authStateProvider.overrideWith((ref) => Stream.empty()),
+];
+
 void main() {
   group('SendActionNotifier', () {
     test('send transitions through states on success', () async {
@@ -144,7 +149,7 @@ void main() {
   });
 
   group('conversationsStreamProvider', () {
-    test('streams conversation data from repository', () async {
+    test('returns conversations from provider', () async {
       final repo = FakeMessagingRepository();
       repo.conversations = [
         Conversation(
@@ -157,15 +162,29 @@ void main() {
         ),
       ];
 
-      final conversations = await repo.fetchConversations();
-      expect(conversations.length, 1);
-      expect(conversations.first.otherUserName, 'Alice');
-      expect(conversations.first.lastMessageContent, 'Hey there!');
+      final container = ProviderContainer(
+        overrides: [
+          ..._overrides,
+          messagingRepositoryProvider.overrideWithValue(repo),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final sub = container.listen(conversationsStreamProvider, (_, __) {});
+      await Future<void>.delayed(Duration.zero);
+
+      final result = container.read(conversationsStreamProvider).value;
+      expect(result, isNotNull);
+      expect(result!.length, 1);
+      expect(result.first.otherUserName, 'Alice');
+      expect(result.first.lastMessageContent, 'Hey there!');
+      expect(result.first.unreadCount, 2);
+      sub.close();
     });
   });
 
   group('messagesStreamProvider', () {
-    test('returns messages for conversation from repository', () async {
+    test('returns messages for conversation from provider', () async {
       final repo = FakeMessagingRepository();
       repo.messages = [
         Message(
@@ -191,8 +210,24 @@ void main() {
         ),
       ];
 
-      final allConversations = await repo.fetchConversations();
-      expect(allConversations, isEmpty);
+      final container = ProviderContainer(
+        overrides: [
+          ..._overrides,
+          messagingRepositoryProvider.overrideWithValue(repo),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final sub = container.listen(messagesStreamProvider('conv-1'), (_, __) {});
+      await Future<void>.delayed(Duration.zero);
+
+      final result = container.read(messagesStreamProvider('conv-1')).value;
+      expect(result, isNotNull);
+      expect(result!.length, 2);
+      expect(result.first.content, 'Hello!');
+      expect(result.last.content, 'Hi there!');
+      expect(result.where((m) => m.conversationId != 'conv-1'), isEmpty);
+      sub.close();
     });
   });
 }

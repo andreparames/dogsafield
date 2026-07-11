@@ -59,7 +59,7 @@ create policy "Participants can send messages"
     )
   );
 
-create policy "Participants can update own messages"
+create policy "Participants can update messages read_at"
   on messages for update
   using (
     exists (
@@ -67,6 +67,12 @@ create policy "Participants can update own messages"
       where conversations.id = messages.conversation_id
         and (auth.uid() = conversations.user_a or auth.uid() = conversations.user_b)
     )
+  )
+  with check (
+    content = (select content from public.messages where id = messages.id)
+    and sender_id = (select sender_id from public.messages where id = messages.id)
+    and conversation_id = (select conversation_id from public.messages where id = messages.id)
+    and created_at = (select created_at from public.messages where id = messages.id)
   );
 
 -- Trigger to update conversation metadata on new message

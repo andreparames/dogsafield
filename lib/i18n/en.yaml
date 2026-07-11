@@ -212,7 +212,7 @@ account:
   deleteTitle: Delete Account
   deleteBody: This permanently removes all your data. This action cannot be undone.
   deleteConfirmHint: Type DELETE to confirm
-  deleteConfirmError: Type DELETE to confirm
+  deleteConfirmError: Incorrect. Please type DELETE to confirm.
   deleteForever: Delete Forever
   signOut: Sign Out
   upgrade:

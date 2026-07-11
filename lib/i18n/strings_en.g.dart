@@ -402,8 +402,8 @@ class Translations$account$en {
 	/// en: 'Type DELETE to confirm'
 	String get deleteConfirmHint => 'Type DELETE to confirm';
 
-	/// en: 'Type DELETE to confirm'
-	String get deleteConfirmError => 'Type DELETE to confirm';
+	/// en: 'Incorrect. Please type DELETE to confirm.'
+	String get deleteConfirmError => 'Incorrect. Please type DELETE to confirm.';
 
 	/// en: 'Delete Forever'
 	String get deleteForever => 'Delete Forever';
@@ -1358,7 +1358,7 @@ extension on Translations {
 			'account.deleteTitle' => 'Delete Account',
 			'account.deleteBody' => 'This permanently removes all your data. This action cannot be undone.',
 			'account.deleteConfirmHint' => 'Type DELETE to confirm',
-			'account.deleteConfirmError' => 'Type DELETE to confirm',
+			'account.deleteConfirmError' => 'Incorrect. Please type DELETE to confirm.',
 			'account.deleteForever' => 'Delete Forever',
 			'account.signOut' => 'Sign Out',
 			'account.upgrade.title' => 'Upgrade',

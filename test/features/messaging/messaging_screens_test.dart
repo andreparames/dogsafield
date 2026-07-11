@@ -41,7 +41,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('No conversations yet'), findsOneWidget);
+      expect(find.text(t.messaging.empty), findsOneWidget);
     });
 
     testWidgets('shows conversations in list', (tester) async {
@@ -108,7 +108,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Send a message to start the conversation!'), findsOneWidget);
+      expect(find.text(t.messaging.noMessagesYet), findsOneWidget);
     });
 
     testWidgets('displays messages from conversation', (tester) async {

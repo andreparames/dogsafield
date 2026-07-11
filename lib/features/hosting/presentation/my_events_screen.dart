@@ -132,7 +132,7 @@ class _EventCard extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '${eventTypeLabel(event.type)} \u00B7 ${event.locationName}',
+              '${eventTypeLabel(event.type)} \u00B7 ${event.locationName.isNotEmpty ? event.locationName : context.t.hosting.create.selectedLocation}',
               style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 4),

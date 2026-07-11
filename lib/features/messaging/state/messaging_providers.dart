@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
@@ -71,7 +72,9 @@ class SendActionNotifier extends Notifier<SendActionState> {
     try {
       final repo = ref.read(messagingRepositoryProvider);
       await repo.markAsRead(conversationId);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('SendActionNotifier.markAsRead($conversationId): $e');
+    }
   }
 
   void reset() => state = const SendActionIdle();

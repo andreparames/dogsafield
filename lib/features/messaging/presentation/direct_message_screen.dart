@@ -44,8 +44,6 @@ class _DirectMessageScreenState extends ConsumerState<DirectMessageScreen> {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
     ref.read(sendActionProvider.notifier).send(widget.conversationId, text);
-    _controller.clear();
-    setState(() => _isComposing = false);
   }
 
   void _scrollToBottom() {
@@ -67,6 +65,8 @@ class _DirectMessageScreenState extends ConsumerState<DirectMessageScreen> {
 
     ref.listen<SendActionState>(sendActionProvider, (prev, next) {
       if (next is SendActionSuccess) {
+        _controller.clear();
+        setState(() => _isComposing = false);
         ref.read(sendActionProvider.notifier).reset();
         WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
       } else if (next is SendActionError) {
@@ -202,8 +202,9 @@ class _MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final localTime = message.createdAt.toLocal();
     final timeStr =
-        '${message.createdAt.hour.toString().padLeft(2, '0')}:${message.createdAt.minute.toString().padLeft(2, '0')}';
+        '${localTime.hour.toString().padLeft(2, '0')}:${localTime.minute.toString().padLeft(2, '0')}';
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,

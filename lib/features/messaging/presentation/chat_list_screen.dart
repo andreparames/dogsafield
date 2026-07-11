@@ -100,7 +100,10 @@ class ChatListScreen extends ConsumerWidget {
                       )
                     : null,
                 onTap: () {
-                  context.push('/messaging/chat/${conversation.id}');
+                  context.push(
+                    '/messaging/chat/${conversation.id}',
+                    extra: {'otherUserName': conversation.otherUserName ?? ''},
+                  );
                 },
               );
             },

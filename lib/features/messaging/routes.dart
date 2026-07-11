@@ -13,8 +13,8 @@ List<RouteBase> messagingRoutes = [
     name: 'chat',
     builder: (context, state) {
       final conversationId = state.pathParameters['conversationId']!;
-      final extra = state.extra as Map<String, String>?;
-      final otherUserName = extra?['otherUserName'] ?? '';
+      final extra = state.extra;
+      final otherUserName = (extra is Map<String, dynamic> ? extra['otherUserName'] as String? : null) ?? '';
       return DirectMessageScreen(
         conversationId: conversationId,
         otherUserName: otherUserName,
