@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../../../core/database/providers.dart';
 import '../../../shared/models/user_profile.dart';
 import '../state/onboarding_state.dart';
@@ -21,27 +22,27 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
     final theme = Theme.of(context);
     final state = ref.watch(onboardingProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Safety Boundaries')),
+      appBar: AppBar(title: Text(context.t.onboarding.safety.title)),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Treat Policy', style: theme.textTheme.titleMedium),
+            Text(context.t.onboarding.safety.treatPolicy, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             Text(
-              'Let other owners know how you handle treats.',
+              context.t.onboarding.safety.treatPolicySubtitle,
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
             RadioListTile<TreatPolicy>(
-              title: const Text('Okay to share \u2014 friendly dogs welcome'),
+              title: Text(context.t.onboarding.safety.okToShare),
               value: TreatPolicy.okToShare,
               groupValue: _selected,
               onChanged: state.isSubmitting ? null : (val) => setState(() => _selected = val),
             ),
             RadioListTile<TreatPolicy>(
-              title: const Text('Ask before feeding \u2014 allergies or diet'),
+              title: Text(context.t.onboarding.safety.askBeforeFeeding),
               value: TreatPolicy.askBeforeFeeding,
               groupValue: _selected,
               onChanged: state.isSubmitting ? null : (val) => setState(() => _selected = val),
@@ -60,7 +61,7 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
               onPressed: state.isSubmitting ? null : _submit,
               child: state.isSubmitting
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('Complete Profile'),
+                  : Text(context.t.onboarding.safety.completeProfile),
             ),
           ],
         ),
@@ -71,7 +72,7 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
   Future<void> _submit() async {
     if (_selected == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a treat policy')),
+        SnackBar(content: Text(context.t.onboarding.safety.policyRequired)),
       );
       return;
     }
@@ -108,7 +109,7 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
       if (!mounted) return;
       context.push('/');
     } catch (e) {
-      notifier.setSubmissionError('Something went wrong. Please try again.');
+      notifier.setSubmissionError(context.t.onboarding.safety.error);
     } finally {
       notifier.setSubmitting(false);
     }

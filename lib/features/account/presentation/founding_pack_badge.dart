@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 
 class FoundingPackBadge extends StatelessWidget {
   const FoundingPackBadge({super.key});
@@ -18,7 +19,7 @@ class FoundingPackBadge extends StatelessWidget {
           Icon(Icons.auto_awesome, size: 16, color: Colors.amber.shade800),
           const SizedBox(width: 4),
           Text(
-            'Founding Pack',
+            context.t.account.foundingPack.badge,
             style: theme.textTheme.labelMedium?.copyWith(
               color: Colors.amber.shade900,
               fontWeight: FontWeight.w600,

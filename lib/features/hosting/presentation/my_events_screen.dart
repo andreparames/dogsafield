@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../../../core/database/providers.dart';
 import '../../../shared/models/event.dart';
 import '../../field_map/presentation/event_marker_icon.dart';
@@ -24,7 +25,7 @@ class MyEventsScreen extends ConsumerWidget {
     final eventsAsync = ref.watch(myEventsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Events')),
+      appBar: AppBar(title: Text(context.t.hosting.myEvents.title)),
       body: eventsAsync.when(
         data: (events) {
           final active = events.where((e) => !e.isCancelled).toList();
@@ -36,10 +37,10 @@ class MyEventsScreen extends ConsumerWidget {
                 children: [
                   Icon(Icons.event_busy, size: 64, color: theme.colorScheme.onSurfaceVariant),
                   const SizedBox(height: 16),
-                  Text('No events yet', style: theme.textTheme.titleMedium),
+                  Text(context.t.hosting.myEvents.noEvents, style: theme.textTheme.titleMedium),
                   const SizedBox(height: 8),
                   Text(
-                    'Tap the + on the map to create one.',
+                    context.t.hosting.myEvents.createHint,
                     style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                 ],
@@ -52,7 +53,7 @@ class MyEventsScreen extends ConsumerWidget {
               if (active.isNotEmpty) ...[
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                  child: Text('Active Events', style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  child: Text(context.t.hosting.myEvents.activeEvents, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                 ),
                 ...active.map((e) => _EventCard(event: e)),
               ],
@@ -60,7 +61,7 @@ class MyEventsScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                  child: Text('Cancelled', style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.error)),
+                  child: Text(context.t.hosting.myEvents.cancelled, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.error)),
                 ),
                 ...cancelled.map((e) => _EventCard(event: e)),
               ],
@@ -76,12 +77,12 @@ class MyEventsScreen extends ConsumerWidget {
               children: [
                 Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
                 const SizedBox(height: 16),
-                Text('Could not load events', style: theme.textTheme.titleMedium),
+                Text(context.t.hosting.myEvents.couldNotLoad, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
                   onPressed: () => ref.invalidate(myEventsProvider),
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'),
+                  label: Text(context.t.common.retry),
                 ),
               ],
             ),
@@ -122,7 +123,7 @@ class _EventCard extends ConsumerWidget {
                 ),
                 if (isCancelled)
                   Chip(
-                    label: Text('Cancelled', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.error)),
+                    label: Text(context.t.hosting.myEvents.cancelled, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.error)),
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     visualDensity: VisualDensity.compact,
                     backgroundColor: theme.colorScheme.errorContainer,
@@ -149,27 +150,27 @@ class _EventCard extends ConsumerWidget {
                   OutlinedButton.icon(
                     onPressed: () => context.push('/hosting/manage-attendees', extra: event),
                     icon: const Icon(Icons.people, size: 18),
-                    label: const Text('Attendees'),
+                    label: Text(context.t.hosting.myEvents.attendees),
                   ),
                   isOnline
                       ? OutlinedButton.icon(
                           onPressed: () => context.push('/hosting/edit', extra: event),
                           icon: const Icon(Icons.edit, size: 18),
-                          label: const Text('Edit'),
+                          label: Text(context.t.common.edit),
                         )
                       : Tooltip(
-                          message: "Can't edit while offline",
+                          message: context.t.hosting.myEvents.cantEditOffline,
                           triggerMode: TooltipTriggerMode.tap,
                           child: OutlinedButton.icon(
                             onPressed: () {},
                             icon: const Icon(Icons.edit, size: 18),
-                            label: const Text('Edit'),
+                            label: Text(context.t.common.edit),
                           ),
                         ),
                   OutlinedButton.icon(
                     onPressed: () => _confirmCancel(context, ref),
                     icon: const Icon(Icons.cancel_outlined, size: 18),
-                    label: const Text('Cancel'),
+                    label: Text(context.t.common.cancel),
                     style: OutlinedButton.styleFrom(foregroundColor: theme.colorScheme.error),
                   ),
                 ],
@@ -185,17 +186,17 @@ class _EventCard extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Cancel Event'),
-        content: const Text('This will mark the event as cancelled. Attendees will no longer see it on the map.'),
+        title: Text(context.t.hosting.myEvents.cancelEventTitle),
+        content: Text(context.t.hosting.myEvents.cancelEventBody),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Keep')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(context.t.common.keep)),
           FilledButton(
             onPressed: () {
               Navigator.pop(ctx);
               ref.read(hostingActionProvider.notifier).cancelEvent(event.id);
             },
             style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
-            child: const Text('Cancel Event'),
+            child: Text(context.t.hosting.myEvents.cancelEventAction),
           ),
         ],
       ),

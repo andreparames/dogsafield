@@ -9,6 +9,7 @@ import 'package:dogsafield/features/onboarding/state/onboarding_state.dart';
 import 'package:dogsafield/shared/models/dog.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
 import '../helpers/test_utils.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 
 void main() {
   group('initFromAuth', () {
@@ -67,6 +68,7 @@ void main() {
         onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
       ]);
       addTearDown(container.dispose);
+      LocaleSettings.setLocaleSync(AppLocale.en);
       container.read(onboardingProvider.notifier).setDog(
         Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
       );
@@ -79,19 +81,21 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: MaterialApp.router(routerConfig: router),
+          child: TranslationProvider(
+            child: MaterialApp.router(routerConfig: router),
+          ),
         ),
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.textContaining('Okay to share'));
+      await tester.tap(find.textContaining(t.onboarding.safety.okToShare));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Complete Profile'));
+      await tester.tap(find.text(t.onboarding.safety.completeProfile));
       await tester.pumpAndSettle();
 
       expect(
-        find.text('Something went wrong. Please try again.'),
+        find.text(t.onboarding.safety.error),
         findsOneWidget,
       );
     });
@@ -101,6 +105,7 @@ void main() {
         onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
       ]);
       addTearDown(container.dispose);
+      LocaleSettings.setLocaleSync(AppLocale.en);
       container.read(onboardingProvider.notifier).initFromAuth(
         'u1',
         'a@b.com',
@@ -118,18 +123,20 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: MaterialApp.router(routerConfig: router),
+          child: TranslationProvider(
+            child: MaterialApp.router(routerConfig: router),
+          ),
         ),
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.textContaining('Okay to share'));
+      await tester.tap(find.textContaining(t.onboarding.safety.okToShare));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Complete Profile'));
+      await tester.tap(find.text(t.onboarding.safety.completeProfile));
       await tester.pumpAndSettle();
 
-      expect(find.text('Something went wrong. Please try again.'), findsNothing);
+      expect(find.text(t.onboarding.safety.error), findsNothing);
     });
   });
 
@@ -157,6 +164,7 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
+      LocaleSettings.setLocaleSync(AppLocale.en);
 
       final router = GoRouter(
         initialLocation: '/onboarding/welcome',
@@ -184,7 +192,9 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: MaterialApp.router(routerConfig: router),
+          child: TranslationProvider(
+            child: MaterialApp.router(routerConfig: router),
+          ),
         ),
       );
 
@@ -225,6 +235,7 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
+      LocaleSettings.setLocaleSync(AppLocale.en);
 
       final router = GoRouter(
         refreshListenable: authRefreshNotifier,
@@ -254,7 +265,9 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: MaterialApp.router(routerConfig: router),
+          child: TranslationProvider(
+            child: MaterialApp.router(routerConfig: router),
+          ),
         ),
       );
 

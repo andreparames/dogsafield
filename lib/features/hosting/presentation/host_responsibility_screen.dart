@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../../account/state/account_providers.dart';
 import '../../onboarding/state/auth_provider.dart';
 import '../../onboarding/state/onboarding_state.dart';
@@ -13,49 +14,35 @@ class HostResponsibilityScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Before You Host')),
+      appBar: AppBar(title: Text(context.t.hosting.responsibility.title)),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           Icon(Icons.volunteer_activism, size: 64, color: theme.colorScheme.primary),
           const SizedBox(height: 24),
-          Text('Hosting Responsibility', style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
+          Text(context.t.hosting.responsibility.heading, style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
           const SizedBox(height: 16),
           Text(
-            'Thank you for stepping up to host! A few things to keep in mind:',
+            context.t.hosting.responsibility.intro,
             style: theme.textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
-          _TipCard(
-            icon: Icons.access_time,
-            title: 'Show up on time',
-            description: 'Attendees plan their day around your event. Arrive a few minutes early to get settled.',
-          ),
-          const SizedBox(height: 12),
-          _TipCard(
-            icon: Icons.message,
-            title: 'Communicate changes',
-            description: 'If you need to cancel or reschedule, do it as early as possible so attendees can adjust.',
-          ),
-          const SizedBox(height: 12),
-          _TipCard(
-            icon: Icons.group,
-            title: 'Welcome everyone',
-            description: 'New members may be nervous. A warm welcome goes a long way toward building the pack.',
-          ),
-          const SizedBox(height: 12),
-          _TipCard(
-            icon: Icons.pets,
-            title: 'Safety first',
-            description: 'Keep an eye on all dogs. If a dog seems stressed or reactive, give them space.',
-          ),
-          const SizedBox(height: 12),
-          _TipCard(
-            icon: Icons.report,
-            title: 'Report issues',
-            description: 'Use the feedback button on the map to report any problems or concerns to the team.',
-          ),
+          ...() {
+            final tipIcons = [Icons.access_time, Icons.message, Icons.group, Icons.pets, Icons.report];
+            final tips = context.t.hosting.responsibility.tips;
+            return [
+              for (var i = 0; i < tips.length; i++)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _TipCard(
+                    icon: tipIcons[i % tipIcons.length],
+                    title: (tips[i] as dynamic).title,
+                    description: (tips[i] as dynamic).description,
+                  ),
+                ),
+            ];
+          }(),
           const SizedBox(height: 40),
           SizedBox(
             width: double.infinity,
@@ -78,7 +65,7 @@ class HostResponsibilityScreen extends ConsumerWidget {
                 context.go('/hosting/create');
               },
               icon: const Icon(Icons.check),
-              label: const Text('I Understand'),
+              label: Text(context.t.hosting.responsibility.iUnderstand),
             ),
           ),
         ],

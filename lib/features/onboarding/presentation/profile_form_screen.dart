@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../../../shared/models/dog.dart';
 import '../state/onboarding_state.dart';
 
@@ -31,7 +32,7 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Pup Profile')),
+      appBar: AppBar(title: Text(context.t.onboarding.profileForm.title)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -39,22 +40,22 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
           children: [
             TextField(
               controller: _nameCtrl,
-              decoration: const InputDecoration(labelText: 'Dog\'s Name', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: context.t.onboarding.profileForm.dogName, border: const OutlineInputBorder()),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _ageCtrl,
-              decoration: const InputDecoration(labelText: 'Age', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: context.t.onboarding.profileForm.age, border: const OutlineInputBorder()),
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _breedCtrl,
-              decoration: const InputDecoration(labelText: 'Breed', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: context.t.onboarding.profileForm.breed, border: const OutlineInputBorder()),
             ),
             const SizedBox(height: 20),
-            Text('Social Vibe', style: theme.textTheme.titleSmall),
+            Text(context.t.onboarding.profileForm.socialVibe, style: theme.textTheme.titleSmall),
             const SizedBox(height: 8),
             ...SocialVibe.values.map(
               (v) => RadioListTile<SocialVibe>(
@@ -67,7 +68,7 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
             const SizedBox(height: 24),
             FilledButton(
               onPressed: _submit,
-              child: const Text('Next'),
+              child: Text(context.t.common.next),
             ),
           ],
         ),
@@ -79,14 +80,14 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your dog\'s name')),
+        SnackBar(content: Text(context.t.onboarding.profileForm.nameRequired)),
       );
       return;
     }
     final userProfile = ref.read(onboardingProvider).userProfile;
     if (userProfile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile not ready. Please try again.')),
+        SnackBar(content: Text(context.t.onboarding.profileForm.profileNotReady)),
       );
       return;
     }
@@ -104,10 +105,10 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
   }
 
   String _vibeLabel(SocialVibe v) {
-    switch (v) {
-      case SocialVibe.loungeLizard: return 'Lounge Lizard \u2014 calm and chill';
-      case SocialVibe.zoomieKing: return 'Zoomie King \u2014 high energy';
-      case SocialVibe.socialLearner: return 'Social Learner \u2014 still learning the ropes';
-    }
+    return switch (v) {
+      SocialVibe.loungeLizard => context.t.vibe.loungeLizardFull,
+      SocialVibe.zoomieKing => context.t.vibe.zoomieKingFull,
+      SocialVibe.socialLearner => context.t.vibe.socialLearnerFull,
+    };
   }
 }

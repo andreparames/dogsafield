@@ -11,9 +11,11 @@ import 'core/notifications/providers.dart';
 import 'core/notifications/notification_service.dart';
 import 'features/onboarding/state/auth_provider.dart';
 import 'routes.dart' show navigateToEvent;
+import 'i18n/strings.g.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  LocaleSettings.useDeviceLocale();
 
   const url = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
   const key = String.fromEnvironment('SUPABASE_PUB_KEY', defaultValue: '');

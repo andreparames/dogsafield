@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../state/onboarding_state.dart';
 
 final imagePickerProvider = Provider<ImagePicker>((ref) => ImagePicker());
@@ -16,7 +17,7 @@ class PhotoUploadScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final state = ref.watch(onboardingProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Verification Photo')),
+      appBar: AppBar(title: Text(context.t.onboarding.photoUpload.title)),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -25,13 +26,13 @@ class PhotoUploadScreen extends ConsumerWidget {
             Icon(Icons.camera_alt, size: 64, color: theme.colorScheme.primary),
             const SizedBox(height: 16),
             Text(
-              'Upload a photo of you and your dog together',
+              context.t.onboarding.photoUpload.subtitle,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'This helps others recognize you at the park.',
+              context.t.onboarding.photoUpload.hint,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
@@ -46,13 +47,13 @@ class PhotoUploadScreen extends ConsumerWidget {
             FilledButton.icon(
               onPressed: () => _pickImage(ref, context, ImageSource.camera),
               icon: const Icon(Icons.camera_alt),
-              label: const Text('Take Photo'),
+              label: Text(context.t.onboarding.photoUpload.takePhoto),
             ),
             const SizedBox(height: 12),
             TextButton.icon(
               onPressed: () => _pickImage(ref, context, ImageSource.gallery),
               icon: const Icon(Icons.photo_library),
-              label: const Text('Choose from Gallery'),
+              label: Text(context.t.onboarding.photoUpload.chooseGallery),
             ),
           ],
         ),

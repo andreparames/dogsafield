@@ -12,6 +12,7 @@ import '../state/rsvp_providers.dart';
 import 'feedback_dialog.dart';
 import 'event_bottom_sheet.dart';
 import 'event_marker_icon.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 
 class FieldMapScreen extends ConsumerStatefulWidget {
   const FieldMapScreen({super.key});
@@ -49,7 +50,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       next.whenOrNull(error: (error, _) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load events: $error')),
+          SnackBar(content: Text(context.t.fieldMap.failedToLoadEvents(error: error))),
         );
       });
     });
@@ -64,7 +65,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
             context.push('/hosting/create');
           }
         },
-        tooltip: 'Create Event',
+        tooltip: context.t.fieldMap.createEvent,
         child: const Icon(Icons.add),
       ),
       body: locationAsync.when(
@@ -117,7 +118,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                   child: IconButton(
                     icon: Icon(Icons.person, color: Theme.of(context).colorScheme.onPrimaryContainer),
                     onPressed: () => context.push('/account'),
-                    tooltip: 'Account',
+                    tooltip: context.t.fieldMap.account,
                   ),
                 ),
               ),
@@ -127,15 +128,15 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 right: 0,
                 child: Center(
                   child: SegmentedButton<bool>(
-                    segments: const [
+                    segments: [
                       ButtonSegment(
                         value: false,
-                        label: Text('Nearby'),
+                        label: Text(context.t.fieldMap.nearby),
                         icon: Icon(Icons.map),
                       ),
                       ButtonSegment(
                         value: true,
-                        label: Text('My Packs'),
+                        label: Text(context.t.fieldMap.myPacks),
                         icon: Icon(Icons.bookmark),
                       ),
                     ],
@@ -152,7 +153,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                         child: IconButton(
                           icon: Icon(Icons.chat_bubble_outline,
                               color: theme.colorScheme.primary),
-                          tooltip: 'Feedback',
+                          tooltip: context.t.fieldMap.feedback,
                           onPressed: () => _showFeedbackDialog(context),
                         ),
                       ),
@@ -174,12 +175,12 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                   Icon(Icons.location_off, size: 64, color: Theme.of(context).colorScheme.error),
                   const SizedBox(height: 16),
                   Text(
-                    'Unable to get your location',
+                    context.t.fieldMap.unableToGetLocation,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Please grant location permission to see the map.',
+                    context.t.fieldMap.grantPermission,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -189,7 +190,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                   ElevatedButton.icon(
                     onPressed: _retry,
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
+                    label: Text(context.t.common.retry),
                   ),
                 ],
               ),
@@ -216,7 +217,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     if (permission == LocationPermission.deniedForever) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Location permission permanently denied. Open settings to enable.')),
+        SnackBar(content: Text(context.t.fieldMap.permissionDeniedForever)),
       );
       await Geolocator.openAppSettings();
       return;
@@ -225,7 +226,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     if (permission == LocationPermission.denied) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Location permission is required to show the map.')),
+        SnackBar(content: Text(context.t.fieldMap.permissionDenied)),
       );
       return;
     }
@@ -234,7 +235,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     if (!enabled) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Location services are disabled. Enable them in settings.')),
+        SnackBar(content: Text(context.t.fieldMap.locationDisabled)),
       );
       await Geolocator.openLocationSettings();
       return;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../../account/state/account_providers.dart';
 import '../../onboarding/state/auth_provider.dart';
 import '../../onboarding/state/onboarding_state.dart';
@@ -13,43 +14,21 @@ class FieldIntroScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Welcome to the Field')),
+      appBar: AppBar(title: Text(context.t.info.fieldIntro.title)),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           Icon(Icons.explore, size: 64, color: theme.colorScheme.primary),
           const SizedBox(height: 24),
-          Text('Explore Dog-Friendly Events', style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
+          Text(context.t.info.fieldIntro.heading, style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
           const SizedBox(height: 16),
           Text(
-            'The Field map shows everything happening near you. Here\'s how to get started:',
+            context.t.info.fieldIntro.intro,
             style: theme.textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
-          _TipCard(
-            icon: Icons.map,
-            title: 'Browse the map',
-            description: 'Green markers are casual walks, blue are playdates, orange are training sessions. Tap any marker to learn more.',
-          ),
-          const SizedBox(height: 12),
-          _TipCard(
-            icon: Icons.bookmark,
-            title: 'RSVP to join',
-            description: 'Tap "Join Pack" to let the host know you\'re coming. You\'ll see your RSVPs in the filter toggle above the map.',
-          ),
-          const SizedBox(height: 12),
-          _TipCard(
-            icon: Icons.add_location_alt,
-            title: 'Host your own',
-            description: 'Tap the + button to create a new event. Be sure to read the hosting tips first!',
-          ),
-          const SizedBox(height: 12),
-          _TipCard(
-            icon: Icons.chat_bubble_outline,
-            title: 'Send feedback',
-            description: 'Found a bug or have a suggestion? Tap the chat bubble to share your thoughts with the team.',
-          ),
+          ..._buildTips(context),
           const SizedBox(height: 40),
           SizedBox(
             width: double.infinity,
@@ -72,12 +51,32 @@ class FieldIntroScreen extends ConsumerWidget {
                 context.go('/');
               },
               icon: const Icon(Icons.check),
-              label: const Text('Got It'),
+              label: Text(context.t.info.fieldIntro.gotIt),
             ),
           ),
         ],
       ),
     );
+  }
+
+  List<Widget> _buildTips(BuildContext context) {
+    final tipIcons = [
+      Icons.map,
+      Icons.bookmark,
+      Icons.add_location_alt,
+      Icons.chat_bubble_outline,
+    ];
+    return [
+      for (var i = 0; i < context.t.info.fieldIntro.tips.length; i++)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _TipCard(
+            icon: tipIcons[i % tipIcons.length],
+            title: context.t.info.fieldIntro.tips[i].title,
+            description: context.t.info.fieldIntro.tips[i].description,
+          ),
+        ),
+    ];
   }
 }
 

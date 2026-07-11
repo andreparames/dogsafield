@@ -1,0 +1,277 @@
+onboarding:
+  appTitle: Dogs Afield
+  tagline: Because great walks are better with great company.
+  continueWithGoogle: Continue with Google
+  continueWithApple: Continue with Apple
+  googleSignInFailed: "Google sign-in failed: $error"
+  appleSignInFailed: "Apple sign-in failed: $error"
+  photoUpload:
+    title: Verification Photo
+    subtitle: Upload a photo of you and your dog together
+    hint: This helps others recognize you at the park.
+    takePhoto: Take Photo
+    chooseGallery: Choose from Gallery
+  profileForm:
+    title: Pup Profile
+    dogName: "Dog's Name"
+    age: Age
+    breed: Breed
+    socialVibe: Social Vibe
+    nameRequired: "Please enter your dog's name"
+    profileNotReady: Profile not ready. Please try again.
+  icebreaker:
+    title: Icebreaker
+    subtitle: Pick a prompt and share a story
+    hint: This helps other owners get to know you at the park.
+    prompts:
+      criminalAchievement: "My dog's greatest criminal achievement to date..."
+      weirdestFear: The weirdest thing my dog is afraid of...
+      job: If my dog had a job, it would be...
+      favoriteSnack: "My dog's favorite snack that isn't dog food..."
+    yourStory: Your story
+    promptRequired: Please select a prompt
+    storyRequired: Please share your story
+  safety:
+    title: Safety Boundaries
+    treatPolicy: Treat Policy
+    treatPolicySubtitle: Let other owners know how you handle treats.
+    okToShare: "Okay to share \u2014 friendly dogs welcome"
+    askBeforeFeeding: "Ask before feeding \u2014 allergies or diet"
+    completeProfile: Complete Profile
+    policyRequired: Please select a treat policy
+    error: Something went wrong. Please try again.
+
+fieldMap:
+  createEvent: Create Event
+  account: Account
+  nearby: Nearby
+  myPacks: My Packs
+  feedback: Feedback
+  unableToGetLocation: Unable to get your location
+  grantPermission: Please grant location permission to see the map.
+  permissionDeniedForever: Location permission permanently denied. Open settings to enable.
+  permissionDenied: Location permission is required to show the map.
+  locationDisabled: Location services are disabled. Enable them in settings.
+  failedToLoadEvents: "Failed to load events: $error"
+  viewDetails: View Details
+  leavePack: Leave Pack
+  leavePackComingSoon: "Leave Pack \u2014 coming soon"
+
+gathering:
+  title: Gathering Details
+  failedToLoad: Failed to load event
+  host: Host
+  amenities: Amenities
+  whatToBring: What to Bring
+  attendance: Attendance
+  attending: "$count / $max attending"
+  you: "(you)"
+  userBlocked: User blocked
+  editEvent: Edit Event
+  leavePack: Leave Pack
+  joinPack: Join Pack
+  couldNotLoadPackStatus: Could not load pack status
+
+feedback:
+  title: Send Feedback
+  hint: Share your thoughts, suggestions, or report an issue...
+  cancel: Cancel
+  send: Send
+  success: Thanks for your feedback!
+  failed: Failed to send feedback. Please try again.
+
+vibe:
+  loungeLizard: Lounge Lizard
+  zoomieKing: Zoomie King
+  socialLearner: Social Learner
+  loungeLizardFull: "Lounge Lizard \u2014 calm and chill"
+  zoomieKingFull: "Zoomie King \u2014 high energy"
+  socialLearnerFull: "Social Learner \u2014 still learning the ropes"
+
+event:
+  type:
+    packWalk: Pack Walk
+    dogPicnic: Dog Picnic
+    fieldGames: Field Games
+
+treatPolicy:
+  okToShare: "Okay to share \u2014 friendly dogs welcome"
+  askBeforeFeeding: "Ask before feeding \u2014 allergies or diet"
+  okToShareDetail: Okay to share treats with my dog
+  askBeforeFeedingDetail: Please ask before feeding my dog
+
+common:
+  retry: Retry
+  cancel: Cancel
+  unknown: Unknown
+  next: Next
+  keep: Keep
+  remove: Remove
+  edit: Edit
+  submit: Submit
+  unblock: Unblock
+  upgrade: Upgrade
+  subscribe: Subscribe
+
+hosting:
+  create:
+    titleCreate: Create Event
+    titleEdit: Edit Event
+    eventType: Event Type
+    dogPicnic: Dog Picnic
+    packWalk: Pack Walk
+    fieldGames: Field Games
+    title: Title
+    location: Location
+    description: "Description (optional)"
+    dateTime: Date & Time
+    maxAttendees: Max Attendees
+    whatToBring: What to Bring
+    publish: Publish to Field
+    saveChanges: Save Changes
+    enterTitle: Enter a title
+    tapToSelect: Tap to select on map
+    selectEventType: Please select an event type.
+    selectLocation: Please select a location on the map.
+    selectedLocation: Selected Location
+    bringOptions:
+      - 'Long line leash'
+      - 'Human lunch'
+      - 'Dog treats'
+      - 'Water bowl'
+      - 'Poop bags'
+      - 'Towel'
+      - 'Frisbee'
+      - 'Tennis balls'
+    eventCreated: Event created!
+    eventUpdated: Event updated!
+  locationPicker:
+    title: Select Location
+    locationName: "Location name (optional)"
+    tapHint: Tap on the map to select a location
+    confirm: Confirm Location
+  myEvents:
+    title: My Events
+    noEvents: No events yet
+    createHint: Tap the + on the map to create one.
+    activeEvents: Active Events
+    cancelled: Cancelled
+    couldNotLoad: Could not load events
+    attendees: Attendees
+    cantEditOffline: "Can't edit while offline"
+    cancelEventTitle: Cancel Event
+    cancelEventBody: This will mark the event as cancelled. Attendees will no longer see it on the map.
+    cancelEventAction: Cancel Event
+  manageAttendees:
+    title: "Attendees: $title"
+    removeTitle: Remove Attendee
+    removeBody: This will remove them from the event. They can re-RSVP if the event is open.
+    removed: Attendee removed.
+    failedRemove: Failed to remove attendee.
+    couldNotLoad: Could not load attendees
+    noAttendees: No attendees yet
+    rsvpCount: "$count RSVP'd"
+    removeTooltip: Remove
+  responsibility:
+    title: Before You Host
+    heading: Hosting Responsibility
+    intro: "Thank you for stepping up to host! A few things to keep in mind:"
+    tips:
+      - title: Show up on time
+        description: Attendees plan their day around your event. Arrive a few minutes early to get settled.
+      - title: Communicate changes
+        description: If you need to cancel or reschedule, do it as early as possible so attendees can adjust.
+      - title: Welcome everyone
+        description: New members may be nervous. A warm welcome goes a long way toward building the pack.
+      - title: Safety first
+        description: Keep an eye on all dogs. If a dog seems stressed or reactive, give them space.
+      - title: Report issues
+        description: Use the feedback button on the map to report any problems or concerns to the team.
+    iUnderstand: I Understand
+
+account:
+  title: Account
+  couldNotLoad: Could not load account
+  myEvents: My Events
+  blockedUsers: Blocked Users
+  trialRsvps: Trial RSVPs
+  aboutTrialTitle: About Trial RSVPs
+  aboutTrialBody: "You can use up to $max trial RSVPs to attend events without a Founding Pack subscription. Each RSVP gives you full access to the event. After your trial runs out, upgrade to keep joining the pack."
+  rsvpsRemaining: "You have $remaining of $max free RSVPs remaining."
+  used: Used
+  remaining: Remaining
+  total: Total
+  upgradeToKeepJoining: Upgrade to keep joining
+  foundingDescription: You are a verified Founding Pack member. Enjoy waived fees for events in your founding city.
+  safetyBoundaries: Safety Boundaries
+  dangerZone: Danger Zone
+  suspendAccount: Suspend Account
+  deleteAccount: Delete Account
+  suspendTitle: Suspend Account
+  suspendBody: Your profile will be hidden from other users. You can reactivate at any time by signing in.
+  deleteTitle: Delete Account
+  deleteBody: This permanently removes all your data. This action cannot be undone.
+  deleteConfirmHint: Type DELETE to confirm
+  deleteConfirmError: Type DELETE to confirm
+  deleteForever: Delete Forever
+  signOut: Sign Out
+  upgrade:
+    title: Upgrade
+    heading: Upgrade to Premium
+    description: Unlimited RSVPs, early access to events, and exclusive perks.
+    comingSoon: Upgrade coming soon
+  suspend:
+    title: Account Suspended
+    heading: Your account is suspended
+    body: Your profile is hidden from other users. You can reactivate your account at any time.
+    reactivated: Account reactivated
+    failedReactivation: "Failed to reactivate: $error"
+    reactivate: Reactivate Account
+  rsvpLimit:
+    remaining: "You have $remaining free RSVPs remaining."
+    exhausted: You have used all your free RSVPs. Upgrade to keep joining events.
+  foundingPack:
+    badge: Founding Pack
+
+connections:
+  report:
+    title: Report User
+    hint: Tell us what happened...
+    submit: Submit
+  blocked:
+    title: Blocked Users
+    empty: No blocked users
+    tier1: Blocked
+    tier2: Blocked & Hidden
+    tier3: Blocked, Hidden & Reported
+    userUnblocked: User unblocked
+    couldNotLoad: Could not load blocked users
+
+info:
+  fieldIntro:
+    title: Welcome to the Field
+    heading: Explore Dog-Friendly Events
+    intro: "The Field map shows everything happening near you. Here's how to get started:"
+    tips:
+      - title: Browse the map
+        description: Green markers are casual walks, blue are playdates, orange are training sessions. Tap any marker to learn more.
+      - title: RSVP to join
+        description: "Tap \"Join Pack\" to let the host know you're coming. You'll see your RSVPs in the filter toggle above the map."
+      - title: Host your own
+        description: Tap the + button to create a new event. Be sure to read the hosting tips first!
+      - title: Send feedback
+        description: Found a bug or have a suggestion? Tap the chat bubble to share your thoughts with the team.
+    gotIt: Got It
+
+errors:
+  failedToCreateEvent: Failed to create event. Please try again.
+  failedToUpdateEvent: Failed to update event. Please try again.
+  failedToCancelEvent: Failed to cancel event. Please try again.
+  failedToSuspend: Failed to suspend account. Please try again.
+  failedToDelete: Failed to delete account. Please try again.
+  failedToBlock: Failed to block user. Please try again.
+  failedToBlockAndHide: Failed to block and hide user. Please try again.
+  failedToReport: Failed to report user. Please try again.
+  failedToUnblock: Failed to unblock user. Please try again.
+  failedToRsvp: "Failed to RSVP: $error"
+  failedToCancelRsvp: "Failed to cancel RSVP: $error"

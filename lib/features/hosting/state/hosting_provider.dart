@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/event.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../../field_map/state/field_map_providers.dart';
 import '../data/hosting_repository.dart';
 
@@ -62,7 +63,7 @@ class HostingActionNotifier extends Notifier<HostingActionState> {
       ref.invalidate(allEventsProvider);
       state = const HostingActionSuccess();
     } catch (e) {
-      state = const HostingActionError('Failed to create event. Please try again.');
+      state = HostingActionError(t.errors.failedToCreateEvent);
     }
   }
 
@@ -76,7 +77,7 @@ class HostingActionNotifier extends Notifier<HostingActionState> {
       ref.invalidate(allEventsProvider);
       state = const HostingActionSuccess();
     } catch (e) {
-      state = const HostingActionError('Failed to update event. Please try again.');
+      state = HostingActionError(t.errors.failedToUpdateEvent);
     }
   }
 
@@ -90,7 +91,7 @@ class HostingActionNotifier extends Notifier<HostingActionState> {
       ref.invalidate(allEventsProvider);
       state = const HostingActionSuccess();
     } catch (e) {
-      state = const HostingActionError('Failed to cancel event. Please try again.');
+      state = HostingActionError(t.errors.failedToCancelEvent);
     }
   }
 

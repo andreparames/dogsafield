@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../state/auth_provider.dart';
 
 class WelcomeScreen extends ConsumerWidget {
@@ -19,10 +20,10 @@ class WelcomeScreen extends ConsumerWidget {
               const Spacer(),
               Icon(Icons.pets, size: 80, color: theme.colorScheme.primary),
               const SizedBox(height: 16),
-              Text('Dogs Afield', style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold)),
+              Text(context.t.onboarding.appTitle, style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Text(
-                'Because great walks are better with great company.',
+                context.t.onboarding.tagline,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
@@ -33,7 +34,7 @@ class WelcomeScreen extends ConsumerWidget {
                   ref.read(authServiceProvider).signInWithGoogle().catchError((e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Google sign-in failed: $e')),
+                        SnackBar(content: Text(context.t.onboarding.googleSignInFailed(error: e))),
                       );
                     }
                   }).whenComplete(() {
@@ -41,7 +42,7 @@ class WelcomeScreen extends ConsumerWidget {
                   });
                 },
                 icon: const Icon(Icons.flutter_dash),
-                label: const Text('Continue with Google'),
+                label: Text(context.t.onboarding.continueWithGoogle),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
@@ -50,7 +51,7 @@ class WelcomeScreen extends ConsumerWidget {
                   ref.read(authServiceProvider).signInWithApple().catchError((e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Apple sign-in failed: $e')),
+                        SnackBar(content: Text(context.t.onboarding.appleSignInFailed(error: e))),
                       );
                     }
                   }).whenComplete(() {
@@ -58,7 +59,7 @@ class WelcomeScreen extends ConsumerWidget {
                   });
                 },
                 icon: const Icon(Icons.apple),
-                label: const Text('Continue with Apple'),
+                label: Text(context.t.onboarding.continueWithApple),
               ),
               const SizedBox(height: 32),
             ],

@@ -6,6 +6,7 @@ import 'package:dogsafield/features/hosting/presentation/create_event_screen.dar
 import 'package:dogsafield/features/hosting/state/hosting_provider.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
 import '../helpers/test_utils.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 
 void main() {
   group('CreateEventScreen', () {
@@ -28,17 +29,20 @@ void main() {
         ],
       );
 
+      LocaleSettings.setLocaleSync(AppLocale.en);
       await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp.router(routerConfig: router),
+        TranslationProvider(
+          child: UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp.router(routerConfig: router),
+          ),
         ),
       );
       await tester.pumpAndSettle();
 
       await tester.drag(find.byType(ListView), const Offset(0, -400));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Publish to Field'));
+      await tester.tap(find.text(t.hosting.create.publish));
       await tester.pumpAndSettle();
 
       expect(repo.createCallCount, 0);
@@ -63,15 +67,18 @@ void main() {
         ],
       );
 
+      LocaleSettings.setLocaleSync(AppLocale.en);
       await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp.router(routerConfig: router),
+        TranslationProvider(
+          child: UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp.router(routerConfig: router),
+          ),
         ),
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Dog Picnic'));
+      await tester.tap(find.text(t.event.type.dogPicnic));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byKey(const Key('eventTitle')), 'Morning Meetup');
@@ -79,7 +86,7 @@ void main() {
 
       await tester.drag(find.byType(ListView), const Offset(0, -400));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Publish to Field'));
+      await tester.tap(find.text(t.hosting.create.publish));
       await tester.pumpAndSettle();
 
       expect(repo.createCallCount, 1);
@@ -104,15 +111,18 @@ void main() {
         ],
       );
 
+      LocaleSettings.setLocaleSync(AppLocale.en);
       await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp.router(routerConfig: router),
+        TranslationProvider(
+          child: UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp.router(routerConfig: router),
+          ),
         ),
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Dog Picnic'));
+      await tester.tap(find.text(t.event.type.dogPicnic));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byKey(const Key('eventTitle')), 'Event');
@@ -120,10 +130,10 @@ void main() {
 
       await tester.drag(find.byType(ListView), const Offset(0, -400));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Publish to Field'));
+      await tester.tap(find.text(t.hosting.create.publish));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('Failed to create event'), findsOneWidget);
+      expect(find.textContaining(t.errors.failedToCreateEvent), findsOneWidget);
     });
   });
 }

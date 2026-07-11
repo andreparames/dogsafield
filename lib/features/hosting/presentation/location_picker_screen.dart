@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 
 class LocationPickerResult {
   final double latitude;
@@ -63,7 +64,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Select Location')),
+      appBar: AppBar(title: Text(context.t.hosting.locationPicker.title)),
       body: Column(
         children: [
           Expanded(
@@ -87,13 +88,13 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               children: [
                 TextField(
                   controller: _nameCtrl,
-                  decoration: const InputDecoration(labelText: 'Location name (optional)', border: OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: context.t.hosting.locationPicker.locationName, border: const OutlineInputBorder()),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   _marker != null
                       ? '${_marker!.latitude.toStringAsFixed(5)}, ${_marker!.longitude.toStringAsFixed(5)}'
-                      : 'Tap on the map to select a location',
+                      : context.t.hosting.locationPicker.tapHint,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: _marker != null ? null : theme.colorScheme.onSurfaceVariant,
                   ),
@@ -104,7 +105,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   child: FilledButton.icon(
                     onPressed: _marker != null ? _confirm : null,
                     icon: const Icon(Icons.check),
-                    label: const Text('Confirm Location'),
+                    label: Text(context.t.hosting.locationPicker.confirm),
                   ),
                 ),
               ],

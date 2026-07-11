@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../state/onboarding_state.dart';
 
 class IcebreakerScreen extends ConsumerStatefulWidget {
@@ -14,13 +15,6 @@ class _IcebreakerScreenState extends ConsumerState<IcebreakerScreen> {
   final _answerCtrl = TextEditingController();
   String? _selectedPrompt;
 
-  static const _prompts = [
-    'My dog\'s greatest criminal achievement to date...',
-    'The weirdest thing my dog is afraid of...',
-    'If my dog had a job, it would be...',
-    'My dog\'s favorite snack that isn\'t dog food...',
-  ];
-
   @override
   void dispose() {
     _answerCtrl.dispose();
@@ -30,21 +24,27 @@ class _IcebreakerScreenState extends ConsumerState<IcebreakerScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final prompts = [
+      context.t.onboarding.icebreaker.prompts.criminalAchievement,
+      context.t.onboarding.icebreaker.prompts.weirdestFear,
+      context.t.onboarding.icebreaker.prompts.job,
+      context.t.onboarding.icebreaker.prompts.favoriteSnack,
+    ];
     return Scaffold(
-      appBar: AppBar(title: const Text('Icebreaker')),
+      appBar: AppBar(title: Text(context.t.onboarding.icebreaker.title)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Pick a prompt and share a story', style: theme.textTheme.titleMedium),
+            Text(context.t.onboarding.icebreaker.subtitle, style: theme.textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
-              'This helps other owners get to know you at the park.',
+              context.t.onboarding.icebreaker.hint,
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
-            ..._prompts.map(
+            ...prompts.map(
               (p) => RadioListTile<String>(
                 title: Text(p),
                 value: p,
@@ -56,9 +56,9 @@ class _IcebreakerScreenState extends ConsumerState<IcebreakerScreen> {
               const SizedBox(height: 16),
               TextField(
                 controller: _answerCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Your story',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.t.onboarding.icebreaker.yourStory,
+                  border: const OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
                 maxLines: 4,
@@ -67,7 +67,7 @@ class _IcebreakerScreenState extends ConsumerState<IcebreakerScreen> {
             const SizedBox(height: 24),
             FilledButton(
               onPressed: _submit,
-              child: const Text('Next'),
+              child: Text(context.t.common.next),
             ),
           ],
         ),
@@ -78,14 +78,14 @@ class _IcebreakerScreenState extends ConsumerState<IcebreakerScreen> {
   void _submit() {
     if (_selectedPrompt == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a prompt')),
+        SnackBar(content: Text(context.t.onboarding.icebreaker.promptRequired)),
       );
       return;
     }
     final answer = _answerCtrl.text.trim();
     if (answer.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please share your story')),
+        SnackBar(content: Text(context.t.onboarding.icebreaker.storyRequired)),
       );
       return;
     }

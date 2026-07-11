@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../../../shared/models/event.dart';
 import '../state/hosting_provider.dart';
 
@@ -25,14 +26,14 @@ class _ManageAttendeesScreenState extends ConsumerState<ManageAttendeesScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove Attendee'),
-        content: const Text('This will remove them from the event. They can re-RSVP if the event is open.'),
+        title: Text(context.t.hosting.manageAttendees.removeTitle),
+        content: Text(context.t.hosting.manageAttendees.removeBody),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Keep')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.t.common.keep)),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
-            child: const Text('Remove'),
+            child: Text(context.t.common.remove),
           ),
         ],
       ),
@@ -48,12 +49,12 @@ class _ManageAttendeesScreenState extends ConsumerState<ManageAttendeesScreen> {
         _attendeesFuture = repo.fetchAttendees(widget.event.id);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Attendee removed.')),
+        SnackBar(content: Text(context.t.hosting.manageAttendees.removed)),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to remove attendee.')),
+        SnackBar(content: Text(context.t.hosting.manageAttendees.failedRemove)),
       );
     }
   }
@@ -63,7 +64,7 @@ class _ManageAttendeesScreenState extends ConsumerState<ManageAttendeesScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Attendees: ${widget.event.title}')),
+      appBar: AppBar(title: Text(context.t.hosting.manageAttendees.title(title: widget.event.title))),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _attendeesFuture,
         builder: (context, snapshot) {
@@ -80,14 +81,14 @@ class _ManageAttendeesScreenState extends ConsumerState<ManageAttendeesScreen> {
                   children: [
                     Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
                     const SizedBox(height: 16),
-                    Text('Could not load attendees', style: theme.textTheme.titleMedium),
+                    Text(context.t.hosting.manageAttendees.couldNotLoad, style: theme.textTheme.titleMedium),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
                       onPressed: () => setState(() {
                         _attendeesFuture = ref.read(hostingRepositoryProvider).fetchAttendees(widget.event.id);
                       }),
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
+                    icon: const Icon(Icons.refresh),
+                    label: Text(context.t.common.retry),
                     ),
                   ],
                 ),
@@ -103,7 +104,7 @@ class _ManageAttendeesScreenState extends ConsumerState<ManageAttendeesScreen> {
                 children: [
                   Icon(Icons.people_outline, size: 64, color: theme.colorScheme.onSurfaceVariant),
                   const SizedBox(height: 16),
-                  Text('No attendees yet', style: theme.textTheme.titleMedium),
+                  Text(context.t.hosting.manageAttendees.noAttendees, style: theme.textTheme.titleMedium),
                 ],
               ),
             );
@@ -117,7 +118,7 @@ class _ManageAttendeesScreenState extends ConsumerState<ManageAttendeesScreen> {
                   children: [
                     Icon(Icons.people, size: 20, color: theme.colorScheme.primary),
                     const SizedBox(width: 8),
-                    Text('${attendees.length} RSVP\'d',
+                    Text(context.t.hosting.manageAttendees.rsvpCount(count: attendees.length),
                         style: theme.textTheme.titleSmall),
                   ],
                 ),
@@ -130,7 +131,7 @@ class _ManageAttendeesScreenState extends ConsumerState<ManageAttendeesScreen> {
                     final profile = row['profiles'] as Map<String, dynamic>?;
                     final dogsList = profile?['dogs'] as List<dynamic>?;
                     final firstDog = (dogsList?.isNotEmpty == true) ? dogsList!.first as Map<String, dynamic>? : null;
-                    final displayName = profile?['display_name'] as String? ?? 'Unknown';
+                    final displayName = profile?['display_name'] as String? ?? context.t.common.unknown;
                     final photoUrl = profile?['photo_url'] as String?;
                     final dogName = firstDog?['name'] as String?;
                     final userId = row['user_id'] as String;
@@ -146,7 +147,7 @@ class _ManageAttendeesScreenState extends ConsumerState<ManageAttendeesScreen> {
                       subtitle: dogName != null ? Text(dogName) : null,
                       trailing: IconButton(
                         icon: Icon(Icons.remove_circle_outline, color: theme.colorScheme.error),
-                        tooltip: 'Remove',
+                        tooltip: context.t.hosting.manageAttendees.removeTooltip,
                         onPressed: () => _removeAttendee(userId),
                       ),
                     );

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../../../core/services/location_provider.dart';
 import '../../../shared/models/event.dart';
 import '../state/hosting_provider.dart';
 import 'location_picker_screen.dart';
 
-const _bringOptions = ['Long line leash', 'Human lunch', 'Dog treats', 'Water bowl', 'Poop bags', 'Towel', 'Frisbee', 'Tennis balls'];
+List<String> _bringOptions(BuildContext context) => context.t.hosting.create.bringOptions;
 
 class CreateEventScreen extends ConsumerStatefulWidget {
   final double initialLatitude;
@@ -116,13 +117,13 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_type == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an event type.')),
+        SnackBar(content: Text(context.t.hosting.create.selectEventType)),
       );
       return;
     }
     if (_latitude == null || _longitude == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a location on the map.')),
+        SnackBar(content: Text(context.t.hosting.create.selectLocation)),
       );
       return;
     }
@@ -135,7 +136,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       type: _type!,
       title: _titleCtrl.text.trim(),
       description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
-      locationName: _locationNameCtrl.text.trim().isEmpty ? 'Selected Location' : _locationNameCtrl.text.trim(),
+      locationName: _locationNameCtrl.text.trim().isEmpty ? context.t.hosting.create.selectedLocation : _locationNameCtrl.text.trim(),
       latitude: _latitude!,
       longitude: _longitude!,
       dateTime: dt,
@@ -159,7 +160,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       );
     } else if (state is HostingActionSuccess) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_isEditing ? 'Event updated!' : 'Event created!')),
+        SnackBar(content: Text(_isEditing ? context.t.hosting.create.eventUpdated : context.t.hosting.create.eventCreated)),
       );
       if (context.canPop()) {
         context.pop();
@@ -176,20 +177,20 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
     final isLoading = actionState is HostingActionLoading;
 
     return Scaffold(
-      appBar: AppBar(title: Text(_isEditing ? 'Edit Event' : 'Create Event')),
+      appBar: AppBar(title: Text(_isEditing ? context.t.hosting.create.titleEdit : context.t.hosting.create.titleCreate)),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            Text('Event Type', style: theme.textTheme.titleMedium),
+            Text(context.t.hosting.create.eventType, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             SegmentedButton<EventType>(
               emptySelectionAllowed: true,
-              segments: const [
-                ButtonSegment(value: EventType.dogPicnic, label: Text('Dog Picnic'), icon: Icon(Icons.weekend)),
-                ButtonSegment(value: EventType.packWalk, label: Text('Pack Walk'), icon: Icon(Icons.directions_walk)),
-                ButtonSegment(value: EventType.fieldGames, label: Text('Field Games'), icon: Icon(Icons.sports)),
+              segments: [
+                ButtonSegment(value: EventType.dogPicnic, label: Text(context.t.hosting.create.dogPicnic), icon: const Icon(Icons.weekend)),
+                ButtonSegment(value: EventType.packWalk, label: Text(context.t.hosting.create.packWalk), icon: const Icon(Icons.directions_walk)),
+                ButtonSegment(value: EventType.fieldGames, label: Text(context.t.hosting.create.fieldGames), icon: const Icon(Icons.sports)),
               ],
               selected: _type != null ? {_type!} : {},
               onSelectionChanged: (v) => setState(() => _type = v.first),
@@ -198,47 +199,47 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
             TextFormField(
               key: const Key('eventTitle'),
               controller: _titleCtrl,
-              decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder()),
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
+              decoration: InputDecoration(labelText: context.t.hosting.create.title, border: const OutlineInputBorder()),
+              validator: (v) => (v == null || v.trim().isEmpty) ? context.t.hosting.create.enterTitle : null,
             ),
             const SizedBox(height: 16),
             InkWell(
               onTap: _pickLocation,
               child: InputDecorator(
-                decoration: const InputDecoration(labelText: 'Location', border: OutlineInputBorder(), suffixIcon: Icon(Icons.map)),
+                decoration: InputDecoration(labelText: context.t.hosting.create.location, border: const OutlineInputBorder(), suffixIcon: const Icon(Icons.map)),
                 child: _latitude != null
                     ? Text('${_latitude!.toStringAsFixed(5)}, ${_longitude!.toStringAsFixed(5)}')
-                    : Text('Tap to select on map', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                    : Text(context.t.hosting.create.tapToSelect, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
               ),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _descCtrl,
-              decoration: const InputDecoration(labelText: 'Description (optional)', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: context.t.hosting.create.description, border: const OutlineInputBorder()),
               maxLines: 3,
             ),
             const SizedBox(height: 16),
             InkWell(
               onTap: _pickDateTime,
               child: InputDecorator(
-                decoration: const InputDecoration(labelText: 'Date & Time', border: OutlineInputBorder()),
+                decoration: InputDecoration(labelText: context.t.hosting.create.dateTime, border: const OutlineInputBorder()),
                 child: Text('${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}  ${_time.format(context)}'),
               ),
             ),
             const SizedBox(height: 16),
             TextFormField(
               initialValue: _maxAttendees.toString(),
-              decoration: const InputDecoration(labelText: 'Max Attendees', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: context.t.hosting.create.maxAttendees, border: const OutlineInputBorder()),
               keyboardType: TextInputType.number,
               onChanged: (v) => _maxAttendees = int.tryParse(v) ?? 20,
             ),
             const SizedBox(height: 24),
-            Text('What to Bring', style: theme.textTheme.titleMedium),
+            Text(context.t.hosting.create.whatToBring, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 4,
-              children: _bringOptions.map((item) => FilterChip(
+              children: _bringOptions(context).map((item) => FilterChip(
                 label: Text(item),
                 selected: _whatToBring.contains(item),
                 onSelected: (v) => setState(() => v ? _whatToBring.add(item) : _whatToBring.remove(item)),
@@ -249,7 +250,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
               onPressed: isLoading ? null : _submit,
               child: isLoading
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(_isEditing ? 'Save Changes' : 'Publish to Field'),
+                  : Text(_isEditing ? context.t.hosting.create.saveChanges : context.t.hosting.create.publish),
             ),
           ],
         ),

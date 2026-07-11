@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/database/providers.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../data/rsvp_repository.dart';
 import 'gathering_providers.dart';
 
@@ -62,7 +63,7 @@ class RsvpActionNotifier extends Notifier<RsvpActionState> {
       ref.invalidate(myRsvpIdsProvider);
       ref.invalidate(gatheringDetailProvider(eventId));
     } catch (e) {
-      state = RsvpActionError('Failed to RSVP: $e');
+      state = RsvpActionError(t.errors.failedToRsvp(error: e));
     }
   }
 
@@ -77,7 +78,7 @@ class RsvpActionNotifier extends Notifier<RsvpActionState> {
       ref.invalidate(myRsvpIdsProvider);
       ref.invalidate(gatheringDetailProvider(eventId));
     } catch (e) {
-      state = RsvpActionError('Failed to cancel RSVP: $e');
+      state = RsvpActionError(t.errors.failedToCancelRsvp(error: e));
     }
   }
 

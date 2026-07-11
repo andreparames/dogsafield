@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../../onboarding/state/auth_provider.dart';
 import '../../onboarding/state/onboarding_state.dart';
 import '../state/account_providers.dart';
@@ -18,7 +19,7 @@ class AccountScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Account'),
+        title: Text(context.t.account.title),
         actions: [],
       ),
       body: detailAsync.when(
@@ -32,12 +33,12 @@ class AccountScreen extends ConsumerWidget {
               children: [
                 Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
                 const SizedBox(height: 16),
-                Text('Could not load account', style: theme.textTheme.titleMedium),
+                Text(context.t.account.couldNotLoad, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
                   onPressed: () => ref.invalidate(accountDetailProvider),
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'),
+                  label: Text(context.t.common.retry),
                 ),
               ],
             ),
@@ -84,7 +85,7 @@ class _AccountContent extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => context.push('/hosting/my-events'),
               icon: const Icon(Icons.event),
-              label: const Text('My Events'),
+              label: Text(context.t.account.myEvents),
             ),
           ),
           const SizedBox(height: 8),
@@ -93,7 +94,7 @@ class _AccountContent extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => context.push('/connections/blocked'),
               icon: const Icon(Icons.block),
-              label: const Text('Blocked Users'),
+              label: Text(context.t.account.blockedUsers),
             ),
           ),
           const SizedBox(height: 32),
@@ -135,7 +136,7 @@ class _ProfileHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                profile.displayName ?? 'Unknown',
+                profile.displayName ?? context.t.common.unknown,
                 style: theme.textTheme.headlineSmall,
               ),
               Text(
@@ -189,7 +190,7 @@ class _DogCard extends StatelessWidget {
                   if (dog.vibe != null) ...[
                     const SizedBox(height: 4),
                     Chip(
-                      label: Text(_vibeLabel(dog.vibe!),
+                      label: Text(_vibeLabel(dog.vibe!, context),
                           style: theme.textTheme.labelSmall),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       visualDensity: VisualDensity.compact,
@@ -214,11 +215,11 @@ class _DogCard extends StatelessWidget {
     );
   }
 
-  String _vibeLabel(SocialVibe vibe) {
+  String _vibeLabel(SocialVibe vibe, BuildContext context) {
     return switch (vibe) {
-      SocialVibe.loungeLizard => 'Lounge Lizard',
-      SocialVibe.zoomieKing => 'Zoomie King',
-      SocialVibe.socialLearner => 'Social Learner',
+      SocialVibe.loungeLizard => context.t.vibe.loungeLizard,
+      SocialVibe.zoomieKing => context.t.vibe.zoomieKing,
+      SocialVibe.socialLearner => context.t.vibe.socialLearner,
     };
   }
 }
@@ -237,12 +238,10 @@ class _TrialSection extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('About Trial RSVPs', style: theme.textTheme.titleMedium),
+            Text(context.t.account.aboutTrialTitle, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             Text(
-              'You can use up to 3 trial RSVPs to attend events without a Founding Pack subscription. '
-              'Each RSVP gives you full access to the event. '
-              'After your trial runs out, upgrade to keep joining the pack.',
+              context.t.account.aboutTrialBody(max: 3),
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 24),
@@ -269,7 +268,7 @@ class _TrialSection extends StatelessWidget {
               children: [
                 Icon(Icons.card_giftcard, color: theme.colorScheme.primary),
                 const SizedBox(width: 8),
-                Text('Trial RSVPs', style: theme.textTheme.titleSmall),
+                Text(context.t.account.trialRsvps, style: theme.textTheme.titleSmall),
                 const Spacer(),
                 GestureDetector(
                   onTap: () => _showTrialInfo(context, theme),
@@ -279,7 +278,7 @@ class _TrialSection extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'You have $remaining of $maxFree free RSVPs remaining.',
+              context.t.account.rsvpsRemaining(remaining: remaining, max: maxFree),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -287,9 +286,9 @@ class _TrialSection extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                _TrialStat(label: 'Used', value: '$used'),
+                _TrialStat(label: context.t.account.used, value: '$used'),
                 const SizedBox(width: 24),
-                _TrialStat(label: 'Remaining', value: '$remaining'),
+                _TrialStat(label: context.t.account.remaining, value: '$remaining'),
               ],
             ),
             const SizedBox(height: 12),
@@ -305,7 +304,7 @@ class _TrialSection extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: () => context.push('/account/upgrade'),
                   icon: const Icon(Icons.star),
-                  label: const Text('Upgrade to keep joining'),
+                  label: Text(context.t.account.upgradeToKeepJoining),
                 ),
               ),
             ],
@@ -354,7 +353,7 @@ class _FoundingSection extends StatelessWidget {
             const SizedBox(width: 16),
             Expanded(
               child: Text(
-                'You are a verified Founding Pack member. Enjoy waived fees for events in your founding city.',
+                context.t.account.foundingDescription,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -387,12 +386,12 @@ class _SafetySection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Safety Boundaries', style: theme.textTheme.titleSmall),
+                  Text(context.t.account.safetyBoundaries, style: theme.textTheme.titleSmall),
                   const SizedBox(height: 4),
                   Text(
                     profile.treatPolicy == TreatPolicy.okToShare
-                        ? 'Okay to share treats with my dog'
-                        : 'Please ask before feeding my dog',
+                        ? context.t.treatPolicy.okToShareDetail
+                        : context.t.treatPolicy.askBeforeFeedingDetail,
                     style: theme.textTheme.bodyMedium,
                   ),
                 ],
@@ -425,7 +424,7 @@ class _AccountActions extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Danger Zone', style: theme.textTheme.titleSmall?.copyWith(
+        Text(context.t.account.dangerZone, style: theme.textTheme.titleSmall?.copyWith(
           color: theme.colorScheme.error,
         )),
         const SizedBox(height: 8),
@@ -436,7 +435,7 @@ class _AccountActions extends ConsumerWidget {
                 ? null
                 : () => _showSuspendDialog(context, ref),
             icon: const Icon(Icons.pause_circle_outline),
-            label: const Text('Suspend Account'),
+            label: Text(context.t.account.suspendAccount),
             style: OutlinedButton.styleFrom(
               foregroundColor: theme.colorScheme.error,
             ),
@@ -450,7 +449,7 @@ class _AccountActions extends ConsumerWidget {
                 ? null
                 : () => _showDeleteDialog(context, ref),
             icon: const Icon(Icons.delete_forever),
-            label: const Text('Delete Account'),
+            label: Text(context.t.account.deleteAccount),
             style: OutlinedButton.styleFrom(
               foregroundColor: theme.colorScheme.error,
             ),
@@ -464,15 +463,14 @@ class _AccountActions extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Suspend Account'),
-        content: const Text(
-          'Your profile will be hidden from other users. '
-          'You can reactivate at any time by signing in.',
+        title: Text(context.t.account.suspendTitle),
+        content: Text(
+          context.t.account.suspendBody,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(context.t.common.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -482,7 +480,7 @@ class _AccountActions extends ConsumerWidget {
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Suspend'),
+            child: Text(context.t.account.suspendAccount),
           ),
         ],
       ),
@@ -503,20 +501,19 @@ class _AccountActions extends ConsumerWidget {
           }
         },
         child: AlertDialog(
-          title: const Text('Delete Account'),
+          title: Text(context.t.account.deleteTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'This permanently removes all your data. '
-                'This action cannot be undone.',
+              Text(
+                context.t.account.deleteBody,
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: controller,
                 autofocus: true,
-                decoration: const InputDecoration(
-                  hintText: 'Type DELETE to confirm',
+                decoration: InputDecoration(
+                  hintText: context.t.account.deleteConfirmHint,
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -528,13 +525,13 @@ class _AccountActions extends ConsumerWidget {
                 controller.dispose();
                 Navigator.pop(ctx);
               },
-              child: const Text('Cancel'),
+              child: Text(context.t.common.cancel),
             ),
             FilledButton(
               onPressed: () {
                 if (controller.text.trim() != 'DELETE') {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Type DELETE to confirm')),
+                    SnackBar(content: Text(context.t.account.deleteConfirmError)),
                   );
                   return;
                 }
@@ -545,7 +542,7 @@ class _AccountActions extends ConsumerWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Delete Forever'),
+            child: Text(context.t.account.deleteForever),
           ),
         ],
       ),
@@ -568,7 +565,7 @@ class _SignOutButton extends ConsumerWidget {
           } catch (_) {}
         },
         icon: const Icon(Icons.logout),
-        label: const Text('Sign Out'),
+        label: Text(context.t.account.signOut),
         style: OutlinedButton.styleFrom(
           foregroundColor: Theme.of(context).colorScheme.error,
         ),
