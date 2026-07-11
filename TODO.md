@@ -66,15 +66,15 @@
 - [x] **Tier 3 — Block, Hide & Report** — data layer, state notifier, ReportDialog wired into flow
 - [x] **Visibility filter queries** — `blockedUserIdsProvider`/`blockerIdsProvider` consumed by field_map (events) and gathering (attendees)
 - [x] Screens: `BlockedUsersScreen`, `ReportDialog`
-- [ ] **Messaging integration** — cut DM on block (depends on messaging feature)
+- [x] **Messaging integration** — cut DM on block (depends on messaging feature)
 - [ ] **Packmate revocation enforcement** — downstream effects beyond DB write
 - [ ] **Blocker notification** — alert host when blocked user RSVPs to their event
 - [ ] **Trust & Safety queue** — admin routing for Tier 3 reports
 
 ### Messaging (`lib/features/messaging/`)
-- [ ] **Real-time chat** — DM streams (depends on connections/ for permission checks)
-- [ ] **Packmate-gated** — only unlocked after Presence Verification Loop
-- [ ] Screens: `ChatListScreen`, `DirectMessageScreen`
+- [x] **Real-time chat** — DM streams via Supabase Realtime (conversations + messages tables)
+- [x] **Packmate-gated** — only unlocked after Presence Verification Loop
+- [x] Screens: `ChatListScreen`, `DirectMessageScreen`
 
 
 ### Offline Read-Only Support
@@ -123,5 +123,6 @@
 - [ ] **Hardening** — anti-collusion checks, dispute process, no-show penalties (post-v1)
 
 ### Core & Cross-cutting
+- [ ] **Push Notifications** — integrate FCM/APNs for offline delivery of DMs and events using `pg_net` DB triggers or Edge Functions
 - [ ] **Hub Parks** — designated parks shown during city launch periods
 - [ ] **AI photo verification** — stub or integrate computer vision check for dual-subject photo

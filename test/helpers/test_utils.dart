@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +17,9 @@ import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
 import 'package:dogsafield/features/field_map/data/gathering_repository.dart';
 import 'package:dogsafield/features/field_map/data/rsvp_repository.dart';
 import 'package:dogsafield/features/hosting/data/hosting_repository.dart';
+import 'package:dogsafield/features/messaging/data/messaging_repository.dart';
+import 'package:dogsafield/features/messaging/data/conversation.dart';
+import 'package:dogsafield/features/messaging/data/message.dart';
 import 'package:dogsafield/features/onboarding/data/auth_service.dart';
 import 'package:dogsafield/features/onboarding/data/onboarding_repository.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
@@ -269,6 +273,76 @@ class FakeConnectionRepository implements ConnectionRepository {
   }
 }
 
+class FakeMessagingRepository implements MessagingRepository {
+  bool shouldFail = false;
+  List<Conversation> conversations = [];
+  List<Message> messages = [];
+  int sendMessageCallCount = 0;
+  int markAsReadCallCount = 0;
+  String? lastSentConversationId;
+  String? lastSentContent;
+
+  @override
+  Future<List<Conversation>> fetchConversations() async {
+    if (shouldFail) throw Exception('Fetch failed');
+    return conversations;
+  }
+
+  @override
+  Stream<List<Message>> streamMessages(String conversationId) async* {
+    yield messages.where((m) => m.conversationId == conversationId).toList();
+  }
+
+  @override
+  Stream<List<Conversation>> streamConversations() async* {
+    yield conversations;
+  }
+
+  @override
+  Future<Conversation> getOrCreateConversation(String otherUserId) async {
+    if (shouldFail) throw Exception('Failed to get conversation');
+    final existing = conversations.where((c) => c.otherUserId == otherUserId);
+    if (existing.isNotEmpty) return existing.first;
+    final newConvo = Conversation(
+      id: 'new-convo-$otherUserId',
+      otherUserId: otherUserId,
+      otherUserName: 'Test User',
+      lastMessageAt: DateTime.now(),
+    );
+    conversations = [...conversations, newConvo];
+    return newConvo;
+  }
+
+  @override
+  Future<Message> sendMessage(String conversationId, String content) async {
+    if (shouldFail) throw Exception('Send failed');
+    sendMessageCallCount++;
+    lastSentConversationId = conversationId;
+    lastSentContent = content;
+    final message = Message(
+      id: 'msg-${messages.length + 1}',
+      conversationId: conversationId,
+      senderId: 'current-user',
+      content: content,
+      createdAt: DateTime.now(),
+    );
+    messages = [...messages, message];
+    return message;
+  }
+
+  @override
+  Future<void> markAsRead(String conversationId) async {
+    if (shouldFail) throw Exception('Mark as read failed');
+    markAsReadCallCount++;
+  }
+
+  @override
+  Future<bool> canMessageUser(String targetUserId) async {
+    if (shouldFail) throw Exception('Check failed');
+    return true;
+  }
+}
+
 Future<ProviderContainer> createContainerWithCache({
   List<dynamic> additionalOverrides = const [],
 }) async {
@@ -295,6 +369,7 @@ final fakeAuthService = FakeAuthService();
 final fakeOnboardingRepository = FakeOnboardingRepository();
 final fakeAccountRepository = FakeAccountRepository();
 final fakeConnectionRepository = FakeConnectionRepository();
+final fakeMessagingRepository = FakeMessagingRepository();
 
 Widget createTestApp(Widget child) {
   LocaleSettings.setLocaleSync(AppLocale.en);
@@ -312,6 +387,8 @@ Widget createTestApp(Widget child) {
       GoRoute(path: '/field/intro', builder: (_, __) => const SizedBox()),
       GoRoute(path: '/', builder: (_, __) => const SizedBox()),
       GoRoute(path: '/connections/blocked', builder: (_, __) => const SizedBox()),
+      GoRoute(path: '/messaging', builder: (_, __) => const SizedBox()),
+      GoRoute(path: '/messaging/chat/:conversationId', builder: (_, __) => const SizedBox()),
     ],
   );
   return ProviderScope(
