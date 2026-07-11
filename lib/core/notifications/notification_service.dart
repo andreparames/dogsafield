@@ -71,7 +71,6 @@ class NotificationService {
       tzScheduledTime,
       details,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.dateAndTime,
       payload: eventId,
     );
 
