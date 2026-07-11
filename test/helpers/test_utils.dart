@@ -19,6 +19,7 @@ import 'package:dogsafield/features/hosting/data/hosting_repository.dart';
 import 'package:dogsafield/features/onboarding/data/auth_service.dart';
 import 'package:dogsafield/features/onboarding/data/onboarding_repository.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import 'package:dogsafield/shared/models/dog.dart';
 import 'package:dogsafield/shared/models/event.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
@@ -296,6 +297,7 @@ final fakeAccountRepository = FakeAccountRepository();
 final fakeConnectionRepository = FakeConnectionRepository();
 
 Widget createTestApp(Widget child) {
+  LocaleSettings.setLocaleSync(AppLocale.en);
   final router = GoRouter(
     initialLocation: '/test',
     routes: [
@@ -320,6 +322,8 @@ Widget createTestApp(Widget child) {
       accountRepositoryProvider.overrideWithValue(fakeAccountRepository),
       connectionRepositoryProvider.overrideWithValue(fakeConnectionRepository),
     ],
-    child: MaterialApp.router(routerConfig: router),
+    child: TranslationProvider(
+      child: MaterialApp.router(routerConfig: router),
+    ),
   );
 }

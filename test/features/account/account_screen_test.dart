@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:dogsafield/features/account/presentation/account_screen.dart';
 import 'package:dogsafield/features/account/state/account_providers.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import 'package:dogsafield/shared/models/dog.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
 import '../../helpers/test_utils.dart';
 
 Widget createAccountApp(AccountDetail detail) {
+  LocaleSettings.setLocaleSync(AppLocale.en);
   final router = GoRouter(
     initialLocation: '/test',
     routes: [
@@ -24,7 +26,9 @@ Widget createAccountApp(AccountDetail detail) {
       authStateProvider.overrideWith((ref) => Stream.empty()),
       accountDetailProvider.overrideWith((ref) => Future.value(detail)),
     ],
-    child: MaterialApp.router(routerConfig: router),
+    child: TranslationProvider(
+      child: MaterialApp.router(routerConfig: router),
+    ),
   );
 }
 
@@ -55,7 +59,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      expect(find.text('Unknown'), findsOneWidget);
+      expect(find.text(t.common.unknown), findsOneWidget);
       expect(find.text('bob@example.com'), findsOneWidget);
     });
 
@@ -86,7 +90,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      expect(find.text('Trial RSVPs'), findsOneWidget);
+      expect(find.text(t.account.trialRsvps), findsOneWidget);
     });
 
     testWidgets('shows upgrade button when trial exhausted', (tester) async {
@@ -102,7 +106,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      expect(find.text('Upgrade to keep joining'), findsOneWidget);
+      expect(find.text(t.account.upgradeToKeepJoining), findsOneWidget);
     });
 
     testWidgets('displays Founding Pack section', (tester) async {
@@ -118,7 +122,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      expect(find.text('Founding Pack'), findsOneWidget);
+      expect(find.text(t.account.foundingPack.badge), findsOneWidget);
     });
 
     testWidgets('displays safety section when treat policy is set', (tester) async {
@@ -134,8 +138,8 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      expect(find.text('Safety Boundaries'), findsOneWidget);
-      expect(find.text('Okay to share treats with my dog'), findsOneWidget);
+      expect(find.text(t.account.safetyBoundaries), findsOneWidget);
+      expect(find.text(t.treatPolicy.okToShareDetail), findsOneWidget);
     });
 
     testWidgets('shows error state on failure', (tester) async {
@@ -152,12 +156,14 @@ void main() {
           authStateProvider.overrideWith((ref) => Stream.empty()),
           accountDetailProvider.overrideWith((ref) => Future.error(Exception('fail'))),
         ],
-        child: MaterialApp.router(routerConfig: router),
+        child: TranslationProvider(
+          child: MaterialApp.router(routerConfig: router),
+        ),
       ));
       await tester.pumpAndSettle();
 
-      expect(find.text('Could not load account'), findsOneWidget);
-      expect(find.text('Retry'), findsOneWidget);
+      expect(find.text(t.account.couldNotLoad), findsOneWidget);
+      expect(find.text(t.common.retry), findsOneWidget);
     });
 
     testWidgets('shows loading indicator initially', (tester) async {
@@ -173,7 +179,9 @@ void main() {
           authServiceProvider.overrideWithValue(fakeAuthService),
           authStateProvider.overrideWith((ref) => Stream.empty()),
         ],
-        child: MaterialApp.router(routerConfig: router),
+        child: TranslationProvider(
+          child: MaterialApp.router(routerConfig: router),
+        ),
       ));
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -204,7 +212,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      expect(find.text('Please ask before feeding my dog'), findsOneWidget);
+      expect(find.text(t.treatPolicy.askBeforeFeedingDetail), findsOneWidget);
     });
   });
 }

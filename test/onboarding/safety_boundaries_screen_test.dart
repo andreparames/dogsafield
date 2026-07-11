@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:dogsafield/features/onboarding/presentation/safety_boundaries_screen.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
 import 'package:dogsafield/features/onboarding/state/onboarding_state.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import 'package:dogsafield/shared/models/dog.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
 import '../helpers/test_utils.dart';
@@ -14,21 +15,21 @@ void main() {
     await tester.pumpWidget(createTestApp(const SafetyBoundariesScreen()));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Complete Profile'));
+    await tester.tap(find.text(t.onboarding.safety.completeProfile));
     await tester.pumpAndSettle();
 
-    expect(find.text('Please select a treat policy'), findsOneWidget);
+    expect(find.text(t.onboarding.safety.policyRequired), findsOneWidget);
   });
 
   testWidgets('renders treat policy options', (WidgetTester tester) async {
     await tester.pumpWidget(createTestApp(const SafetyBoundariesScreen()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Safety Boundaries'), findsOneWidget);
-    expect(find.text('Treat Policy'), findsOneWidget);
-    expect(find.textContaining('Okay to share'), findsOneWidget);
-    expect(find.textContaining('Ask before feeding'), findsOneWidget);
-    expect(find.text('Complete Profile'), findsOneWidget);
+    expect(find.text(t.onboarding.safety.title), findsOneWidget);
+    expect(find.text(t.onboarding.safety.treatPolicy), findsOneWidget);
+    expect(find.textContaining(t.onboarding.safety.okToShare), findsOneWidget);
+    expect(find.textContaining(t.onboarding.safety.askBeforeFeeding), findsOneWidget);
+    expect(find.text(t.onboarding.safety.completeProfile), findsOneWidget);
   });
 
   testWidgets('submits and navigates to home with valid data', (WidgetTester tester) async {
@@ -51,18 +52,21 @@ void main() {
       ],
     );
 
+    LocaleSettings.setLocaleSync(AppLocale.en);
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: MaterialApp.router(routerConfig: router),
+        child: TranslationProvider(
+          child: MaterialApp.router(routerConfig: router),
+        ),
       ),
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.textContaining('Okay to share'));
+    await tester.tap(find.textContaining(t.onboarding.safety.okToShare));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Complete Profile'));
+    await tester.tap(find.text(t.onboarding.safety.completeProfile));
     await tester.pumpAndSettle();
 
     expect(find.text('Home'), findsOneWidget);
@@ -92,18 +96,21 @@ void main() {
       ],
     );
 
+    LocaleSettings.setLocaleSync(AppLocale.en);
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: MaterialApp.router(routerConfig: router),
+        child: TranslationProvider(
+          child: MaterialApp.router(routerConfig: router),
+        ),
       ),
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.textContaining('Okay to share'));
+    await tester.tap(find.textContaining(t.onboarding.safety.okToShare));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Complete Profile'));
+    await tester.tap(find.text(t.onboarding.safety.completeProfile));
     await tester.pumpAndSettle();
 
     expect(repo.uploadCallCount, 1);
@@ -134,20 +141,23 @@ void main() {
       ],
     );
 
+    LocaleSettings.setLocaleSync(AppLocale.en);
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: MaterialApp.router(routerConfig: router),
+        child: TranslationProvider(
+          child: MaterialApp.router(routerConfig: router),
+        ),
       ),
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.textContaining('Okay to share'));
+    await tester.tap(find.textContaining(t.onboarding.safety.okToShare));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Complete Profile'));
+    await tester.tap(find.text(t.onboarding.safety.completeProfile));
     await tester.pumpAndSettle();
 
-    expect(find.text('Something went wrong. Please try again.'), findsOneWidget);
+    expect(find.text(t.onboarding.safety.error), findsOneWidget);
   });
 }

@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dogsafield/features/field_map/presentation/event_bottom_sheet.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import 'package:dogsafield/features/field_map/state/gathering_providers.dart';
 import 'package:dogsafield/shared/models/event.dart';
 
 Widget _wrap({required Widget child}) {
+  LocaleSettings.setLocaleSync(AppLocale.en);
   return ProviderScope(
     overrides: [
       attendanceCountProvider.overrideWith((ref, eventId) async => 3),
     ],
-    child: MaterialApp(
-      home: Scaffold(
-        body: SizedBox(height: 600, child: child),
+    child: TranslationProvider(
+      child: MaterialApp(
+        home: Scaffold(
+          body: SizedBox(height: 600, child: child),
+        ),
       ),
     ),
   );
@@ -45,7 +49,7 @@ void main() {
     testWidgets('displays event type label', (tester) async {
       await tester.pumpWidget(_wrap(child: EventBottomSheet(event: testEvent)));
 
-      expect(find.text('Pack Walk'), findsOneWidget);
+      expect(find.text(t.event.type.packWalk), findsOneWidget);
     });
 
     testWidgets('displays location name', (tester) async {
@@ -71,7 +75,7 @@ void main() {
     testWidgets('shows View Details button immediately without scrolling', (tester) async {
       await tester.pumpWidget(_wrap(child: EventBottomSheet(event: testEvent)));
 
-      expect(find.text('View Details'), findsOneWidget);
+      expect(find.text(t.fieldMap.viewDetails), findsOneWidget);
     });
 
     testWidgets('does not show Leave Pack when showRsvpAction is false', (tester) async {
@@ -79,7 +83,7 @@ void main() {
         _wrap(child: EventBottomSheet(event: testEvent, showRsvpAction: false)),
       );
 
-      expect(find.text('Leave Pack'), findsNothing);
+      expect(find.text(t.fieldMap.leavePack), findsNothing);
     });
 
     testWidgets('shows Leave Pack when showRsvpAction is true', (tester) async {
@@ -87,7 +91,7 @@ void main() {
         _wrap(child: EventBottomSheet(event: testEvent, showRsvpAction: true)),
       );
 
-      expect(find.text('Leave Pack'), findsOneWidget);
+      expect(find.text(t.fieldMap.leavePack), findsOneWidget);
     });
   });
 }

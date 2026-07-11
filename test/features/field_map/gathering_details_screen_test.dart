@@ -16,6 +16,7 @@ import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
 import 'package:dogsafield/shared/models/dog.dart';
 import 'package:dogsafield/shared/models/event.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../../helpers/test_utils.dart';
 
 class _FakeNotificationService extends NotificationService {
@@ -34,7 +35,9 @@ class _FakeNotificationService extends NotificationService {
 }
 
 Widget createTestApp(Widget child) {
-  return MaterialApp(home: child);
+  return TranslationProvider(
+    child: MaterialApp(home: child),
+  );
 }
 
 void main() {
@@ -43,6 +46,7 @@ void main() {
   late SharedPreferences prefs;
 
   setUp(() async {
+    LocaleSettings.setLocaleSync(AppLocale.en);
     gatheringRepo = FakeGatheringRepository();
     rsvpRepo = FakeRsvpRepository();
     SharedPreferences.setMockInitialValues({});
@@ -101,7 +105,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Morning Walk'), findsOneWidget);
-      expect(find.text('Pack Walk'), findsOneWidget);
+      expect(find.text(t.event.type.packWalk), findsOneWidget);
     });
 
     testWidgets('displays date and location', (tester) async {
@@ -241,7 +245,7 @@ void main() {
       await tester.pumpWidget(buildScreen('evt-1'));
       await tester.pumpAndSettle();
 
-      expect(find.text('3 / 20 attending'), findsOneWidget);
+      expect(find.text(t.gathering.attending(count: 3, max: 20)), findsOneWidget);
       expect(find.text('Alice'), findsOneWidget);
       expect(find.text('Bob'), findsOneWidget);
       expect(find.text('Carol'), findsOneWidget);
@@ -291,8 +295,8 @@ void main() {
       await tester.pumpWidget(buildScreen('evt-1'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Failed to load event'), findsOneWidget);
-      expect(find.text('Retry'), findsOneWidget);
+      expect(find.text(t.gathering.failedToLoad), findsOneWidget);
+      expect(find.text(t.common.retry), findsOneWidget);
     });
 
     testWidgets('shows Join Pack button when not RSVPd', (tester) async {
@@ -314,7 +318,7 @@ void main() {
       await tester.pumpWidget(buildScreen('evt-1'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Join Pack'), findsOneWidget);
+      expect(find.text(t.gathering.joinPack), findsOneWidget);
     });
 
     testWidgets('shows Leave Pack after joining', (tester) async {
@@ -337,7 +341,7 @@ void main() {
       await tester.pumpWidget(buildScreen('evt-1'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Leave Pack'), findsOneWidget);
+      expect(find.text(t.gathering.leavePack), findsOneWidget);
     });
 
     testWidgets('tapping Join Pack calls RSVP and shows Leave Pack', (tester) async {
@@ -359,11 +363,11 @@ void main() {
       await tester.pumpWidget(buildScreen('evt-1'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Join Pack'));
+      await tester.tap(find.text(t.gathering.joinPack));
       await tester.pumpAndSettle();
 
       expect(rsvpRepo.rsvpEvents.contains('evt-1'), true);
-      expect(find.text('Leave Pack'), findsOneWidget);
+      expect(find.text(t.gathering.leavePack), findsOneWidget);
     });
   });
 }
