@@ -5,5 +5,10 @@ import 'notification_service.dart';
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
   final prefs = ref.watch(sharedPreferencesProvider);
-  return NotificationService(FlutterLocalNotificationsPlugin(), prefs);
+  final cache = ref.watch(localCacheServiceProvider);
+  return NotificationService(
+    FlutterLocalNotificationsPlugin(),
+    prefs,
+    eventLookup: cache.getEventById,
+  );
 });
