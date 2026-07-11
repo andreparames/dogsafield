@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:dogsafield/core/services/location_provider.dart';
+import 'package:dogsafield/features/connections/state/connection_providers.dart';
 import 'package:dogsafield/features/field_map/state/field_map_providers.dart';
 import 'package:dogsafield/features/field_map/state/rsvp_providers.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
@@ -195,6 +196,47 @@ void main() {
       // allEventsProvider has completed, it returns an empty list.
       final result = container.read(discoveredEventsProvider);
       expect(result, isEmpty);
+    });
+
+    test('filters events hosted by blockerIds but not blockedIds', () async {
+      final events = [
+        DogEvent(
+          id: '1', hostId: 'blocked-host', type: EventType.packWalk,
+          title: 'Walk', locationName: 'Park',
+          latitude: 38.7, longitude: -9.1,
+          dateTime: DateTime.now().add(const Duration(days: 1)),
+          maxAttendees: 10,
+        ),
+        DogEvent(
+          id: '2', hostId: 'blocker-host', type: EventType.dogPicnic,
+          title: 'Picnic', locationName: 'Garden',
+          latitude: 38.8, longitude: -9.2,
+          dateTime: DateTime.now().add(const Duration(days: 2)),
+          maxAttendees: 20,
+        ),
+      ];
+      fieldRepo.nearbyEvents = events;
+
+      final container = ProviderContainer(
+        overrides: [
+          authServiceProvider.overrideWithValue(fakeAuthService),
+          authStateProvider.overrideWith((ref) => Stream.empty()),
+          fieldMapRepositoryProvider.overrideWithValue(fieldRepo),
+          rsvpRepositoryProvider.overrideWithValue(rsvpRepo),
+          currentPositionProvider.overrideWith((ref) async => fakePosition),
+          blockedUserIdsProvider.overrideWith((ref) => Future.value(<String>{'blocked-host'})),
+          blockerIdsProvider.overrideWith((ref) => Future.value(<String>{'blocker-host'})),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(allEventsProvider.future);
+      await container.read(blockerIdsProvider.future);
+
+      container.read(rsvpFilterProvider.notifier).state = false;
+      final result = container.read(discoveredEventsProvider);
+
+      expect(result.length, 1);
+      expect(result.single.id, '1');
     });
 
     test('returns empty when repository fails', () async {

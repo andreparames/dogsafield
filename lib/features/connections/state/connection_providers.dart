@@ -21,15 +21,10 @@ final blockedUsersProvider = FutureProvider<List<ConnectionStatus>>((ref) async 
       if (profileData != null) {
         profile = UserProfile(
           id: profileData['id'] as String,
-          email: profileData['email'] as String,
+          email: '',
           displayName: profileData['display_name'] as String?,
           photoUrl: profileData['photo_url'] as String?,
-          isVerified: profileData['is_verified'] as bool? ?? false,
-          trialRsvpsUsed: profileData['trial_rsvps_used'] as int? ?? 0,
           isFoundingPack: profileData['is_founding_pack'] as bool? ?? false,
-          isSuspended: profileData['is_suspended'] as bool? ?? false,
-          hasSeenFieldIntro: profileData['has_seen_field_intro'] as bool? ?? false,
-          hasSeenHostIntro: profileData['has_seen_host_intro'] as bool? ?? false,
           treatPolicy: profileData['treat_policy'] != null
               ? TreatPolicy.values.where((p) => p.name == profileData['treat_policy']).firstOrNull
               : null,

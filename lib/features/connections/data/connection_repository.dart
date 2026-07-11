@@ -31,25 +31,25 @@ class ConnectionRepository {
     if (user == null) throw Exception('Not authenticated');
 
     final response = await _client.from('connections')
-        .select('''
-          *,
-          profiles!user_id_b (
-            id,
-            email,
-            display_name,
-            photo_url,
-            is_verified,
-            trial_rsvps_used,
-            is_founding_pack,
-            is_suspended,
-            has_seen_field_intro,
-            has_seen_host_intro,
-            treat_policy
-          )
-        ''')
+        .select()
         .eq('user_id_a', user.id)
         .gt('block_tier', 0);
 
+    if (response.isEmpty) return [];
+
+    final userIds = response.map((r) => r['user_id_b'] as String).toList();
+    final profiles = await _client.from('profiles_public')
+        .select()
+        .inFilter('id', userIds);
+
+    final profileMap = {for (final p in profiles) p['id'] as String: p};
+
+    for (final row in response) {
+      final profile = profileMap[row['user_id_b']];
+      if (profile != null) {
+        row['profiles'] = profile;
+      }
+    }
     return response;
   }
 

@@ -17,14 +17,13 @@ final gatheringDetailProvider =
     FutureProvider.family.autoDispose<GatheringDetail, String>((ref, eventId) async {
   final repo = ref.watch(gatheringRepositoryProvider);
   final detail = await repo.fetchGatheringDetail(eventId);
-  final blockedIds = await ref.watch(blockedUserIdsProvider.future).catchError((_) => <String>{});
   final blockerIds = await ref.watch(blockerIdsProvider.future).catchError((_) => <String>{});
   return GatheringDetail(
     event: detail.event,
     host: detail.host,
     hostDog: detail.hostDog,
     attendees: detail.attendees
-        .where((a) => !blockedIds.contains(a.profile.id) && !blockerIds.contains(a.profile.id))
+        .where((a) => !blockerIds.contains(a.profile.id))
         .toList(),
   );
 });
