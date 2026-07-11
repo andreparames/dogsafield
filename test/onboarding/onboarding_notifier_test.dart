@@ -1,88 +1,127 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dogsafield/shared/models/dog.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
 import 'package:dogsafield/features/onboarding/state/onboarding_state.dart';
 
+ProviderContainer createContainer() {
+  return ProviderContainer();
+}
+
 void main() {
   group('OnboardingNotifier', () {
-    late OnboardingNotifier notifier;
-
-    setUp(() {
-      notifier = OnboardingNotifier();
-    });
-
     test('starts at welcome step', () {
-      expect(notifier.state.step, OnboardingStep.welcome);
-      expect(notifier.state.isLoading, false);
-      expect(notifier.state.error, isNull);
-      expect(notifier.state.isSubmitting, false);
-      expect(notifier.state.submissionError, isNull);
-      expect(notifier.state.photoUrl, isNull);
-      expect(notifier.state.dog, isNull);
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final state = container.read(onboardingProvider);
+
+      expect(state.step, OnboardingStep.welcome);
+      expect(state.isLoading, false);
+      expect(state.error, isNull);
+      expect(state.isSubmitting, false);
+      expect(state.submissionError, isNull);
+      expect(state.photoUrl, isNull);
+      expect(state.dog, isNull);
     });
 
     test('setStep transitions to correct step', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
       notifier.setStep(OnboardingStep.photoUpload);
-      expect(notifier.state.step, OnboardingStep.photoUpload);
+      expect(container.read(onboardingProvider).step, OnboardingStep.photoUpload);
 
       notifier.setStep(OnboardingStep.profileForm);
-      expect(notifier.state.step, OnboardingStep.profileForm);
+      expect(container.read(onboardingProvider).step, OnboardingStep.profileForm);
     });
 
     test('setStep clears error', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
       notifier.setError('something went wrong');
-      expect(notifier.state.error, 'something went wrong');
+      expect(container.read(onboardingProvider).error, 'something went wrong');
 
       notifier.setStep(OnboardingStep.icebreaker);
-      expect(notifier.state.error, isNull);
+      expect(container.read(onboardingProvider).error, isNull);
     });
 
     test('setLoading toggles loading state', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
       notifier.setLoading(true);
-      expect(notifier.state.isLoading, true);
+      expect(container.read(onboardingProvider).isLoading, true);
 
       notifier.setLoading(false);
-      expect(notifier.state.isLoading, false);
+      expect(container.read(onboardingProvider).isLoading, false);
     });
 
     test('setSubmitting toggles submitting state and clears submissionError', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
       notifier.setSubmissionError('previous error');
       notifier.setSubmitting(true);
-      expect(notifier.state.isSubmitting, true);
-      expect(notifier.state.submissionError, isNull);
+      expect(container.read(onboardingProvider).isSubmitting, true);
+      expect(container.read(onboardingProvider).submissionError, isNull);
 
       notifier.setSubmitting(false);
-      expect(notifier.state.isSubmitting, false);
+      expect(container.read(onboardingProvider).isSubmitting, false);
     });
 
     test('setSubmissionError stores error without affecting submitting', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
       notifier.setSubmitting(true);
       notifier.setSubmissionError('upload failed');
-      expect(notifier.state.submissionError, 'upload failed');
-      expect(notifier.state.isSubmitting, true);
+      expect(container.read(onboardingProvider).submissionError, 'upload failed');
+      expect(container.read(onboardingProvider).isSubmitting, true);
     });
 
     test('setPhotoUrl stores url', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
       notifier.setPhotoUrl('https://example.com/photo.jpg');
-      expect(notifier.state.photoUrl, 'https://example.com/photo.jpg');
+      expect(container.read(onboardingProvider).photoUrl, 'https://example.com/photo.jpg');
     });
 
     test('setDog stores dog', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
       final dog = Dog(id: '1', ownerId: 'u1', name: 'Buddy');
       notifier.setDog(dog);
-      expect(notifier.state.dog, dog);
-      expect(notifier.state.dog!.name, 'Buddy');
+      expect(container.read(onboardingProvider).dog, dog);
+      expect(container.read(onboardingProvider).dog!.name, 'Buddy');
     });
 
     test('setUserProfile stores profile', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
       notifier.setUserProfile(
         UserProfile(id: 'u1', email: 'a@b.com'),
       );
-      expect(notifier.state.userProfile, isNotNull);
-      expect(notifier.state.userProfile!.email, 'a@b.com');
+      expect(container.read(onboardingProvider).userProfile, isNotNull);
+      expect(container.read(onboardingProvider).userProfile!.email, 'a@b.com');
     });
 
     test('reset returns to initial state', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
       notifier.setStep(OnboardingStep.complete);
       notifier.setPhotoUrl('https://example.com/p.jpg');
       notifier.setDog(Dog(id: '1', ownerId: 'u1', name: 'Buddy'));
@@ -92,21 +131,25 @@ void main() {
 
       notifier.reset();
 
-      expect(notifier.state.step, OnboardingStep.welcome);
-      expect(notifier.state.isLoading, false);
-      expect(notifier.state.isSubmitting, false);
-      expect(notifier.state.submissionError, isNull);
-      expect(notifier.state.photoUrl, isNull);
-      expect(notifier.state.dog, isNull);
+      expect(container.read(onboardingProvider).step, OnboardingStep.welcome);
+      expect(container.read(onboardingProvider).isLoading, false);
+      expect(container.read(onboardingProvider).isSubmitting, false);
+      expect(container.read(onboardingProvider).submissionError, isNull);
+      expect(container.read(onboardingProvider).photoUrl, isNull);
+      expect(container.read(onboardingProvider).dog, isNull);
     });
 
     test('setDog replaces previous dog', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
       notifier.setDog(Dog(id: '1', ownerId: 'u1', name: 'Buddy'));
       notifier.setDog(Dog(id: '2', ownerId: 'u1', name: 'Max', age: 5));
 
-      expect(notifier.state.dog!.id, '2');
-      expect(notifier.state.dog!.name, 'Max');
-      expect(notifier.state.dog!.age, 5);
+      expect(container.read(onboardingProvider).dog!.id, '2');
+      expect(container.read(onboardingProvider).dog!.name, 'Max');
+      expect(container.read(onboardingProvider).dog!.age, 5);
     });
   });
 }

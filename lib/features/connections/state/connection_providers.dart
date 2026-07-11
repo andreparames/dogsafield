@@ -72,18 +72,17 @@ class ConnectionActionError extends ConnectionActionState {
   const ConnectionActionError(this.message);
 }
 
-class ConnectionActionNotifier extends StateNotifier<ConnectionActionState> {
-  final Ref _ref;
-
-  ConnectionActionNotifier(this._ref) : super(const ConnectionActionIdle());
+class ConnectionActionNotifier extends Notifier<ConnectionActionState> {
+  @override
+  ConnectionActionState build() => const ConnectionActionIdle();
 
   Future<void> blockUser(String targetUserId) async {
     if (state is ConnectionActionLoading) return;
     state = const ConnectionActionLoading();
     try {
-      final repo = _ref.read(connectionRepositoryProvider);
+      final repo = ref.read(connectionRepositoryProvider);
       await repo.setBlockTier(targetUserId, 1);
-      _ref.invalidate(blockedUsersProvider);
+      ref.invalidate(blockedUsersProvider);
       state = const ConnectionActionSuccess();
     } catch (e) {
       state = const ConnectionActionError('Failed to block user. Please try again.');
@@ -94,9 +93,9 @@ class ConnectionActionNotifier extends StateNotifier<ConnectionActionState> {
     if (state is ConnectionActionLoading) return;
     state = const ConnectionActionLoading();
     try {
-      final repo = _ref.read(connectionRepositoryProvider);
+      final repo = ref.read(connectionRepositoryProvider);
       await repo.setBlockTier(targetUserId, 2);
-      _ref.invalidate(blockedUsersProvider);
+      ref.invalidate(blockedUsersProvider);
       state = const ConnectionActionSuccess();
     } catch (e) {
       state = const ConnectionActionError('Failed to block and hide user. Please try again.');
@@ -107,9 +106,9 @@ class ConnectionActionNotifier extends StateNotifier<ConnectionActionState> {
     if (state is ConnectionActionLoading) return;
     state = const ConnectionActionLoading();
     try {
-      final repo = _ref.read(connectionRepositoryProvider);
+      final repo = ref.read(connectionRepositoryProvider);
       await repo.setBlockTier(targetUserId, 3, reportReason: reason);
-      _ref.invalidate(blockedUsersProvider);
+      ref.invalidate(blockedUsersProvider);
       state = const ConnectionActionSuccess();
     } catch (e) {
       state = const ConnectionActionError('Failed to report user. Please try again.');
@@ -120,9 +119,9 @@ class ConnectionActionNotifier extends StateNotifier<ConnectionActionState> {
     if (state is ConnectionActionLoading) return;
     state = const ConnectionActionLoading();
     try {
-      final repo = _ref.read(connectionRepositoryProvider);
+      final repo = ref.read(connectionRepositoryProvider);
       await repo.setBlockTier(targetUserId, 0);
-      _ref.invalidate(blockedUsersProvider);
+      ref.invalidate(blockedUsersProvider);
       state = const ConnectionActionSuccess();
     } catch (e) {
       state = const ConnectionActionError('Failed to unblock user. Please try again.');
@@ -138,13 +137,13 @@ final blockedUserIdsProvider = FutureProvider<Set<String>>((ref) async {
   return rows.map((r) => r['user_id_b'] as String).toSet();
 });
 
+final connectionActionProvider =
+    NotifierProvider<ConnectionActionNotifier, ConnectionActionState>(
+        ConnectionActionNotifier.new);
+
 final blockerIdsProvider = FutureProvider<Set<String>>((ref) async {
   final repo = ref.watch(connectionRepositoryProvider);
   final rows = await repo.fetchBlockers();
   return rows.map((r) => r['user_id_a'] as String).toSet();
 });
 
-final connectionActionProvider =
-    StateNotifierProvider<ConnectionActionNotifier, ConnectionActionState>((ref) {
-  return ConnectionActionNotifier(ref);
-});

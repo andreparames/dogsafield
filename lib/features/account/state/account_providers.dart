@@ -47,16 +47,15 @@ class AccountActionError extends AccountActionState {
   const AccountActionError(this.message);
 }
 
-class AccountActionNotifier extends StateNotifier<AccountActionState> {
-  final Ref _ref;
-
-  AccountActionNotifier(this._ref) : super(const AccountActionIdle());
+class AccountActionNotifier extends Notifier<AccountActionState> {
+  @override
+  AccountActionState build() => const AccountActionIdle();
 
   Future<void> suspendAccount() async {
     if (state is AccountActionLoading) return;
     state = const AccountActionLoading();
     try {
-      final repo = _ref.read(accountRepositoryProvider);
+      final repo = ref.read(accountRepositoryProvider);
       await repo.suspendAccount();
       state = const AccountActionSuccess();
     } catch (e) {
@@ -68,7 +67,7 @@ class AccountActionNotifier extends StateNotifier<AccountActionState> {
     if (state is AccountActionLoading) return;
     state = const AccountActionLoading();
     try {
-      final repo = _ref.read(accountRepositoryProvider);
+      final repo = ref.read(accountRepositoryProvider);
       await repo.deleteAccount();
       state = const AccountActionSuccess();
     } catch (e) {
@@ -80,6 +79,5 @@ class AccountActionNotifier extends StateNotifier<AccountActionState> {
 }
 
 final accountActionProvider =
-    StateNotifierProvider<AccountActionNotifier, AccountActionState>((ref) {
-  return AccountActionNotifier(ref);
-});
+    NotifierProvider<AccountActionNotifier, AccountActionState>(
+        AccountActionNotifier.new);

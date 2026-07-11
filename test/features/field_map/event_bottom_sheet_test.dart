@@ -8,11 +8,7 @@ import 'package:dogsafield/shared/models/event.dart';
 Widget _wrap({required Widget child}) {
   return ProviderScope(
     overrides: [
-      attendanceCountProvider.overrideWithProvider(
-        FutureProvider.family.autoDispose<int, String>((ref, eventId) async {
-          return 3;
-        }),
-      ),
+      attendanceCountProvider.overrideWith((ref, eventId) async => 3),
     ],
     child: MaterialApp(
       home: Scaffold(

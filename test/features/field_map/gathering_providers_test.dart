@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
@@ -67,10 +68,20 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      expect(
-        () => container.read(gatheringDetailProvider('missing').future),
-        throwsA(isA<Exception>()),
-      );
+      final provider = gatheringDetailProvider('missing');
+      
+      final completer = Completer<void>();
+      final sub = container.listen(provider, (prev, next) {
+        if (next.hasError && !completer.isCompleted) {
+          completer.completeError(next.error!, next.stackTrace);
+        } else if (!next.isLoading && next.hasValue && !completer.isCompleted) {
+          completer.complete();
+        }
+      });
+      
+      await expectLater(completer.future, throwsA(isA<Exception>()));
+      
+      sub.close();
     });
   });
 }

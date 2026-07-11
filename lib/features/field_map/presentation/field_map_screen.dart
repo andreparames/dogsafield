@@ -141,7 +141,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                     ],
                     selected: {showRsvps},
                     onSelectionChanged: (selected) {
-                      ref.read(rsvpFilterProvider.notifier).state = selected.first;
+                      ref.read(rsvpFilterProvider.notifier).set(selected.first);
                     },
                   ),
                 ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
@@ -176,6 +177,26 @@ void main() {
       expect(myRsvps, isEmpty); // still sees original events list, not the mutated one
     });
 
+    test('returns empty while loading', () {
+      fieldRepo.shouldFail = true;
+
+      final container = ProviderContainer(
+        overrides: [
+          authServiceProvider.overrideWithValue(fakeAuthService),
+          authStateProvider.overrideWith((ref) => Stream.empty()),
+          fieldMapRepositoryProvider.overrideWithValue(fieldRepo),
+          rsvpRepositoryProvider.overrideWithValue(rsvpRepo),
+          currentPositionProvider.overrideWith((ref) async => fakePosition),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      // discoveredEventsProvider uses .value ?? [], so before
+      // allEventsProvider has completed, it returns an empty list.
+      final result = container.read(discoveredEventsProvider);
+      expect(result, isEmpty);
+    });
+
     test('returns empty when repository fails', () async {
       fieldRepo.shouldFail = true;
 
@@ -190,9 +211,20 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      try {
-        await container.read(allEventsProvider.future);
-      } catch (_) {}
+      // Use listen + Completer to wait for error state (Riverpod 3 .future
+      // doesn't complete when the async computation throws)
+      final errorCompleter = Completer<void>();
+      final sub = container.listen(allEventsProvider, (prev, next) {
+        if (next.hasError && !errorCompleter.isCompleted) {
+          errorCompleter.completeError(next.error!, next.stackTrace);
+        } else if (!next.isLoading && next.hasValue && !errorCompleter.isCompleted) {
+          errorCompleter.complete();
+        }
+      });
+      await expectLater(errorCompleter.future, throwsA(isA<Exception>()));
+      sub.close();
+
+      // Verify discoveredEventsProvider handles the error state gracefully
       final result = container.read(discoveredEventsProvider);
       expect(result, isEmpty);
     });

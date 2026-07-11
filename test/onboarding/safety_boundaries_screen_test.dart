@@ -32,7 +32,9 @@ void main() {
   });
 
   testWidgets('submits and navigates to home with valid data', (WidgetTester tester) async {
-    final container = await createContainerWithCache();
+    final container = await createContainerWithCache(additionalOverrides: [
+      onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
+    ]);
     addTearDown(container.dispose);
     container.read(onboardingProvider.notifier).setUserProfile(
       UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),

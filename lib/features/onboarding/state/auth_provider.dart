@@ -18,7 +18,15 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
   return Supabase.instance.client.auth.onAuthStateChange;
 });
 
-final signingInProvider = StateProvider<bool>((ref) => false);
+final signingInProvider = NotifierProvider<SigningInNotifier, bool>(
+    SigningInNotifier.new);
+
+class SigningInNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool value) => state = value;
+}
 
 final onboardingRepositoryProvider = Provider<OnboardingRepository>((ref) {
   return OnboardingRepository(Supabase.instance.client);

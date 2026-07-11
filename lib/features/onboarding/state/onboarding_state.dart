@@ -63,8 +63,9 @@ class OnboardingState {
   }
 }
 
-class OnboardingNotifier extends StateNotifier<OnboardingState> {
-  OnboardingNotifier() : super(const OnboardingState());
+class OnboardingNotifier extends Notifier<OnboardingState> {
+  @override
+  OnboardingState build() => const OnboardingState();
 
   void setStep(OnboardingStep step) => state = state.copyWith(step: step, error: null);
   void setLoading(bool v) => state = state.copyWith(isLoading: v);
@@ -93,6 +94,5 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   void reset() => state = const OnboardingState();
 }
 
-final onboardingProvider = StateNotifierProvider<OnboardingNotifier, OnboardingState>((ref) {
-  return OnboardingNotifier();
-});
+final onboardingProvider = NotifierProvider<OnboardingNotifier, OnboardingState>(
+    OnboardingNotifier.new);
