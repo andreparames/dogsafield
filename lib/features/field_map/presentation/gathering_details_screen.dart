@@ -484,8 +484,10 @@ class _JoinPackSection extends ConsumerWidget {
         ref.read(rsvpActionProvider(event.id).notifier).reset();
       } else if (next is RsvpActionSuccess) {
         final notif = ref.read(notificationServiceProvider);
-        notif.cancelRollCallReminder(event.id);
-        ref.read(hasRsvpProvider(event.id).future).then((hasRsvp) {
+        notif.cancelRollCallReminder(event.id).then((_) {
+          ref.invalidate(hasRsvpProvider(event.id));
+          return ref.read(hasRsvpProvider(event.id).future);
+        }).then((hasRsvp) {
           if (hasRsvp) {
             notif.scheduleRollCallReminder(
               eventId: event.id,
