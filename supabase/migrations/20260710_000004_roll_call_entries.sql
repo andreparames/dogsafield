@@ -4,7 +4,8 @@ create table if not exists roll_call_entries (
   observer_id uuid not null references profiles(id) on delete cascade,
   observed_id uuid not null references profiles(id) on delete cascade,
   created_at timestamptz not null default now(),
-  unique(event_id, observer_id, observed_id)
+  unique(event_id, observer_id, observed_id),
+  check (observer_id <> observed_id)
 );
 
 alter table roll_call_entries enable row level security;
