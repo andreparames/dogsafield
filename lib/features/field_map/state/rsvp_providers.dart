@@ -43,23 +43,24 @@ class RsvpActionError extends RsvpActionState {
   const RsvpActionError(this.message);
 }
 
-class RsvpActionNotifier extends StateNotifier<RsvpActionState> {
-  final Ref _ref;
-  final String _eventId;
+class RsvpActionNotifier extends Notifier<RsvpActionState> {
+  final String eventId;
 
-  RsvpActionNotifier(this._ref, this._eventId)
-      : super(const RsvpActionIdle());
+  RsvpActionNotifier(this.eventId);
+
+  @override
+  RsvpActionState build() => const RsvpActionIdle();
 
   Future<void> joinPack() async {
     if (state is RsvpActionLoading) return;
     state = const RsvpActionLoading();
     try {
-      final repo = _ref.read(rsvpRepositoryProvider);
-      await repo.rsvpToEvent(_eventId);
+      final repo = ref.read(rsvpRepositoryProvider);
+      await repo.rsvpToEvent(eventId);
       state = const RsvpActionSuccess();
-      _ref.invalidate(hasRsvpProvider(_eventId));
-      _ref.invalidate(myRsvpIdsProvider);
-      _ref.invalidate(gatheringDetailProvider(_eventId));
+      ref.invalidate(hasRsvpProvider(eventId));
+      ref.invalidate(myRsvpIdsProvider);
+      ref.invalidate(gatheringDetailProvider(eventId));
     } catch (e) {
       state = RsvpActionError('Failed to RSVP: $e');
     }
@@ -69,12 +70,12 @@ class RsvpActionNotifier extends StateNotifier<RsvpActionState> {
     if (state is RsvpActionLoading) return;
     state = const RsvpActionLoading();
     try {
-      final repo = _ref.read(rsvpRepositoryProvider);
-      await repo.cancelRsvp(_eventId);
+      final repo = ref.read(rsvpRepositoryProvider);
+      await repo.cancelRsvp(eventId);
       state = const RsvpActionSuccess();
-      _ref.invalidate(hasRsvpProvider(_eventId));
-      _ref.invalidate(myRsvpIdsProvider);
-      _ref.invalidate(gatheringDetailProvider(_eventId));
+      ref.invalidate(hasRsvpProvider(eventId));
+      ref.invalidate(myRsvpIdsProvider);
+      ref.invalidate(gatheringDetailProvider(eventId));
     } catch (e) {
       state = RsvpActionError('Failed to cancel RSVP: $e');
     }
@@ -84,6 +85,6 @@ class RsvpActionNotifier extends StateNotifier<RsvpActionState> {
 }
 
 final rsvpActionProvider =
-    StateNotifierProvider.family<RsvpActionNotifier, RsvpActionState, String>(
-  (ref, eventId) => RsvpActionNotifier(ref, eventId),
+    NotifierProvider.family<RsvpActionNotifier, RsvpActionState, String>(
+  (eventId) => RsvpActionNotifier(eventId),
 );

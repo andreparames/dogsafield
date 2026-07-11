@@ -269,7 +269,7 @@ class FakeConnectionRepository implements ConnectionRepository {
 }
 
 Future<ProviderContainer> createContainerWithCache({
-  List<Override> additionalOverrides = const [],
+  List<dynamic> additionalOverrides = const [],
 }) async {
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();
@@ -282,7 +282,6 @@ Future<ProviderContainer> createContainerWithCache({
       localCacheServiceProvider.overrideWithValue(cache),
       authServiceProvider.overrideWithValue(fakeAuthService),
       authStateProvider.overrideWith((ref) => Stream.empty()),
-      onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
       ...additionalOverrides,
     ],
   );

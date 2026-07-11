@@ -63,7 +63,9 @@ void main() {
 
   group('SafetyBoundariesScreen submission', () {
     testWidgets('shows error when userProfile is null', (WidgetTester tester) async {
-      final container = await createContainerWithCache();
+      final container = await createContainerWithCache(additionalOverrides: [
+        onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
+      ]);
       addTearDown(container.dispose);
       container.read(onboardingProvider.notifier).setDog(
         Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
@@ -95,7 +97,9 @@ void main() {
     });
 
     testWidgets('succeeds when userProfile is set via initFromAuth', (WidgetTester tester) async {
-      final container = await createContainerWithCache();
+      final container = await createContainerWithCache(additionalOverrides: [
+        onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
+      ]);
       addTearDown(container.dispose);
       container.read(onboardingProvider.notifier).initFromAuth(
         'u1',

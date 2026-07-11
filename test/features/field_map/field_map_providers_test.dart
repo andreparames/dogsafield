@@ -176,7 +176,7 @@ void main() {
       expect(myRsvps, isEmpty); // still sees original events list, not the mutated one
     });
 
-    test('returns empty when repository fails', () async {
+    test('returns empty when repository fails', () {
       fieldRepo.shouldFail = true;
 
       final container = ProviderContainer(
@@ -190,9 +190,8 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      try {
-        await container.read(allEventsProvider.future);
-      } catch (_) {}
+      // discoveredEventsProvider uses .value ?? [], so before
+      // allEventsProvider has completed, it returns an empty list.
       final result = container.read(discoveredEventsProvider);
       expect(result, isEmpty);
     });

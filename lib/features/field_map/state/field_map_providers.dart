@@ -15,7 +15,15 @@ final fieldMapRepositoryProvider = Provider<FieldMapRepository>((ref) {
   );
 });
 
-final rsvpFilterProvider = StateProvider<bool>((ref) => false);
+class RsvpFilterNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool value) => state = value;
+}
+
+final rsvpFilterProvider = NotifierProvider<RsvpFilterNotifier, bool>(
+    RsvpFilterNotifier.new);
 
 final allEventsProvider = FutureProvider<List<DogEvent>>((ref) async {
   final repo = ref.watch(fieldMapRepositoryProvider);
@@ -28,10 +36,10 @@ final allEventsProvider = FutureProvider<List<DogEvent>>((ref) async {
 
 final discoveredEventsProvider = Provider<List<DogEvent>>((ref) {
   final showRsvps = ref.watch(rsvpFilterProvider);
-  final allEvents = ref.watch(allEventsProvider).valueOrNull ?? [];
-  final blockedIds = ref.watch(blockedUserIdsProvider).valueOrNull ?? <String>{};
+  final allEvents = ref.watch(allEventsProvider).value ?? [];
+  final blockedIds = ref.watch(blockedUserIdsProvider).value ?? <String>{};
   final visible = allEvents.where((e) => !blockedIds.contains(e.hostId)).toList();
   if (!showRsvps) return visible;
-  final rsvpIds = ref.watch(myRsvpIdsProvider).valueOrNull ?? {};
+  final rsvpIds = ref.watch(myRsvpIdsProvider).value ?? {};
   return visible.where((e) => rsvpIds.contains(e.id)).toList();
 });

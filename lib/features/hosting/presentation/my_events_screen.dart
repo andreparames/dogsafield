@@ -101,7 +101,7 @@ class _EventCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isCancelled = event.isCancelled;
-    final isOnline = ref.watch(connectivityProvider).valueOrNull ?? true;
+    final isOnline = ref.watch(connectivityProvider).value ?? true;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

@@ -27,21 +27,22 @@ class RollCallActionError extends RollCallActionState {
   const RollCallActionError(this.message);
 }
 
-class RollCallActionNotifier extends StateNotifier<RollCallActionState> {
-  final Ref _ref;
-  final String _eventId;
+class RollCallActionNotifier extends Notifier<RollCallActionState> {
+  final String eventId;
 
-  RollCallActionNotifier(this._ref, this._eventId)
-      : super(const RollCallActionIdle());
+  RollCallActionNotifier(this.eventId);
+
+  @override
+  RollCallActionState build() => const RollCallActionIdle();
 
   Future<void> submit(List<String> observedIds) async {
     if (state is RollCallActionLoading) return;
     state = const RollCallActionLoading();
     try {
-      final repo = _ref.read(verificationRepositoryProvider);
-      await repo.submitRollCallEntries(_eventId, observedIds);
-      _ref.invalidate(myRollCallEntriesProvider(_eventId));
-      _ref.invalidate(matchViewDataProvider(_eventId));
+      final repo = ref.read(verificationRepositoryProvider);
+      await repo.submitRollCallEntries(eventId, observedIds);
+      ref.invalidate(myRollCallEntriesProvider(eventId));
+      ref.invalidate(matchViewDataProvider(eventId));
       state = const RollCallActionSuccess();
     } catch (e) {
       state = RollCallActionError('Failed to submit roll call: $e');
@@ -52,8 +53,8 @@ class RollCallActionNotifier extends StateNotifier<RollCallActionState> {
 }
 
 final rollCallActionProvider =
-    StateNotifierProvider.family<RollCallActionNotifier, RollCallActionState, String>(
-  (ref, eventId) => RollCallActionNotifier(ref, eventId),
+    NotifierProvider.family<RollCallActionNotifier, RollCallActionState, String>(
+  (eventId) => RollCallActionNotifier(eventId),
 );
 
 final myRollCallEntriesProvider =
@@ -133,20 +134,21 @@ class PackmateSyncError extends PackmateSyncState {
   const PackmateSyncError(this.message);
 }
 
-class PackmateSyncNotifier extends StateNotifier<PackmateSyncState> {
-  final Ref _ref;
-  final String _eventId;
+class PackmateSyncNotifier extends Notifier<PackmateSyncState> {
+  final String eventId;
 
-  PackmateSyncNotifier(this._ref, this._eventId)
-      : super(const PackmateSyncIdle());
+  PackmateSyncNotifier(this.eventId);
+
+  @override
+  PackmateSyncState build() => const PackmateSyncIdle();
 
   Future<void> sync() async {
     if (state is PackmateSyncing) return;
     state = const PackmateSyncing();
     try {
-      final repo = _ref.read(verificationRepositoryProvider);
-      final result = await repo.resolveAndSaveMatches(_eventId);
-      _ref.invalidate(matchViewDataProvider(_eventId));
+      final repo = ref.read(verificationRepositoryProvider);
+      final result = await repo.resolveAndSaveMatches(eventId);
+      ref.invalidate(matchViewDataProvider(eventId));
       state = PackmateSyncDone(result.failedCount);
     } catch (e) {
       state = PackmateSyncError('Failed to sync connections: $e');
@@ -157,6 +159,6 @@ class PackmateSyncNotifier extends StateNotifier<PackmateSyncState> {
 }
 
 final packmateSyncProvider =
-    StateNotifierProvider.family<PackmateSyncNotifier, PackmateSyncState, String>(
-  (ref, eventId) => PackmateSyncNotifier(ref, eventId),
+    NotifierProvider.family<PackmateSyncNotifier, PackmateSyncState, String>(
+  (eventId) => PackmateSyncNotifier(eventId),
 );

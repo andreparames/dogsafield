@@ -48,19 +48,18 @@ class HostingActionError extends HostingActionState {
   const HostingActionError(this.message);
 }
 
-class HostingActionNotifier extends StateNotifier<HostingActionState> {
-  final Ref _ref;
-
-  HostingActionNotifier(this._ref) : super(const HostingActionIdle());
+class HostingActionNotifier extends Notifier<HostingActionState> {
+  @override
+  HostingActionState build() => const HostingActionIdle();
 
   Future<void> createEvent(DogEvent event) async {
     if (state is HostingActionLoading) return;
     state = const HostingActionLoading();
     try {
-      final repo = _ref.read(hostingRepositoryProvider);
+      final repo = ref.read(hostingRepositoryProvider);
       await repo.createEvent(event);
-      _ref.invalidate(myEventsProvider);
-      _ref.invalidate(allEventsProvider);
+      ref.invalidate(myEventsProvider);
+      ref.invalidate(allEventsProvider);
       state = const HostingActionSuccess();
     } catch (e) {
       state = const HostingActionError('Failed to create event. Please try again.');
@@ -71,10 +70,10 @@ class HostingActionNotifier extends StateNotifier<HostingActionState> {
     if (state is HostingActionLoading) return;
     state = const HostingActionLoading();
     try {
-      final repo = _ref.read(hostingRepositoryProvider);
+      final repo = ref.read(hostingRepositoryProvider);
       await repo.updateEvent(event);
-      _ref.invalidate(myEventsProvider);
-      _ref.invalidate(allEventsProvider);
+      ref.invalidate(myEventsProvider);
+      ref.invalidate(allEventsProvider);
       state = const HostingActionSuccess();
     } catch (e) {
       state = const HostingActionError('Failed to update event. Please try again.');
@@ -85,10 +84,10 @@ class HostingActionNotifier extends StateNotifier<HostingActionState> {
     if (state is HostingActionLoading) return;
     state = const HostingActionLoading();
     try {
-      final repo = _ref.read(hostingRepositoryProvider);
+      final repo = ref.read(hostingRepositoryProvider);
       await repo.cancelEvent(eventId);
-      _ref.invalidate(myEventsProvider);
-      _ref.invalidate(allEventsProvider);
+      ref.invalidate(myEventsProvider);
+      ref.invalidate(allEventsProvider);
       state = const HostingActionSuccess();
     } catch (e) {
       state = const HostingActionError('Failed to cancel event. Please try again.');
@@ -99,6 +98,5 @@ class HostingActionNotifier extends StateNotifier<HostingActionState> {
 }
 
 final hostingActionProvider =
-    StateNotifierProvider<HostingActionNotifier, HostingActionState>((ref) {
-  return HostingActionNotifier(ref);
-});
+    NotifierProvider<HostingActionNotifier, HostingActionState>(
+        HostingActionNotifier.new);

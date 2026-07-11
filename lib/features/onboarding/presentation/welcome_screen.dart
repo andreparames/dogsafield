@@ -29,7 +29,7 @@ class WelcomeScreen extends ConsumerWidget {
               const Spacer(),
               FilledButton.icon(
                 onPressed: isSigningIn ? null : () {
-                  ref.read(signingInProvider.notifier).state = true;
+                  ref.read(signingInProvider.notifier).set(true);
                   ref.read(authServiceProvider).signInWithGoogle().catchError((e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -37,7 +37,7 @@ class WelcomeScreen extends ConsumerWidget {
                       );
                     }
                   }).whenComplete(() {
-                    ref.read(signingInProvider.notifier).state = false;
+                    ref.read(signingInProvider.notifier).set(false);
                   });
                 },
                 icon: const Icon(Icons.flutter_dash),
@@ -46,7 +46,7 @@ class WelcomeScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               OutlinedButton.icon(
                 onPressed: isSigningIn ? null : () {
-                  ref.read(signingInProvider.notifier).state = true;
+                  ref.read(signingInProvider.notifier).set(true);
                   ref.read(authServiceProvider).signInWithApple().catchError((e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -54,7 +54,7 @@ class WelcomeScreen extends ConsumerWidget {
                       );
                     }
                   }).whenComplete(() {
-                    ref.read(signingInProvider.notifier).state = false;
+                    ref.read(signingInProvider.notifier).set(false);
                   });
                 },
                 icon: const Icon(Icons.apple),
