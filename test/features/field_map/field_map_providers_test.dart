@@ -192,7 +192,7 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      // discoveredEventsProvider uses .valueOrNull ?? [], so before
+      // discoveredEventsProvider uses .value ?? [], so before
       // allEventsProvider has completed, it returns an empty list.
       final result = container.read(discoveredEventsProvider);
       expect(result, isEmpty);
