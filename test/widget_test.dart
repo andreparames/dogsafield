@@ -9,14 +9,12 @@ void main() {
   testWidgets('App renders welcome screen on launch', (WidgetTester tester) async {
     LocaleSettings.setLocaleSync(AppLocale.en);
     await tester.pumpWidget(
-      TranslationProvider(
-        child: ProviderScope(
-          overrides: [
-            authServiceProvider.overrideWithValue(fakeAuthService),
-            authStateProvider.overrideWith((ref) => Stream.empty()),
-          ],
-          child: const DogsAfieldApp(),
-        ),
+      ProviderScope(
+        overrides: [
+          authServiceProvider.overrideWithValue(fakeAuthService),
+          authStateProvider.overrideWith((ref) => Stream.empty()),
+        ],
+        child: const DogsAfieldApp(),
       ),
     );
     await tester.pumpAndSettle();
