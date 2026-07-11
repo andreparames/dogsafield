@@ -147,8 +147,9 @@ class NotificationService {
           scheduleTime: scheduleTime,
         );
       } catch (_) {
-        if (_eventLookup != null) {
-          final event = await _eventLookup!(raw);
+        final lookup = _eventLookup;
+        if (lookup != null) {
+          final event = await lookup(raw);
           if (event != null) {
             final scheduleTime =
                 event.dateTime.add(const Duration(hours: 2));
