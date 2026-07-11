@@ -41,6 +41,7 @@ class RollCallActionNotifier extends StateNotifier<RollCallActionState> {
       final repo = _ref.read(verificationRepositoryProvider);
       await repo.submitRollCallEntries(_eventId, observedIds);
       _ref.invalidate(myRollCallEntriesProvider(_eventId));
+      _ref.invalidate(matchViewDataProvider(_eventId));
       state = const RollCallActionSuccess();
     } catch (e) {
       state = RollCallActionError('Failed to submit roll call: $e');
