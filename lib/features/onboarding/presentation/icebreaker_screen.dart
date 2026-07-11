@@ -15,13 +15,6 @@ class _IcebreakerScreenState extends ConsumerState<IcebreakerScreen> {
   final _answerCtrl = TextEditingController();
   String? _selectedPrompt;
 
-  static final _prompts = [
-    t.onboarding.icebreaker.prompts.criminalAchievement,
-    t.onboarding.icebreaker.prompts.weirdestFear,
-    t.onboarding.icebreaker.prompts.job,
-    t.onboarding.icebreaker.prompts.favoriteSnack,
-  ];
-
   @override
   void dispose() {
     _answerCtrl.dispose();
@@ -31,6 +24,12 @@ class _IcebreakerScreenState extends ConsumerState<IcebreakerScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final prompts = [
+      context.t.onboarding.icebreaker.prompts.criminalAchievement,
+      context.t.onboarding.icebreaker.prompts.weirdestFear,
+      context.t.onboarding.icebreaker.prompts.job,
+      context.t.onboarding.icebreaker.prompts.favoriteSnack,
+    ];
     return Scaffold(
       appBar: AppBar(title: Text(context.t.onboarding.icebreaker.title)),
       body: SingleChildScrollView(
@@ -45,7 +44,7 @@ class _IcebreakerScreenState extends ConsumerState<IcebreakerScreen> {
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
-            ..._prompts.map(
+            ...prompts.map(
               (p) => RadioListTile<String>(
                 title: Text(p),
                 value: p,

@@ -7,7 +7,7 @@ import '../../../shared/models/event.dart';
 import '../state/hosting_provider.dart';
 import 'location_picker_screen.dart';
 
-const _bringOptions = ['Long line leash', 'Human lunch', 'Dog treats', 'Water bowl', 'Poop bags', 'Towel', 'Frisbee', 'Tennis balls'];
+List<String> _bringOptions(BuildContext context) => context.t.hosting.create.bringOptions;
 
 class CreateEventScreen extends ConsumerStatefulWidget {
   final double initialLatitude;
@@ -239,7 +239,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
             Wrap(
               spacing: 8,
               runSpacing: 4,
-              children: _bringOptions.map((item) => FilterChip(
+              children: _bringOptions(context).map((item) => FilterChip(
                 label: Text(item),
                 selected: _whatToBring.contains(item),
                 onSelected: (v) => setState(() => v ? _whatToBring.add(item) : _whatToBring.remove(item)),

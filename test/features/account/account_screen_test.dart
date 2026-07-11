@@ -143,6 +143,7 @@ void main() {
     });
 
     testWidgets('shows error state on failure', (tester) async {
+      LocaleSettings.setLocaleSync(AppLocale.en);
       final router = GoRouter(
         initialLocation: '/test',
         routes: [
@@ -167,6 +168,7 @@ void main() {
     });
 
     testWidgets('shows loading indicator initially', (tester) async {
+      LocaleSettings.setLocaleSync(AppLocale.en);
       final router = GoRouter(
         initialLocation: '/test',
         routes: [

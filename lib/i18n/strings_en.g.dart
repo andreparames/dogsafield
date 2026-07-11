@@ -678,6 +678,17 @@ class Translations$hosting$create$en {
 	/// en: 'Selected Location'
 	String get selectedLocation => 'Selected Location';
 
+	List<String> get bringOptions => [
+		'Long line leash',
+		'Human lunch',
+		'Dog treats',
+		'Water bowl',
+		'Poop bags',
+		'Towel',
+		'Frisbee',
+		'Tennis balls',
+	];
+
 	/// en: 'Event created!'
 	String get eventCreated => 'Event created!';
 
@@ -1240,6 +1251,14 @@ extension on Translations {
 			'hosting.create.selectEventType' => 'Please select an event type.',
 			'hosting.create.selectLocation' => 'Please select a location on the map.',
 			'hosting.create.selectedLocation' => 'Selected Location',
+			'hosting.create.bringOptions.0' => 'Long line leash',
+			'hosting.create.bringOptions.1' => 'Human lunch',
+			'hosting.create.bringOptions.2' => 'Dog treats',
+			'hosting.create.bringOptions.3' => 'Water bowl',
+			'hosting.create.bringOptions.4' => 'Poop bags',
+			'hosting.create.bringOptions.5' => 'Towel',
+			'hosting.create.bringOptions.6' => 'Frisbee',
+			'hosting.create.bringOptions.7' => 'Tennis balls',
 			'hosting.create.eventCreated' => 'Event created!',
 			'hosting.create.eventUpdated' => 'Event updated!',
 			'hosting.locationPicker.title' => 'Select Location',

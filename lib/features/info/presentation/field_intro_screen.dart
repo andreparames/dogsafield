@@ -71,7 +71,7 @@ class FieldIntroScreen extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: _TipCard(
-            icon: tipIcons[i],
+            icon: tipIcons[i % tipIcons.length],
             title: context.t.info.fieldIntro.tips[i].title,
             description: context.t.info.fieldIntro.tips[i].description,
           ),

@@ -134,6 +134,15 @@ hosting:
     selectEventType: Please select an event type.
     selectLocation: Please select a location on the map.
     selectedLocation: Selected Location
+    bringOptions:
+      - 'Long line leash'
+      - 'Human lunch'
+      - 'Dog treats'
+      - 'Water bowl'
+      - 'Poop bags'
+      - 'Towel'
+      - 'Frisbee'
+      - 'Tennis balls'
     eventCreated: Event created!
     eventUpdated: Event updated!
   locationPicker:

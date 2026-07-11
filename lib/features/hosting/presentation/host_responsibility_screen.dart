@@ -36,7 +36,7 @@ class HostResponsibilityScreen extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: _TipCard(
-                    icon: tipIcons[i],
+                    icon: tipIcons[i % tipIcons.length],
                     title: (tips[i] as dynamic).title,
                     description: (tips[i] as dynamic).description,
                   ),
