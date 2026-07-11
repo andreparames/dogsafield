@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 
 class FeedbackDialog extends StatefulWidget {
   const FeedbackDialog({required this.onSubmit, super.key});
@@ -21,20 +22,20 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Send Feedback'),
+      title: Text(context.t.feedback.title),
       content: TextField(
         controller: _controller,
         autofocus: true,
         maxLines: 4,
-        decoration: const InputDecoration(
-          hintText: 'Share your thoughts, suggestions, or report an issue...',
-          border: OutlineInputBorder(),
+        decoration: InputDecoration(
+          hintText: context.t.feedback.hint,
+          border: const OutlineInputBorder(),
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(context.t.feedback.cancel),
         ),
         FilledButton(
           onPressed: () async {
@@ -46,16 +47,16 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
               final messenger = ScaffoldMessenger.of(context);
               Navigator.pop(context);
               messenger.showSnackBar(
-                const SnackBar(content: Text('Thanks for your feedback!')),
+                SnackBar(content: Text(context.t.feedback.success)),
               );
             } catch (e) {
               if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Failed to send feedback. Please try again.')),
+                SnackBar(content: Text(context.t.feedback.failed)),
               );
             }
           },
-          child: const Text('Send'),
+          child: Text(context.t.feedback.send),
         ),
       ],
     );

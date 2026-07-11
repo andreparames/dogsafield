@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../shared/models/event.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 
 BitmapDescriptor markerIconForType(EventType type, {bool isRsvpd = false}) {
   if (isRsvpd) {
@@ -17,14 +18,11 @@ BitmapDescriptor markerIconForType(EventType type, {bool isRsvpd = false}) {
 }
 
 String eventTypeLabel(EventType type) {
-  switch (type) {
-    case EventType.packWalk:
-      return 'Pack Walk';
-    case EventType.dogPicnic:
-      return 'Dog Picnic';
-    case EventType.fieldGames:
-      return 'Field Games';
-  }
+  return switch (type) {
+    EventType.packWalk => t.event.type.packWalk,
+    EventType.dogPicnic => t.event.type.dogPicnic,
+    EventType.fieldGames => t.event.type.fieldGames,
+  };
 }
 
 IconData eventTypeIcon(EventType type) {

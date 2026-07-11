@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 
 class TrialLimitSheet extends StatelessWidget {
   final int used;
@@ -38,17 +39,17 @@ class TrialLimitSheet extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'Trial RSVPs',
+            context.t.account.trialRsvps,
             style: theme.textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              _Stat(label: 'Used', value: '$used'),
+              _Stat(label: context.t.account.used, value: '$used'),
               const SizedBox(width: 24),
-              _Stat(label: 'Remaining', value: '$remaining'),
+              _Stat(label: context.t.account.remaining, value: '$remaining'),
               const SizedBox(width: 24),
-              _Stat(label: 'Total', value: '$maxFree'),
+              _Stat(label: context.t.account.total, value: '$maxFree'),
             ],
           ),
           const SizedBox(height: 24),
@@ -60,8 +61,8 @@ class TrialLimitSheet extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             remaining > 0
-                ? 'You have $remaining free RSVP${remaining == 1 ? '' : 's'} remaining.'
-                : 'You have used all your free RSVPs. Upgrade to keep joining events.',
+                ? context.t.account.rsvpLimit.remaining(remaining: remaining)
+                : context.t.account.rsvpLimit.exhausted,
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 24),
@@ -71,7 +72,7 @@ class TrialLimitSheet extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: () => Navigator.of(context).pop(true),
                 icon: const Icon(Icons.star),
-                label: const Text('Upgrade'),
+                label: Text(context.t.common.upgrade),
               ),
             ),
           const SizedBox(height: 24),

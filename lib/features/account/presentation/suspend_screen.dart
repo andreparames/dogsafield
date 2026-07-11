@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../state/account_providers.dart';
 import '../../onboarding/state/auth_provider.dart';
 
@@ -12,7 +13,7 @@ class SuspendScreen extends ConsumerWidget {
     final detailAsync = ref.watch(accountDetailProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Account Suspended')),
+      appBar: AppBar(title: Text(context.t.account.suspend.title)),
       body: detailAsync.when(
         data: (_) => _buildContent(context, ref, theme),
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -31,14 +32,13 @@ class SuspendScreen extends ConsumerWidget {
             Icon(Icons.pause_circle_outline, size: 80, color: theme.colorScheme.error),
             const SizedBox(height: 24),
             Text(
-              'Your account is suspended',
+              context.t.account.suspend.heading,
               style: theme.textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
-              'Your profile is hidden from other users. '
-              'You can reactivate your account at any time.',
+              context.t.account.suspend.body,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -56,17 +56,17 @@ class SuspendScreen extends ConsumerWidget {
                     suspendedNotifier.value = false;
                     ref.invalidate(accountDetailProvider);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Account reactivated')),
+                      SnackBar(content: Text(context.t.account.suspend.reactivated)),
                     );
                   } catch (e) {
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Failed to reactivate: $e')),
+                      SnackBar(content: Text(context.t.account.suspend.failedReactivation(error: '$e'))),
                     );
                   }
                 },
                 icon: const Icon(Icons.refresh),
-                label: const Text('Reactivate Account'),
+                label: Text(context.t.account.suspend.reactivate),
               ),
             ),
           ],

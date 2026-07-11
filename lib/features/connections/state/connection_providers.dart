@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/connection_status.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../../../shared/models/user_profile.dart';
 import '../data/connection_repository.dart';
 
@@ -80,7 +81,7 @@ class ConnectionActionNotifier extends Notifier<ConnectionActionState> {
       ref.invalidate(blockedUsersProvider);
       state = const ConnectionActionSuccess();
     } catch (e) {
-      state = const ConnectionActionError('Failed to block user. Please try again.');
+      state = ConnectionActionError(t.errors.failedToBlock);
     }
   }
 
@@ -93,7 +94,7 @@ class ConnectionActionNotifier extends Notifier<ConnectionActionState> {
       ref.invalidate(blockedUsersProvider);
       state = const ConnectionActionSuccess();
     } catch (e) {
-      state = const ConnectionActionError('Failed to block and hide user. Please try again.');
+      state = ConnectionActionError(t.errors.failedToBlockAndHide);
     }
   }
 
@@ -106,7 +107,7 @@ class ConnectionActionNotifier extends Notifier<ConnectionActionState> {
       ref.invalidate(blockedUsersProvider);
       state = const ConnectionActionSuccess();
     } catch (e) {
-      state = const ConnectionActionError('Failed to report user. Please try again.');
+      state = ConnectionActionError(t.errors.failedToReport);
     }
   }
 
@@ -119,7 +120,7 @@ class ConnectionActionNotifier extends Notifier<ConnectionActionState> {
       ref.invalidate(blockedUsersProvider);
       state = const ConnectionActionSuccess();
     } catch (e) {
-      state = const ConnectionActionError('Failed to unblock user. Please try again.');
+      state = ConnectionActionError(t.errors.failedToUnblock);
     }
   }
 

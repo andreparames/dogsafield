@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../shared/models/event.dart';
 import '../state/gathering_providers.dart';
 import 'event_marker_icon.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 
 class EventBottomSheet extends ConsumerWidget {
   final DogEvent event;
@@ -90,7 +91,7 @@ class EventBottomSheet extends ConsumerWidget {
           const SizedBox(height: 16),
           FilledButton(
             onPressed: () => context.push('/field/gathering/${event.id}'),
-            child: const Text('View Details'),
+            child: Text(context.t.fieldMap.viewDetails),
           ),
           if (showRsvpAction) ...[
             const SizedBox(height: 8),
@@ -99,10 +100,10 @@ class EventBottomSheet extends ConsumerWidget {
                 final messenger = ScaffoldMessenger.of(context);
                 Navigator.pop(context);
                 messenger.showSnackBar(
-                  const SnackBar(content: Text('Leave Pack — coming soon')),
+                  SnackBar(content: Text(context.t.fieldMap.leavePackComingSoon)),
                 );
               },
-              child: const Text('Leave Pack'),
+              child: Text(context.t.fieldMap.leavePack),
             ),
           ],
           if (event.amenityTags.isNotEmpty) ...[

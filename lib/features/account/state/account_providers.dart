@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../onboarding/state/auth_provider.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../data/account_repository.dart';
 import '../../../shared/models/dog.dart';
 import '../../../shared/models/user_profile.dart';
@@ -59,7 +60,7 @@ class AccountActionNotifier extends Notifier<AccountActionState> {
       await repo.suspendAccount();
       state = const AccountActionSuccess();
     } catch (e) {
-      state = const AccountActionError('Failed to suspend account. Please try again.');
+      state = AccountActionError(t.errors.failedToSuspend);
     }
   }
 
@@ -71,7 +72,7 @@ class AccountActionNotifier extends Notifier<AccountActionState> {
       await repo.deleteAccount();
       state = const AccountActionSuccess();
     } catch (e) {
-      state = const AccountActionError('Failed to delete account. Please try again.');
+      state = AccountActionError(t.errors.failedToDelete);
     }
   }
 

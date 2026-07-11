@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 
 class ReportDialog extends StatefulWidget {
   const ReportDialog({super.key});
@@ -19,27 +20,27 @@ class _ReportDialogState extends State<ReportDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Report User'),
+      title: Text(context.t.connections.report.title),
       content: TextField(
         controller: _controller,
         autofocus: true,
         maxLines: 4,
-        decoration: const InputDecoration(
-          hintText: 'Tell us what happened...',
+        decoration: InputDecoration(
+          hintText: context.t.connections.report.hint,
           border: OutlineInputBorder(),
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(context.t.common.cancel),
         ),
         FilledButton(
           onPressed: () {
             final text = _controller.text.trim();
             Navigator.of(context).pop(text.isNotEmpty ? text : null);
           },
-          child: const Text('Submit'),
+          child: Text(context.t.connections.report.submit),
         ),
       ],
     );

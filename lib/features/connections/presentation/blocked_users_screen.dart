@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 import '../state/connection_providers.dart';
 
 class BlockedUsersScreen extends ConsumerWidget {
@@ -17,21 +18,21 @@ class BlockedUsersScreen extends ConsumerWidget {
         );
       } else if (next is ConnectionActionSuccess) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User unblocked')),
+          SnackBar(content: Text(context.t.connections.blocked.userUnblocked)),
         );
       }
     });
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Blocked Users'),
+        title: Text(context.t.connections.blocked.title),
       ),
       body: blockedAsync.when(
         data: (blocked) {
           if (blocked.isEmpty) {
             return Center(
               child: Text(
-                'No blocked users',
+                context.t.connections.blocked.empty,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -45,10 +46,10 @@ class BlockedUsersScreen extends ConsumerWidget {
               final profile = connection.blockedUserProfile;
               final isLoading = ref.watch(connectionActionProvider) is ConnectionActionLoading;
               final tierLabel = switch (connection.blockTier) {
-                 1 => 'Blocked',
-                 2 => 'Blocked & Hidden',
-                 3 => 'Blocked, Hidden & Reported',
-                 _ => 'Blocked',
+                 1 => context.t.connections.blocked.tier1,
+                 2 => context.t.connections.blocked.tier2,
+                 3 => context.t.connections.blocked.tier3,
+                 _ => context.t.connections.blocked.tier1,
                };
 
               return ListTile(
@@ -63,7 +64,7 @@ class BlockedUsersScreen extends ConsumerWidget {
                         )
                       : const Icon(Icons.person, size: 24),
                 ),
-                title: Text(profile?.displayName ?? 'Unknown'),
+                title: Text(profile?.displayName ?? context.t.common.unknown),
                 subtitle: Text(tierLabel),
                 trailing: TextButton(
                   onPressed: isLoading
@@ -71,7 +72,7 @@ class BlockedUsersScreen extends ConsumerWidget {
                       : () => ref.read(connectionActionProvider.notifier).unblockUser(connection.userIdB),
                   child: isLoading
                       ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('Unblock'),
+                      : Text(context.t.common.unblock),
                 ),
               );
             },
@@ -86,12 +87,12 @@ class BlockedUsersScreen extends ConsumerWidget {
               children: [
                 Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
                 const SizedBox(height: 16),
-                Text('Could not load blocked users', style: theme.textTheme.titleMedium),
+                Text(context.t.connections.blocked.couldNotLoad, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
                   onPressed: () => ref.invalidate(blockedUsersProvider),
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'),
+                  label: Text(context.t.common.retry),
                 ),
               ],
             ),

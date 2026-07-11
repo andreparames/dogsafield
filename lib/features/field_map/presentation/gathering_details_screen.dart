@@ -14,6 +14,7 @@ import '../data/gathering_detail.dart';
 import '../state/gathering_providers.dart';
 import '../state/rsvp_providers.dart';
 import 'event_marker_icon.dart';
+import 'package:dogsafield/i18n/strings.g.dart';
 
 class GatheringDetailsScreen extends ConsumerWidget {
   final String eventId;
@@ -33,7 +34,7 @@ class GatheringDetailsScreen extends ConsumerWidget {
         ref.read(connectionActionProvider.notifier).reset();
       } else if (next is ConnectionActionSuccess) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User blocked')),
+          SnackBar(content: Text(context.t.gathering.userBlocked)),
         );
         ref.read(connectionActionProvider.notifier).reset();
       }
@@ -41,7 +42,7 @@ class GatheringDetailsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gathering Details'),
+        title: Text(context.t.gathering.title),
       ),
       body: detailAsync.when(
         data: (detail) => _GatheringContent(detail: detail),
@@ -56,7 +57,7 @@ class GatheringDetailsScreen extends ConsumerWidget {
                     size: 64, color: theme.colorScheme.error),
                 const SizedBox(height: 16),
                 Text(
-                  'Failed to load event',
+                  context.t.gathering.failedToLoad,
                   style: theme.textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
@@ -71,7 +72,7 @@ class GatheringDetailsScreen extends ConsumerWidget {
                 ElevatedButton.icon(
                   onPressed: () => ref.invalidate(gatheringDetailProvider(eventId)),
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'),
+                  label: Text(context.t.common.retry),
                 ),
               ],
             ),
@@ -83,14 +84,11 @@ class GatheringDetailsScreen extends ConsumerWidget {
 }
 
 String _vibeShortLabel(SocialVibe v) {
-  switch (v) {
-    case SocialVibe.loungeLizard:
-      return 'Lounge Lizard';
-    case SocialVibe.zoomieKing:
-      return 'Zoomie King';
-    case SocialVibe.socialLearner:
-      return 'Social Learner';
-  }
+  return switch (v) {
+    SocialVibe.loungeLizard => t.vibe.loungeLizard,
+    SocialVibe.zoomieKing => t.vibe.zoomieKing,
+    SocialVibe.socialLearner => t.vibe.socialLearner,
+  };
 }
 
 class _GatheringContent extends StatelessWidget {
@@ -146,12 +144,12 @@ class _GatheringContent extends StatelessWidget {
             Text(event.description!, style: theme.textTheme.bodyLarge),
           ],
           const SizedBox(height: 24),
-          _sectionHeader(theme, 'Host'),
+          _sectionHeader(theme, context.t.gathering.host),
           const SizedBox(height: 8),
           _HostCard(host: host, hostDog: hostDog),
           if (event.amenityTags.isNotEmpty) ...[
             const SizedBox(height: 24),
-            _sectionHeader(theme, 'Amenities'),
+            _sectionHeader(theme, context.t.gathering.amenities),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -167,7 +165,7 @@ class _GatheringContent extends StatelessWidget {
           ],
           if (event.whatToBring.isNotEmpty) ...[
             const SizedBox(height: 24),
-            _sectionHeader(theme, 'What to Bring'),
+            _sectionHeader(theme, context.t.gathering.whatToBring),
             const SizedBox(height: 8),
             ...event.whatToBring.map((item) {
               return Padding(
@@ -184,10 +182,10 @@ class _GatheringContent extends StatelessWidget {
             }),
           ],
           const SizedBox(height: 24),
-          _sectionHeader(theme, 'Attendance'),
+          _sectionHeader(theme, context.t.gathering.attendance),
           const SizedBox(height: 8),
           Text(
-            '${detail.attendees.length} / ${event.maxAttendees} attending',
+            context.t.gathering.attending(count: detail.attendees.length, max: event.maxAttendees),
             style: theme.textTheme.bodyLarge,
           ),
           if (detail.attendees.isNotEmpty) ...[
@@ -356,7 +354,7 @@ class _AttendeeCard extends ConsumerWidget {
                         ),
                       ),
                       if (isCurrentUser)
-                        Text('(you)',
+                        Text(context.t.gathering.you,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onPrimaryContainer,
                             )),
@@ -409,7 +407,7 @@ class _AttendeeCard extends ConsumerWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.block),
-              title: const Text('Block'),
+              title: Text(ctx.t.connections.blocked.tier1),
               onTap: () {
                 Navigator.of(ctx).pop();
                 ref.read(connectionActionProvider.notifier).blockUser(attendee.profile.id);
@@ -417,7 +415,7 @@ class _AttendeeCard extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.visibility_off),
-              title: const Text('Block & Hide'),
+              title: Text(ctx.t.connections.blocked.tier2),
               onTap: () {
                 Navigator.of(ctx).pop();
                 ref.read(connectionActionProvider.notifier).blockAndHide(attendee.profile.id);
@@ -425,7 +423,7 @@ class _AttendeeCard extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.flag),
-              title: const Text('Block, Hide & Report'),
+              title: Text(ctx.t.connections.blocked.tier3),
               onTap: () async {
                 Navigator.of(ctx).pop();
                 final reason = await showDialog<String>(
@@ -459,7 +457,7 @@ class _HostActions extends ConsumerWidget {
       return FilledButton.icon(
         onPressed: () => context.push('/hosting/edit', extra: event),
         icon: const Icon(Icons.edit),
-        label: const Text('Edit Event'),
+        label: Text(context.t.gathering.editEvent),
       );
     }
     return _JoinPackSection(event: event);
@@ -512,25 +510,25 @@ class _JoinPackSection extends ConsumerWidget {
           return OutlinedButton.icon(
             onPressed: () => ref.read(rsvpActionProvider(event.id).notifier).cancelRsvp(),
             icon: const Icon(Icons.bookmark_remove),
-            label: const Text('Leave Pack'),
+            label: Text(context.t.gathering.leavePack),
           );
         }
         return FilledButton.icon(
           onPressed: () => ref.read(rsvpActionProvider(event.id).notifier).joinPack(),
           icon: const Icon(Icons.group_add),
-          label: const Text('Join Pack'),
+          label: Text(context.t.gathering.joinPack),
         );
       },
       loading: () => const SizedBox.shrink(),
       error: (err, _) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Could not load pack status', style: Theme.of(context).textTheme.bodySmall),
+          Text(context.t.gathering.couldNotLoadPackStatus, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: () => ref.invalidate(hasRsvpProvider(event.id)),
             icon: const Icon(Icons.refresh, size: 18),
-            label: const Text('Retry'),
+            label: Text(context.t.common.retry),
           ),
         ],
       ),
