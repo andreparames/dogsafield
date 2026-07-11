@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VerificationRepository {
@@ -82,7 +83,9 @@ class VerificationRepository {
       for (final matchedId in entry.value) {
         try {
           await setPackmates(entry.key, matchedId);
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('Failed to save packmate connection ($matchedId): $e');
+        }
       }
     }
     return matches;
