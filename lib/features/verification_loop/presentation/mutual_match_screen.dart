@@ -14,19 +14,29 @@ class MutualMatchScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final matchAsync = ref.watch(matchViewDataProvider(eventId));
     final detailAsync = ref.watch(gatheringDetailProvider(eventId));
+    final syncState = ref.watch(packmateSyncProvider(eventId));
     final theme = Theme.of(context);
 
-    ref.listen<AsyncValue<MatchViewData>>(matchViewDataProvider(eventId), (_, next) {
-      next.whenOrNull(data: (data) {
-        if (data.syncErrorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(data.syncErrorMessage!),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      });
+    if (syncState is PackmateSyncIdle) {
+      ref.read(packmateSyncProvider(eventId).notifier).sync();
+    }
+
+    ref.listen<PackmateSyncState>(packmateSyncProvider(eventId), (_, next) {
+      if (next is PackmateSyncDone && next.failedCount > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Some connections couldn\'t be saved. Pull down to retry.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } else if (next is PackmateSyncError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.message),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     });
 
     return Scaffold(
