@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app.dart';
+import 'core/database/database.dart';
+import 'core/database/local_cache_service.dart';
 import 'core/database/providers.dart';
 import 'core/notifications/providers.dart';
 import 'core/notifications/notification_service.dart';
@@ -30,11 +32,14 @@ void main() async {
   });
 
   final prefs = await SharedPreferences.getInstance();
+  final db = AppDatabase();
+  final cache = LocalCacheService(db: db, prefs: prefs);
 
   final notificationService = NotificationService(
     FlutterLocalNotificationsPlugin(),
     prefs,
     onNotificationTap: navigateToEvent,
+    eventLookup: cache.getEventById,
   );
   await notificationService.initialize();
 

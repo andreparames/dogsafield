@@ -5,12 +5,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
+import '../../shared/models/event.dart';
+
 class NotificationService {
   final FlutterLocalNotificationsPlugin _plugin;
   final SharedPreferences _prefs;
   final void Function(String eventId)? onNotificationTap;
+  final Future<DogEvent?> Function(String eventId)? _eventLookup;
 
-  NotificationService(this._plugin, this._prefs, {this.onNotificationTap});
+  NotificationService(
+    this._plugin,
+    this._prefs, {
+    this.onNotificationTap,
+    Future<DogEvent?> Function(String eventId)? eventLookup,
+  }) : _eventLookup = eventLookup;
 
   static const _channelId = 'roll_call_channel';
   static const _channelName = 'Roll Call Reminders';
@@ -48,8 +56,9 @@ class NotificationService {
     required DateTime eventDateTime,
     required String eventTitle,
   }) async {
+    final now = DateTime.now();
     final scheduleTime = eventDateTime.add(const Duration(hours: 2));
-    if (scheduleTime.isBefore(DateTime.now())) return;
+    if (scheduleTime.isBefore(now)) return;
 
     await _zonedSchedule(
       eventId: eventId,
@@ -138,7 +147,30 @@ class NotificationService {
           scheduleTime: scheduleTime,
         );
       } catch (_) {
-        // Malformed entry from an older app version — discard it.
+        if (_eventLookup != null) {
+          final event = await _eventLookup!(raw);
+          if (event != null) {
+            final scheduleTime =
+                event.dateTime.add(const Duration(hours: 2));
+            if (!scheduleTime.isBefore(now)) {
+              await _zonedSchedule(
+                eventId: event.id,
+                eventTitle: event.title,
+                scheduleTime: scheduleTime,
+              );
+              final id = event.id.hashCode;
+              await _prefs.setString(
+                'notif_event_$id',
+                jsonEncode({
+                  'eventId': event.id,
+                  'eventTitle': event.title,
+                  'scheduleTime': scheduleTime.toIso8601String(),
+                }),
+              );
+              continue;
+            }
+          }
+        }
         await _prefs.remove(key);
       }
     }
