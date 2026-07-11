@@ -20,7 +20,7 @@
 
 ## go_router 14.8.1 → 17.0.0
 
-**Result:** No code changes needed (backward-compatible API). 161 tests pass.
+**Result:** No code changes needed (backward-compatible API). 170 tests pass.
 
 ---
 

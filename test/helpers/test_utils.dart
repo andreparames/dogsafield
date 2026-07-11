@@ -282,6 +282,8 @@ Future<ProviderContainer> createContainerWithCache({
       localCacheServiceProvider.overrideWithValue(cache),
       authServiceProvider.overrideWithValue(fakeAuthService),
       authStateProvider.overrideWith((ref) => Stream.empty()),
+      // Note: onboardingRepositoryProvider is no longer overridden by default.
+      // Pass it via additionalOverrides when onboarding behavior is under test.
       ...additionalOverrides,
     ],
   );
