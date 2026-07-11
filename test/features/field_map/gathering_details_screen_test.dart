@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dogsafield/core/database/providers.dart';
+import 'package:dogsafield/core/notifications/notification_service.dart';
+import 'package:dogsafield/core/notifications/providers.dart';
 import 'package:dogsafield/features/field_map/data/attendee_profile.dart';
 import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
 import 'package:dogsafield/features/connections/state/connection_providers.dart';
@@ -13,6 +18,21 @@ import 'package:dogsafield/shared/models/event.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
 import '../../helpers/test_utils.dart';
 
+class _FakeNotificationService extends NotificationService {
+  _FakeNotificationService(SharedPreferences prefs)
+      : super(FlutterLocalNotificationsPlugin(), prefs);
+
+  @override
+  Future<void> cancelRollCallReminder(String eventId) async {}
+
+  @override
+  Future<void> scheduleRollCallReminder({
+    required String eventId,
+    required DateTime eventDateTime,
+    required String eventTitle,
+  }) async {}
+}
+
 Widget createTestApp(Widget child) {
   return MaterialApp(home: child);
 }
@@ -20,10 +40,13 @@ Widget createTestApp(Widget child) {
 void main() {
   late FakeGatheringRepository gatheringRepo;
   late FakeRsvpRepository rsvpRepo;
+  late SharedPreferences prefs;
 
-  setUp(() {
+  setUp(() async {
     gatheringRepo = FakeGatheringRepository();
     rsvpRepo = FakeRsvpRepository();
+    SharedPreferences.setMockInitialValues({});
+    prefs = await SharedPreferences.getInstance();
   });
 
   Widget buildScreen(String eventId) {
@@ -35,6 +58,10 @@ void main() {
         rsvpRepositoryProvider.overrideWithValue(rsvpRepo),
         blockedUserIdsProvider.overrideWith((ref) => Future.value(<String>{})),
         blockerIdsProvider.overrideWith((ref) => Future.value(<String>{})),
+        sharedPreferencesProvider.overrideWithValue(prefs),
+        notificationServiceProvider.overrideWithValue(
+          _FakeNotificationService(prefs),
+        ),
       ],
       child: createTestApp(GatheringDetailsScreen(eventId: eventId)),
     );
