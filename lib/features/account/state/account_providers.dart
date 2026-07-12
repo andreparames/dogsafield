@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../messaging/state/messaging_providers.dart';
 import '../../onboarding/state/auth_provider.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
 import '../data/account_repository.dart';
@@ -56,11 +57,22 @@ class AccountActionNotifier extends Notifier<AccountActionState> {
     if (state is AccountActionLoading) return;
     state = const AccountActionLoading();
     try {
+      final userId = ref.read(authServiceProvider).currentUser?.id;
       final repo = ref.read(accountRepositoryProvider);
       await repo.suspendAccount();
+      if (userId != null) _notifyOnSuspend(userId);
       state = const AccountActionSuccess();
     } catch (e) {
       state = AccountActionError(t.errors.failedToSuspend);
+    }
+  }
+
+  Future<void> _notifyOnSuspend(String userId) async {
+    try {
+      final msgRepo = ref.read(messagingRepositoryProvider);
+      await msgRepo.sendAccountSuspendedNotification(userId);
+    } catch (_) {
+      // notification is best-effort, suspension already succeeded
     }
   }
 

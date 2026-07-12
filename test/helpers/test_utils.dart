@@ -315,7 +315,12 @@ class FakeMessagingRepository implements MessagingRepository {
   }
 
   @override
-  Future<Message> sendMessage(String conversationId, String content) async {
+  Future<Message> sendMessage(
+    String conversationId,
+    String content, {
+    MessageType messageType = MessageType.text,
+    Map<String, dynamic>? payload,
+  }) async {
     if (shouldFail) throw Exception('Send failed');
     sendMessageCallCount++;
     lastSentConversationId = conversationId;
@@ -326,9 +331,37 @@ class FakeMessagingRepository implements MessagingRepository {
       senderId: 'current-user',
       content: content,
       createdAt: DateTime.now(),
+      messageType: messageType,
+      payload: payload,
     );
     messages = [...messages, message];
     return message;
+  }
+
+  @override
+  Future<void> sendEventEditedNotification(
+    String hostId,
+    String eventId,
+    String eventTitle,
+    List<String> attendeeIds,
+  ) async {
+    if (shouldFail) throw Exception('Send failed');
+  }
+
+  @override
+  Future<void> sendEventLeftNotification(
+    String attendeeId,
+    String attendeeName,
+    String eventId,
+    String eventTitle,
+    String hostId,
+  ) async {
+    if (shouldFail) throw Exception('Send failed');
+  }
+
+  @override
+  Future<void> sendAccountSuspendedNotification(String userId) async {
+    if (shouldFail) throw Exception('Send failed');
   }
 
   @override

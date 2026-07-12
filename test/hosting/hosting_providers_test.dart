@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dogsafield/features/hosting/state/hosting_provider.dart';
+import 'package:dogsafield/features/messaging/state/messaging_providers.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
 import 'package:dogsafield/shared/models/event.dart';
 import '../helpers/test_utils.dart';
@@ -71,6 +72,7 @@ void main() {
           authServiceProvider.overrideWithValue(fakeAuthService),
           authStateProvider.overrideWith((ref) => Stream.empty()),
           hostingRepositoryProvider.overrideWithValue(repo),
+          messagingRepositoryProvider.overrideWithValue(FakeMessagingRepository()),
         ],
       );
       addTearDown(container.dispose);
