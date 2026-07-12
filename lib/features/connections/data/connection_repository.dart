@@ -23,6 +23,14 @@ class ConnectionRepository {
         .eq('user_id_a', targetUserId)
         .eq('user_id_b', user.id);
 
+    if (tier == 3 && reportReason != null) {
+      await _client.from('reports').insert({
+        'reporter_id': user.id,
+        'reported_id': targetUserId,
+        'reason': reportReason,
+      });
+    }
+
     await _client.from('connections').upsert({
       'user_id_a': user.id,
       'user_id_b': targetUserId,
