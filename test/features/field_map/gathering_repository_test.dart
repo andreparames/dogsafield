@@ -31,13 +31,15 @@ void main() {
           email: 'host@test.com',
           displayName: 'Jane',
         ),
-        hostDog: Dog(
-          id: 'dog-1',
-          ownerId: 'host-1',
-          name: 'Buddy',
-          breed: 'Golden Retriever',
-          vibe: SocialVibe.zoomieKing,
-        ),
+        hostDogs: [
+          Dog(
+            id: 'dog-1',
+            ownerId: 'host-1',
+            name: 'Buddy',
+            breed: 'Golden Retriever',
+            vibe: SocialVibe.zoomieKing,
+          ),
+        ],
       );
       repo.detail = detail;
 
@@ -45,7 +47,7 @@ void main() {
 
       expect(result.event.id, 'evt-1');
       expect(result.host.displayName, 'Jane');
-      expect(result.hostDog?.name, 'Buddy');
+      expect(result.hostDogs.first.name, 'Buddy');
     });
 
     test('throws when shouldFail is true', () async {

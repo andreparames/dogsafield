@@ -102,7 +102,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               GoogleMap(
                 initialCameraPosition: cameraPosition,
                 onMapCreated: (controller) => _mapController = controller,
-                myLocationEnabled: true,
+                myLocationEnabled: false,
                 myLocationButtonEnabled: true,
                 markers: markers,
               ),

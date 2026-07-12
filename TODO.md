@@ -12,13 +12,13 @@
 - [x] **Skip onboarding** — returning users with existing profiles skip onboarding and go to the map
 
 ### Field Map (`lib/features/field_map/`)
-- [ ] **Multi-dog support** — `GatheringRepository._fetchDog` uses `.limit(1)` which silently drops dogs when a user has multiple; add `is_primary` flag to `dogs` table and query the primary dog
+- [x] **Multi-dog support** — fetch all dogs per owner, display with natural-language "has a breed (name), a breed (name) and a breed (name)" summary
 - [x] **Map view** — Google Maps integration with user location marker
-- [ ] **Hide user location marker** — the red dot on current location is redundant, remove it
-- [ ] **RSVP filter: local toggle, no re-fetch** — load all markers once, hide/show based on RSVP flag instead of re-querying Supabase
-- [ ] **Marker color by RSVP status** — change marker tint depending on whether the user has RSVP'd
-- [ ] **Bottom sheet: no scroll, all info visible** — all content and buttons must fit without scrolling; disable sheet scrolling entirely
-- [ ] **Feedback button** — small chat-bubble icon in the app bar or as a non-conflicting widget (add-event FAB already occupies the FAB slot)
+- [x] **Hide user location marker** — the redundant dot removed, my-location button still works
+- [x] **RSVP filter: local toggle, no re-fetch** — load all markers once, hide/show based on RSVP flag instead of re-querying Supabase
+- [x] **Marker color by RSVP status** — change marker tint depending on whether the user has RSVP'd
+- [x] **Bottom sheet: no scroll, all info visible** — all content and buttons fit without scrolling; scroll wrapper removed
+- [x] **Feedback button** — small chat-bubble icon in the app bar or as a non-conflicting widget
 - [x] **Event discovery** — fetched nearby events + My RSVPs toggle, map markers colored by EventType, bottom sheet on tap, gathering detail stub screen
 
 - [x] **Gathering detail** — view host info, amenity tags, What to Bring checklist, loading/error/retry states

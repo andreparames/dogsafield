@@ -170,6 +170,13 @@ class LocalCacheService {
     return _toDog(rows.first);
   }
 
+  Future<List<Dog>> getDogs(String ownerId) async {
+    final query = _db.select(_db.dogsTable)
+      ..where((t) => t.ownerId.equals(ownerId));
+    final rows = await query.get();
+    return rows.map(_toDog).toList();
+  }
+
   Future<List<String>> getAttendeeIds(String eventId) async {
     final query = _db.select(_db.attendanceTable)
       ..where((t) => t.eventId.equals(eventId))

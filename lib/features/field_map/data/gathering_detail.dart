@@ -6,13 +6,13 @@ import 'attendee_profile.dart';
 class GatheringDetail {
   final DogEvent event;
   final UserProfile host;
-  final Dog? hostDog;
+  final List<Dog> hostDogs;
   final List<AttendeeProfile> attendees;
 
   const GatheringDetail({
     required this.event,
     required this.host,
-    this.hostDog,
+    this.hostDogs = const [],
     this.attendees = const [],
   });
 }

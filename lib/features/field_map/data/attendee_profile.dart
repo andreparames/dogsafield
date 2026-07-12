@@ -3,10 +3,10 @@ import '../../../shared/models/user_profile.dart';
 
 class AttendeeProfile {
   final UserProfile profile;
-  final Dog? dog;
+  final List<Dog> dogs;
 
   const AttendeeProfile({
     required this.profile,
-    this.dog,
+    this.dogs = const [],
   });
 }

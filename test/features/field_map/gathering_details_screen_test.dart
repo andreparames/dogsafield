@@ -92,13 +92,15 @@ void main() {
           email: 'host@test.com',
           displayName: 'Jane',
         ),
-        hostDog: Dog(
-          id: 'dog-1',
-          ownerId: 'host-1',
-          name: 'Buddy',
-          breed: 'Golden Retriever',
-          vibe: SocialVibe.zoomieKing,
-        ),
+        hostDogs: [
+          Dog(
+            id: 'dog-1',
+            ownerId: 'host-1',
+            name: 'Buddy',
+            breed: 'Golden Retriever',
+            vibe: SocialVibe.zoomieKing,
+          ),
+        ],
       );
 
       await tester.pumpWidget(buildScreen('evt-1'));
@@ -149,13 +151,15 @@ void main() {
           email: 'host@test.com',
           displayName: 'Jane Doe',
         ),
-        hostDog: Dog(
-          id: 'dog-1',
-          ownerId: 'host-1',
-          name: 'Buddy',
-          breed: 'Golden Retriever',
-          vibe: SocialVibe.zoomieKing,
-        ),
+        hostDogs: [
+          Dog(
+            id: 'dog-1',
+            ownerId: 'host-1',
+            name: 'Buddy',
+            breed: 'Golden Retriever',
+            vibe: SocialVibe.zoomieKing,
+          ),
+        ],
       );
 
       await tester.pumpWidget(buildScreen('evt-1'));
@@ -268,14 +272,16 @@ void main() {
         attendees: [
           AttendeeProfile(
             profile: UserProfile(id: 'u1', email: 'u1@test.com', displayName: 'Dave'),
-            dog: Dog(
-              id: 'dog-1',
-              ownerId: 'u1',
-              name: 'Rex',
-              breed: 'German Shepherd',
-              vibe: SocialVibe.zoomieKing,
-              icebreakerAnswer: 'Loves to fetch sticks!',
-            ),
+            dogs: [
+              Dog(
+                id: 'dog-1',
+                ownerId: 'u1',
+                name: 'Rex',
+                breed: 'German Shepherd',
+                vibe: SocialVibe.zoomieKing,
+                icebreakerAnswer: 'Loves to fetch sticks!',
+              ),
+            ],
           ),
         ],
       );

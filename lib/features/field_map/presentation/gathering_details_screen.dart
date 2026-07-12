@@ -91,6 +91,34 @@ String _vibeShortLabel(SocialVibe v) {
   };
 }
 
+String _describeDogs(List<Dog> dogs) {
+  if (dogs.isEmpty) return '';
+  if (dogs.length == 1) {
+    final d = dogs.first;
+    if (d.breed != null) return 'has a ${d.breed} (${d.name})';
+    return 'has ${d.name}';
+  }
+  final byBreed = <String, List<Dog>>{};
+  for (final d in dogs) {
+    final key = d.breed ?? '';
+    byBreed.putIfAbsent(key, () => []).add(d);
+  }
+  final parts = <String>[];
+  for (final entry in byBreed.entries) {
+    final names = entry.value.map((d) => d.name).join(', ');
+    if (entry.key.isEmpty) {
+      parts.add(names);
+    } else if (entry.value.length == 1) {
+      parts.add('a ${entry.key} ($names)');
+    } else {
+      final count = entry.value.length;
+      parts.add('$count ${entry.key}s ($names)');
+    }
+  }
+  if (parts.length == 1) return 'has ${parts.first}';
+  return 'has ${parts.sublist(0, parts.length - 1).join(', ')} and ${parts.last}';
+}
+
 class _GatheringContent extends StatelessWidget {
   final GatheringDetail detail;
 
@@ -101,7 +129,7 @@ class _GatheringContent extends StatelessWidget {
     final theme = Theme.of(context);
     final event = detail.event;
     final host = detail.host;
-    final hostDog = detail.hostDog;
+    final hostDogs = detail.hostDogs;
 
     final dateStr = '${event.dateTime.month}/${event.dateTime.day}/${event.dateTime.year}'
         ' · ${event.dateTime.hour.toString().padLeft(2, '0')}:${event.dateTime.minute.toString().padLeft(2, '0')}';
@@ -146,7 +174,7 @@ class _GatheringContent extends StatelessWidget {
           const SizedBox(height: 24),
           _sectionHeader(theme, context.t.gathering.host),
           const SizedBox(height: 8),
-          _HostCard(host: host, hostDog: hostDog),
+          _HostCard(host: host, hostDogs: hostDogs),
           if (event.amenityTags.isNotEmpty) ...[
             const SizedBox(height: 24),
             _sectionHeader(theme, context.t.gathering.amenities),
@@ -235,9 +263,9 @@ class _InfoRow extends StatelessWidget {
 
 class _HostCard extends StatelessWidget {
   final UserProfile host;
-  final Dog? hostDog;
+  final List<Dog> hostDogs;
 
-  const _HostCard({required this.host, this.hostDog});
+  const _HostCard({required this.host, this.hostDogs = const []});
 
   @override
   Widget build(BuildContext context) {
@@ -269,19 +297,12 @@ class _HostCard extends StatelessWidget {
                     host.displayName ?? 'Unknown',
                     style: theme.textTheme.titleMedium,
                   ),
-                  if (hostDog != null) ...[
+                  if (hostDogs.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
-                      '🐕 ${hostDog!.name}${hostDog!.breed != null ? ' · ${hostDog!.breed}' : ''}',
+                      '🐕 ${_describeDogs(hostDogs)}',
                       style: theme.textTheme.bodyMedium,
                     ),
-                    if (hostDog!.vibe != null)
-                      Text(
-                        '★ ${_vibeShortLabel(hostDog!.vibe!)}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
                   ],
                 ],
               ),
@@ -317,7 +338,7 @@ class _AttendeeCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final profile = attendee.profile;
-    final dog = attendee.dog;
+    final dogs = attendee.dogs;
     final isCurrentUser =
         ref.read(authServiceProvider).currentUser?.id == attendee.profile.id;
 
@@ -360,23 +381,23 @@ class _AttendeeCard extends ConsumerWidget {
                             )),
                     ],
                   ),
-                  if (dog != null) ...[
+                  if (dogs.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
-                      '🐕 ${dog.name}${dog.breed != null ? ' · ${dog.breed}' : ''}',
+                      '🐕 ${_describeDogs(dogs)}',
                       style: theme.textTheme.bodyMedium,
                     ),
-                    if (dog.vibe != null)
+                    if (dogs.first.vibe != null)
                       Text(
-                        '★ ${_vibeShortLabel(dog.vibe!)}',
+                        '★ ${_vibeShortLabel(dogs.first.vibe!)}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.primary,
                         ),
                       ),
-                    if (dog.icebreakerAnswer != null && dog.icebreakerAnswer!.isNotEmpty) ...[
+                    if (dogs.first.icebreakerAnswer != null && dogs.first.icebreakerAnswer!.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       Text(
-                        '“${dog.icebreakerAnswer}”',
+                        '“${dogs.first.icebreakerAnswer}”',
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontStyle: FontStyle.italic,
                           color: theme.colorScheme.onSurfaceVariant,
