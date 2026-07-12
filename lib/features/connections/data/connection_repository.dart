@@ -30,6 +30,14 @@ class ConnectionRepository {
       'are_packmates': false,
       'report_reason': reportReason,
     }, onConflict: 'user_id_a, user_id_b');
+
+    if (tier == 3 && reportReason != null) {
+      await _client.from('reports').insert({
+        'reporter_id': user.id,
+        'reported_id': targetUserId,
+        'reason': reportReason,
+      });
+    }
   }
 
   Future<List<Map<String, dynamic>>> fetchBlockedUsers() async {
