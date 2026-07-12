@@ -10,8 +10,12 @@ create table if not exists roll_call_entries (
 
 alter table roll_call_entries enable row level security;
 
+drop policy if exists "Users can insert own roll call entries" on roll_call_entries;
+
 create policy "Users can insert own roll call entries"
   on roll_call_entries for insert with check (auth.uid() = observer_id);
+
+drop policy if exists "Users can view roll call entries for events they attended" on roll_call_entries;
 
 create policy "Users can view roll call entries for events they attended"
   on roll_call_entries for select using (
@@ -21,6 +25,8 @@ create policy "Users can view roll call entries for events they attended"
         and attendance.user_id = auth.uid()
     )
   );
+
+drop policy if exists "Users can delete own roll call entries" on roll_call_entries;
 
 create policy "Users can delete own roll call entries"
   on roll_call_entries for delete using (auth.uid() = observer_id);
