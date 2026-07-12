@@ -571,6 +571,7 @@ class _JoinPackSection extends ConsumerWidget {
             final notifier = ref.read(rsvpActionProvider(event.id).notifier);
             final blocked = await notifier.blockedAttendeeNames();
             if (blocked.isNotEmpty) {
+              if (!context.mounted) return;
               final confirm = await showDialog<bool>(
                 context: context,
                 builder: (ctx) => AlertDialog(
@@ -579,11 +580,11 @@ class _JoinPackSection extends ConsumerWidget {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx, false),
-                      child: Text(context.t.common.cancel),
+                      child: Text(ctx.t.common.cancel),
                     ),
                     FilledButton(
                       onPressed: () => Navigator.pop(ctx, true),
-                      child: Text(context.t.gathering.joinAnyway),
+                      child: Text(ctx.t.gathering.joinAnyway),
                     ),
                   ],
                 ),
