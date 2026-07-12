@@ -104,14 +104,14 @@
 
 ### Privacy
 - [ ] **Audit API data exposure** — review every table/endpoint the app queries; ensure only necessary fields are returned (e.g. profiles should not expose email, is_suspended, intro flags to other users)
-- [ ] **Server-enforced profile field minimization** — use column-level privileges or security barrier views so the Data API cannot return sensitive profile columns (email, is_verified, trial_rsvps_used, is_founding_pack, is_suspended, intro flags, treat_policy) to other users even from a malicious client. Only the row owner should be able to read their own sensitive fields
+- [x] **Server-enforced profile field minimization** — `profiles_public` security barrier view exposes only non-sensitive columns; block/suspend RLS filters blocked and suspended users
 - [ ] **Blocked user data isolation** — confirm blocked users cannot see each other's profiles/events/attendance beyond block-tier rules
 
 ### Polish
-- [ ] **Map edge-to-edge inset** — Field map should not overlap Android status bar (battery, clock, etc.)
-- [ ] **Marker flicker on filter toggle** — markers should not flash/re-render when switching between Nearby and My RSVPs
-- [ ] **Trial RSVPs info card** — replace repeated data with a short paragraph explaining the trial period
-- [ ] **Move "add event" FAB** — the add-event button sits on top of the map's zoom controls; reposition it so it doesn't overlap
+- [x] **Map edge-to-edge inset** — Field map controls inside SafeArea, map fills behind
+- [x] **Marker flicker on filter toggle** — local filter toggle + Google Maps `Set<Marker>` diffing by ID prevents re-render
+- [x] **Trial RSVPs info card** — `_TrialSection` + `TrialLimitSheet` with `aboutTrialBody` paragraph already present
+- [x] **Move "add event" FAB** — moved from Scaffold.floatingActionButton to Positioned at bottom-left, away from zoom controls
 
 ## Second phase
 

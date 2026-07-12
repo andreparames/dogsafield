@@ -56,18 +56,6 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     });
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          final profile = ref.read(onboardingProvider).userProfile;
-          if (profile == null || !profile.hasSeenHostIntro) {
-            context.push('/hosting/responsibility');
-          } else {
-            context.push('/hosting/create');
-          }
-        },
-        tooltip: context.t.fieldMap.createEvent,
-        child: const Icon(Icons.add),
-      ),
       body: locationAsync.when(
         data: (position) {
           final cameraPosition = CameraPosition(
@@ -171,6 +159,23 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                              }
                            },
                            child: const Icon(Icons.my_location),
+                         ),
+                       ),
+                       Positioned(
+                         left: 16,
+                         bottom: 16,
+                         child: FloatingActionButton(
+                           heroTag: 'addEvent',
+                           onPressed: () {
+                             final profile = ref.read(onboardingProvider).userProfile;
+                             if (profile == null || !profile.hasSeenHostIntro) {
+                               context.push('/hosting/responsibility');
+                             } else {
+                               context.push('/hosting/create');
+                             }
+                           },
+                           tooltip: context.t.fieldMap.createEvent,
+                           child: const Icon(Icons.add),
                          ),
                        ),
                      ],
