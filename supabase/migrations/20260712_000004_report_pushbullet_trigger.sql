@@ -32,7 +32,7 @@ begin
       'type', 'note',
       'title', 'Trust & Safety Report',
       'body', format('Reporter: %s\nReported: %s\nReason: %s', new.reporter_id, new.reported_id, new.reason)
-    )::text
+    )
   );
   return new;
 end;
