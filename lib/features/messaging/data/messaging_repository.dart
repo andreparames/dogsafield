@@ -145,7 +145,12 @@ class MessagingRepository {
     }
   }
 
-  Future<Message> sendMessage(String conversationId, String content) async {
+  Future<Message> sendMessage(
+    String conversationId,
+    String content, {
+    MessageType messageType = MessageType.text,
+    Map<String, dynamic>? payload,
+  }) async {
     final userId = _currentUserId;
 
     final row = await _client.from('messages')
@@ -153,11 +158,83 @@ class MessagingRepository {
           'conversation_id': conversationId,
           'sender_id': userId,
           'content': content,
+          'message_type': messageTypeToDb(messageType),
+          if (payload != null) 'payload': payload,
         })
         .select()
         .single();
 
     return _rowToMessage(row);
+  }
+
+  Future<void> sendEventEditedNotification(
+    String hostId,
+    String eventId,
+    String eventTitle,
+    List<String> attendeeIds,
+  ) async {
+    final content = 'Event edited: $eventTitle';
+    final payload = <String, dynamic>{'event_id': eventId, 'event_title': eventTitle};
+    for (final attendeeId in attendeeIds) {
+      if (attendeeId == hostId) continue;
+      try {
+        final conversation = await getOrCreateConversation(attendeeId);
+        await sendMessage(
+          conversation.id,
+          content,
+          messageType: MessageType.eventEdited,
+          payload: payload,
+        );
+      } catch (_) {
+        // per-recipient failure does not block remaining recipients
+      }
+    }
+  }
+
+  Future<void> sendEventLeftNotification(
+    String attendeeId,
+    String attendeeName,
+    String eventId,
+    String eventTitle,
+    String hostId,
+  ) async {
+    final content = '$attendeeName left $eventTitle';
+    final payload = <String, dynamic>{
+      'event_id': eventId,
+      'event_title': eventTitle,
+      'leaver_id': attendeeId,
+    };
+    final conversation = await getOrCreateConversation(hostId);
+    await sendMessage(
+      conversation.id,
+      content,
+      messageType: MessageType.eventLeft,
+      payload: payload,
+    );
+  }
+
+  Future<void> sendAccountSuspendedNotification(String userId) async {
+    final conversations = await _client.from('conversations')
+        .select('user_a, user_b')
+        .or('user_a.eq.$userId,user_b.eq.$userId');
+    final partnerIds = conversations.map((r) {
+      final a = r['user_a'] as String;
+      final b = r['user_b'] as String;
+      return a == userId ? b : a;
+    }).toSet();
+    final content = 'This account has been suspended';
+    for (final partnerId in partnerIds) {
+      try {
+        final conversation = await getOrCreateConversation(partnerId);
+        await sendMessage(
+          conversation.id,
+          content,
+          messageType: MessageType.accountSuspended,
+        );
+      } catch (_) {
+        // per-recipient failure does not block remaining recipients
+      }
+    }
   }
 
   Future<void> markAsRead(String conversationId) async {
@@ -222,6 +299,22 @@ class MessagingRepository {
       content: row['content'] as String,
       createdAt: DateTime.parse(row['created_at'] as String),
       readAt: row['read_at'] != null ? DateTime.parse(row['read_at'] as String) : null,
+      messageType: _parseMessageType(row['message_type'] as String?),
+      payload: row['payload'] as Map<String, dynamic>?,
     );
   }
 }
+
+String messageTypeToDb(MessageType type) => switch (type) {
+  MessageType.text => 'text',
+  MessageType.eventEdited => 'event_edited',
+  MessageType.eventLeft => 'event_left',
+  MessageType.accountSuspended => 'account_suspended',
+};
+
+MessageType _parseMessageType(String? db) => switch (db) {
+  'event_edited' => MessageType.eventEdited,
+  'event_left' => MessageType.eventLeft,
+  'account_suspended' => MessageType.accountSuspended,
+  _ => MessageType.text,
+};
