@@ -45,5 +45,10 @@ create policy "Attendance is publicly readable"
           and connections.user_id_a = auth.uid()
           and connections.user_id_b = attendance.user_id
       )
+      and not exists (
+        select 1 from profiles
+        where profiles.id = attendance.user_id
+          and profiles.is_suspended = true
+      )
     )
   );
