@@ -72,8 +72,11 @@ jobs:
 
       - run: flutter pub get
 
+      - name: Install just
+        uses: extractions/setup-just@v2
+
       - name: Build debug APK
-        run: flutter build apk --debug --dart-define=SUPABASE_URL=https://noxyxxzetsrtkvrgpheq.supabase.co --dart-define=SUPABASE_PUB_KEY=sb_publishable_4myRJqQA46l6bvIa7VfOXw_Z-o6Hp4-
+        run: just build-apk
 
       - uses: actions/upload-artifact@v4
         with:

@@ -74,7 +74,7 @@ if (-not $NoBuild) {
   # Step 1: build APK separately
   log "Building APK..."
   $apkPath = "$ProjectRoot\build\app\outputs\flutter-apk\app-debug.apk"
-  flutter build apk --debug --target-platform android-arm,android-arm64,android-x64 --dart-define-from-file=$DotEnv 2>&1 | Tee-Object -FilePath $runLog
+  just build-apk 2>&1 | Tee-Object -FilePath $runLog
   if ($LASTEXITCODE -ne 0) { throw "Build failed." }
   log "APK built."
 
