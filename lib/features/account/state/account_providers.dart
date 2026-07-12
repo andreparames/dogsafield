@@ -57,22 +57,20 @@ class AccountActionNotifier extends Notifier<AccountActionState> {
     if (state is AccountActionLoading) return;
     state = const AccountActionLoading();
     try {
+      final userId = ref.read(authServiceProvider).currentUser?.id;
       final repo = ref.read(accountRepositoryProvider);
       await repo.suspendAccount();
-      _notifyOnSuspend();
+      if (userId != null) _notifyOnSuspend(userId);
       state = const AccountActionSuccess();
     } catch (e) {
       state = AccountActionError(t.errors.failedToSuspend);
     }
   }
 
-  Future<void> _notifyOnSuspend() async {
+  Future<void> _notifyOnSuspend(String userId) async {
     try {
-      final userId = ref.read(authServiceProvider).currentUser?.id;
-      if (userId != null) {
-        final msgRepo = ref.read(messagingRepositoryProvider);
-        await msgRepo.sendAccountSuspendedNotification(userId);
-      }
+      final msgRepo = ref.read(messagingRepositoryProvider);
+      await msgRepo.sendAccountSuspendedNotification(userId);
     } catch (_) {
       // notification is best-effort, suspension already succeeded
     }
