@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/database/connectivity_service.dart';
 import '../../../core/database/local_cache_service.dart';
+import '../../../shared/models/attendance_status.dart';
 
 class RsvpRepository {
   final SupabaseClient _client;
@@ -30,10 +31,11 @@ class RsvpRepository {
 
     if (_cache != null) {
       for (final row in rows) {
+        final s = row['status'] as String;
         await _cache.upsertAttendance(
           row['event_id'] as String,
           row['user_id'] as String,
-          row['status'] as String,
+          AttendanceStatus.values.firstWhere((e) => e.name == s),
         );
       }
     }
@@ -52,7 +54,7 @@ class RsvpRepository {
     });
 
     if (_cache != null) {
-      await _cache.upsertAttendance(eventId, user.id, 'confirmed');
+      await _cache.upsertAttendance(eventId, user.id, AttendanceStatus.confirmed);
     }
   }
 

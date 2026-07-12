@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../shared/models/dog.dart';
 import '../../shared/models/event.dart';
+import '../../shared/models/attendance_status.dart';
 import '../../shared/models/user_profile.dart';
 import 'database.dart';
 
@@ -76,12 +77,12 @@ class LocalCacheService {
     await _setLastSync('dogs');
   }
 
-  Future<void> upsertAttendance(String eventId, String userId, String status) async {
+  Future<void> upsertAttendance(String eventId, String userId, AttendanceStatus status) async {
     await _db.into(_db.attendanceTable).insertOnConflictUpdate(
       AttendanceTableCompanion(
         eventId: Value(eventId),
         userId: Value(userId),
-        status: Value<String?>(status),
+        status: Value<String?>(status.name),
       ),
     );
     await _setLastSync('attendance');
@@ -95,13 +96,13 @@ class LocalCacheService {
     await _setLastSync('attendance');
   }
 
-  Future<void> upsertAttendanceBatch(List<(String eventId, String userId, String status)> rows) async {
+  Future<void> upsertAttendanceBatch(List<(String eventId, String userId, AttendanceStatus status)> rows) async {
     for (final r in rows) {
       await _db.into(_db.attendanceTable).insertOnConflictUpdate(
         AttendanceTableCompanion(
           eventId: Value(r.$1),
           userId: Value(r.$2),
-          status: Value<String?>(r.$3),
+          status: Value<String?>(r.$3.name),
         ),
       );
     }
@@ -180,7 +181,7 @@ class LocalCacheService {
   Future<List<String>> getAttendeeIds(String eventId) async {
     final query = _db.select(_db.attendanceTable)
       ..where((t) => t.eventId.equals(eventId))
-      ..where((t) => t.status.equals('confirmed'));
+      ..where((t) => t.status.equals(AttendanceStatus.confirmed.name));
     final rows = await query.get();
     return rows.map((r) => r.userId).toList();
   }
@@ -188,7 +189,7 @@ class LocalCacheService {
   Future<Set<String>> getMyRsvpIds(String userId) async {
     final query = _db.select(_db.attendanceTable)
       ..where((t) => t.userId.equals(userId))
-      ..where((t) => t.status.equals('confirmed'));
+      ..where((t) => t.status.equals(AttendanceStatus.confirmed.name));
     final rows = await query.get();
     return rows.map((r) => r.eventId).toSet();
   }

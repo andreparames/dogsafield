@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:drift/native.dart';
 import 'package:dogsafield/core/database/database.dart';
 import 'package:dogsafield/core/database/local_cache_service.dart';
+import 'package:dogsafield/shared/models/attendance_status.dart';
 import 'package:dogsafield/shared/models/dog.dart';
 import 'package:dogsafield/shared/models/event.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
@@ -150,14 +151,14 @@ void main() {
 
   group('upsertAttendance / getAttendeeIds / getMyRsvpIds', () {
     test('stores attendance and retrieves attendee IDs', () async {
-      await cache.upsertAttendance('evt-1', 'user-1', 'confirmed');
+      await cache.upsertAttendance('evt-1', 'user-1', AttendanceStatus.confirmed);
       final ids = await cache.getAttendeeIds('evt-1');
       expect(ids, ['user-1']);
     });
 
     test('getMyRsvpIds returns event IDs for user', () async {
-      await cache.upsertAttendance('evt-1', 'user-1', 'confirmed');
-      await cache.upsertAttendance('evt-2', 'user-1', 'confirmed');
+      await cache.upsertAttendance('evt-1', 'user-1', AttendanceStatus.confirmed);
+      await cache.upsertAttendance('evt-2', 'user-1', AttendanceStatus.confirmed);
 
       final ids = await cache.getMyRsvpIds('user-1');
       expect(ids, {'evt-1', 'evt-2'});
@@ -181,7 +182,7 @@ void main() {
         maxAttendees: 10,
       );
       await cache.upsertEvents([event]);
-      await cache.upsertAttendance('rsvp-evt', 'user-1', 'confirmed');
+      await cache.upsertAttendance('rsvp-evt', 'user-1', AttendanceStatus.confirmed);
       final result = await cache.getMyRsvpEvents('user-1');
       expect(result.length, 1);
       expect(result.first.id, 'rsvp-evt');
@@ -191,8 +192,8 @@ void main() {
   group('upsertAttendanceBatch', () {
     test('inserts multiple rows', () async {
       await cache.upsertAttendanceBatch([
-        ('evt-1', 'user-1', 'confirmed'),
-        ('evt-1', 'user-2', 'confirmed'),
+        ('evt-1', 'user-1', AttendanceStatus.confirmed),
+        ('evt-1', 'user-2', AttendanceStatus.confirmed),
       ]);
       final ids = await cache.getAttendeeIds('evt-1');
       expect(ids, ['user-1', 'user-2']);
@@ -201,7 +202,7 @@ void main() {
 
   group('deleteAttendance', () {
     test('removes attendance record', () async {
-      await cache.upsertAttendance('evt-1', 'user-1', 'confirmed');
+      await cache.upsertAttendance('evt-1', 'user-1', AttendanceStatus.confirmed);
       await cache.deleteAttendance('evt-1', 'user-1');
       final ids = await cache.getAttendeeIds('evt-1');
       expect(ids, isEmpty);

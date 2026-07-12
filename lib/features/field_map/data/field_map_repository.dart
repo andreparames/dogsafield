@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/database/connectivity_service.dart';
 import '../../../core/database/local_cache_service.dart';
+import '../../../shared/models/attendance_status.dart';
 import '../../../shared/models/event.dart';
 
 class FieldMapRepository {
@@ -85,7 +86,7 @@ class FieldMapRepository {
         await _cache.upsertAttendance(
           row['event_id'] as String,
           user.id,
-          'confirmed',
+          AttendanceStatus.confirmed,
         );
       }
       await _cache.upsertEvents(events);

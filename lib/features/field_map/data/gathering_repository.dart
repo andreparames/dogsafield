@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/database/connectivity_service.dart';
 import '../../../core/database/local_cache_service.dart';
+import '../../../shared/models/attendance_status.dart';
 import '../../../shared/models/dog.dart';
 import '../../../shared/models/event.dart';
 import '../../../shared/models/user_profile.dart';
@@ -37,7 +38,7 @@ class GatheringRepository {
         await _cache.upsertAttendance(
           eventId,
           row['user_id'] as String,
-          'confirmed',
+          AttendanceStatus.confirmed,
         );
       }
       await _cache.upsertEvents([event]);
