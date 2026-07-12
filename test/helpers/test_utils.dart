@@ -51,11 +51,32 @@ class FakeAccountRepository implements AccountRepository {
   @override
   Future<void> updateProfile(String userId, Map<String, dynamic> fields) async {
     if (shouldFail) throw Exception('Update failed');
+    if (profile != null) {
+      profile = profile!.copyWith(
+        displayName: fields['display_name'] as String? ?? profile!.displayName,
+        photoUrl: fields['photo_url'] as String? ?? profile!.photoUrl,
+        treatPolicy: fields['treat_policy'] != null
+            ? TreatPolicy.values.firstWhere((e) => e.name == fields['treat_policy'])
+            : profile!.treatPolicy,
+      );
+    }
   }
 
   @override
   Future<void> updateDog(String dogId, Map<String, dynamic> fields) async {
     if (shouldFail) throw Exception('Update failed');
+    final index = dogs.indexWhere((d) => d.id == dogId);
+    if (index != -1) {
+      dogs[index] = dogs[index].copyWith(
+        name: fields['name'] as String? ?? dogs[index].name,
+        age: fields['age'] as int? ?? dogs[index].age,
+        breed: fields['breed'] as String? ?? dogs[index].breed,
+        vibe: fields['vibe'] != null
+            ? SocialVibe.values.firstWhere((e) => e.name == fields['vibe'])
+            : null,
+        icebreakerAnswer: fields['icebreaker_answer'] as String? ?? dogs[index].icebreakerAnswer,
+      );
+    }
   }
 
   @override
@@ -65,6 +86,12 @@ class FakeAccountRepository implements AccountRepository {
       id: fields['id'] as String,
       ownerId: fields['owner_id'] as String,
       name: fields['name'] as String,
+      age: fields['age'] as int?,
+      breed: fields['breed'] as String?,
+      vibe: fields['vibe'] != null
+          ? SocialVibe.values.firstWhere((e) => e.name == fields['vibe'])
+          : null,
+      icebreakerAnswer: fields['icebreaker_answer'] as String?,
     ));
   }
 
