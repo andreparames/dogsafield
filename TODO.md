@@ -70,7 +70,7 @@
 - [x] **Packmate revocation enforcement** — block row deletes reverse-direction packmate row to prevent duplicate connections; `are_packmates` set to `false` on block, unblock uses `.or()` to handle both directions
 - [x] **Blocker visibility (RLS)** — events/attendance RLS checks both directions: viewer cannot see events hosted by someone they blocked, and cannot see attendance of people they blocked
 - [x] **Blocked attendee visibility** — blocked attendees shown at top of RSVP list in red with block icon; confirmation dialog when joining an event with blocked attendees
-- [ ] **Trust & Safety queue** — admin routing for Tier 3 reports
+- [x] **Trust & Safety queue** — admin routing for Tier 3 reports via Pushbullet notifications
 
 ### Messaging (`lib/features/messaging/`)
 - [x] **Real-time chat** — DM streams via Supabase Realtime (conversations + messages tables)
@@ -95,8 +95,8 @@
 - [x] Each read method: online → fetch from Supabase + upsert cache; offline → read from Drift
 - [x] Add Riverpod providers: `localDatabaseProvider`, `localCacheServiceProvider`, `connectivityProvider`
 - [x] **Unit tests** — `LocalCacheService` upsert/read/miss methods with in-memory Drift; connectivity wrapper emits correct states
-- [ ] **Widget tests** — screens render cached data when offline (mock `LocalCacheService` + connectivity)
-- [ ] **Integration/end-to-end** — simulate offline: repositories return cached data, no Supabase calls fire
+- [x] **Widget tests** — screens render cached data when offline (mock `LocalCacheService` + connectivity)
+- [x] **Integration/end-to-end** — simulate offline: repositories return cached data, no Supabase calls fire
 - [x] Verify existing tests still pass after repository refactors
 
 **Phase 4 — Offline profile persistence**
