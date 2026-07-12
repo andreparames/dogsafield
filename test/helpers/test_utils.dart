@@ -42,10 +42,6 @@ class FakeAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<Dog?> fetchDog(String ownerId) async =>
-      dogs.isEmpty ? null : dogs.first;
-
-  @override
   Future<List<Dog>> fetchDogs(String ownerId) async => dogs;
 
   @override
