@@ -177,13 +177,17 @@ class MessagingRepository {
     final payload = <String, dynamic>{'event_id': eventId, 'event_title': eventTitle};
     for (final attendeeId in attendeeIds) {
       if (attendeeId == hostId) continue;
-      final conversation = await getOrCreateConversation(attendeeId);
-      await sendMessage(
-        conversation.id,
-        content,
-        messageType: MessageType.eventEdited,
-        payload: payload,
-      );
+      try {
+        final conversation = await getOrCreateConversation(attendeeId);
+        await sendMessage(
+          conversation.id,
+          content,
+          messageType: MessageType.eventEdited,
+          payload: payload,
+        );
+      } catch (_) {
+        // per-recipient failure does not block remaining recipients
+      }
     }
   }
 
@@ -220,12 +224,16 @@ class MessagingRepository {
     }).toSet();
     final content = 'This account has been suspended';
     for (final partnerId in partnerIds) {
-      final conversation = await getOrCreateConversation(partnerId);
-      await sendMessage(
-        conversation.id,
-        content,
-        messageType: MessageType.accountSuspended,
-      );
+      try {
+        final conversation = await getOrCreateConversation(partnerId);
+        await sendMessage(
+          conversation.id,
+          content,
+          messageType: MessageType.accountSuspended,
+        );
+      } catch (_) {
+        // per-recipient failure does not block remaining recipients
+      }
     }
   }
 

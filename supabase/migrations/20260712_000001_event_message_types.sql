@@ -23,6 +23,7 @@ create policy "Participants can update messages read_at"
     and sender_id = (select sender_id from public.messages where id = messages.id)
     and conversation_id = (select conversation_id from public.messages where id = messages.id)
     and created_at = (select created_at from public.messages where id = messages.id)
+    and payload is not distinct from (select payload from public.messages where id = messages.id)
   );
 
 -- Update trigger to use content for last_message_content (works for all types)
