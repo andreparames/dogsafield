@@ -66,7 +66,7 @@ class GatheringRepository {
     final host = await c.getProfile(event.hostId);
     if (host == null) throw Exception('Host not found in cache');
 
-    final hostDogs = await _fetchDogs(event.hostId);
+    final hostDogs = await c.getDogs(event.hostId);
     final attendeeIds = await c.getAttendeeIds(eventId);
 
     final attendees = <AttendeeProfile>[];

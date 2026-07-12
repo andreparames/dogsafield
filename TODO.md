@@ -13,7 +13,7 @@
 
 ### Field Map (`lib/features/field_map/`)
 - [x] **Multi-dog support** — fetch all dogs per owner, display with natural-language "has a breed (name), a breed (name) and a breed (name)" summary
-- [x] **Map view** — Google Maps integration with user location marker
+- [x] **Map view** — Google Maps integration with camera/location controls
 - [x] **Hide user location marker** — the redundant dot removed, my-location button still works
 - [x] **RSVP filter: local toggle, no re-fetch** — load all markers once, hide/show based on RSVP flag instead of re-querying Supabase
 - [x] **Marker color by RSVP status** — change marker tint depending on whether the user has RSVP'd

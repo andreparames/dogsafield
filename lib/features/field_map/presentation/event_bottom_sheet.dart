@@ -24,8 +24,9 @@ class EventBottomSheet extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
         children: [
           Center(
             child: Container(
@@ -143,6 +144,7 @@ class EventBottomSheet extends ConsumerWidget {
             ],
           ),
         ],
+      ),
       ),
     );
   }
