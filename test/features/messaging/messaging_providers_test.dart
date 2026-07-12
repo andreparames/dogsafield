@@ -131,7 +131,7 @@ void main() {
     });
 
     test('startChat fails when cannot message user', () async {
-      final repo = FakeMessagingRepository()..shouldFail = true;
+      final repo = FakeMessagingRepository()..canMessageResult = false;
       final container = ProviderContainer(
         overrides: [
           authServiceProvider.overrideWithValue(fakeAuthService),

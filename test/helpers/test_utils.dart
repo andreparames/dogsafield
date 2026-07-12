@@ -275,6 +275,7 @@ class FakeConnectionRepository implements ConnectionRepository {
 
 class FakeMessagingRepository implements MessagingRepository {
   bool shouldFail = false;
+  bool canMessageResult = true;
   List<Conversation> conversations = [];
   List<Message> messages = [];
   int sendMessageCallCount = 0;
@@ -339,7 +340,7 @@ class FakeMessagingRepository implements MessagingRepository {
   @override
   Future<bool> canMessageUser(String targetUserId) async {
     if (shouldFail) throw Exception('Check failed');
-    return true;
+    return canMessageResult;
   }
 }
 

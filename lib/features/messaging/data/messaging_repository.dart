@@ -123,39 +123,26 @@ class MessagingRepository {
         .maybeSingle();
 
     if (existing != null) {
-      final profile = await _client.from('profiles_public')
-          .select('id, display_name, photo_url')
-          .eq('id', otherUserId)
-          .maybeSingle();
-
-      return Conversation(
-        id: existing['id'] as String,
-        otherUserId: otherUserId,
-        otherUserName: profile?['display_name'] as String?,
-        otherUserPhoto: profile?['photo_url'] as String?,
-        lastMessageAt: DateTime.parse(existing['last_message_at'] as String),
-        lastMessageContent: existing['last_message_content'] as String?,
-      );
+      return _buildConversationFromRow(existing, otherUserId);
     }
 
-    final inserted = await _client.from('conversations')
-        .insert({'user_a': a, 'user_b': b})
-        .select()
-        .single();
-
-    final profile = await _client.from('profiles_public')
-        .select('id, display_name, photo_url')
-        .eq('id', otherUserId)
-        .maybeSingle();
-
-    return Conversation(
-      id: inserted['id'] as String,
-      otherUserId: otherUserId,
-      otherUserName: profile?['display_name'] as String?,
-      otherUserPhoto: profile?['photo_url'] as String?,
-      lastMessageAt: DateTime.parse(inserted['last_message_at'] as String),
-      lastMessageContent: inserted['last_message_content'] as String?,
-    );
+    try {
+      final inserted = await _client.from('conversations')
+          .insert({'user_a': a, 'user_b': b})
+          .select()
+          .single();
+      return _buildConversationFromRow(inserted, otherUserId);
+    } on PostgrestException catch (e) {
+      if (e.code == '23505') {
+        final row = await _client.from('conversations')
+            .select()
+            .eq('user_a', a)
+            .eq('user_b', b)
+            .single();
+        return _buildConversationFromRow(row, otherUserId);
+      }
+      rethrow;
+    }
   }
 
   Future<Message> sendMessage(String conversationId, String content) async {
@@ -209,6 +196,22 @@ class MessagingRepository {
       map[cid] = (map[cid] ?? 0) + 1;
     }
     return map;
+  }
+
+  Future<Conversation> _buildConversationFromRow(Map<String, dynamic> row, String otherUserId) async {
+    final profile = await _client.from('profiles_public')
+        .select('id, display_name, photo_url')
+        .eq('id', otherUserId)
+        .maybeSingle();
+
+    return Conversation(
+      id: row['id'] as String,
+      otherUserId: otherUserId,
+      otherUserName: profile?['display_name'] as String?,
+      otherUserPhoto: profile?['photo_url'] as String?,
+      lastMessageAt: DateTime.parse(row['last_message_at'] as String),
+      lastMessageContent: row['last_message_content'] as String?,
+    );
   }
 
   Message _rowToMessage(Map<String, dynamic> row) {
