@@ -136,7 +136,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       type: _type!,
       title: _titleCtrl.text.trim(),
       description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
-      locationName: _locationNameCtrl.text.trim().isEmpty ? context.t.hosting.create.selectedLocation : _locationNameCtrl.text.trim(),
+      locationName: _locationNameCtrl.text.trim().isEmpty ? '' : _locationNameCtrl.text.trim(),
       latitude: _latitude!,
       longitude: _longitude!,
       dateTime: dt,

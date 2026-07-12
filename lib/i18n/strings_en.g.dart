@@ -52,6 +52,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$account$en account = Translations$account$en._(_root);
 	late final Translations$connections$en connections = Translations$connections$en._(_root);
 	late final Translations$info$en info = Translations$info$en._(_root);
+	late final Translations$messaging$en messaging = Translations$messaging$en._(_root);
 	late final Translations$errors$en errors = Translations$errors$en._(_root);
 }
 
@@ -401,8 +402,8 @@ class Translations$account$en {
 	/// en: 'Type DELETE to confirm'
 	String get deleteConfirmHint => 'Type DELETE to confirm';
 
-	/// en: 'Type DELETE to confirm'
-	String get deleteConfirmError => 'Type DELETE to confirm';
+	/// en: 'Incorrect. Please type DELETE to confirm.'
+	String get deleteConfirmError => 'Incorrect. Please type DELETE to confirm.';
 
 	/// en: 'Delete Forever'
 	String get deleteForever => 'Delete Forever';
@@ -435,6 +436,42 @@ class Translations$info$en {
 
 	// Translations
 	late final Translations$info$fieldIntro$en fieldIntro = Translations$info$fieldIntro$en._(_root);
+}
+
+// Path: messaging
+class Translations$messaging$en {
+	Translations$messaging$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Messages'
+	String get title => 'Messages';
+
+	/// en: 'No conversations yet'
+	String get empty => 'No conversations yet';
+
+	/// en: 'Chat with your packmates after you've both confirmed meeting at an event.'
+	String get emptyHint => 'Chat with your packmates after you\'ve both confirmed meeting at an event.';
+
+	/// en: 'No messages yet'
+	String get noMessages => 'No messages yet';
+
+	/// en: 'Send a message to start the conversation!'
+	String get noMessagesYet => 'Send a message to start the conversation!';
+
+	/// en: 'Type a message...'
+	String get typeMessage => 'Type a message...';
+
+	/// en: 'Could not load messages'
+	String get failedToLoad => 'Could not load messages';
+
+	/// en: 'Failed to send message. Please try again.'
+	String get failedToSend => 'Failed to send message. Please try again.';
+
+	/// en: 'You can only message your packmates.'
+	String get cannotMessage => 'You can only message your packmates.';
 }
 
 // Path: errors
@@ -1321,7 +1358,7 @@ extension on Translations {
 			'account.deleteTitle' => 'Delete Account',
 			'account.deleteBody' => 'This permanently removes all your data. This action cannot be undone.',
 			'account.deleteConfirmHint' => 'Type DELETE to confirm',
-			'account.deleteConfirmError' => 'Type DELETE to confirm',
+			'account.deleteConfirmError' => 'Incorrect. Please type DELETE to confirm.',
 			'account.deleteForever' => 'Delete Forever',
 			'account.signOut' => 'Sign Out',
 			'account.upgrade.title' => 'Upgrade',
@@ -1359,6 +1396,15 @@ extension on Translations {
 			'info.fieldIntro.tips.3.title' => 'Send feedback',
 			'info.fieldIntro.tips.3.description' => 'Found a bug or have a suggestion? Tap the chat bubble to share your thoughts with the team.',
 			'info.fieldIntro.gotIt' => 'Got It',
+			'messaging.title' => 'Messages',
+			'messaging.empty' => 'No conversations yet',
+			'messaging.emptyHint' => 'Chat with your packmates after you\'ve both confirmed meeting at an event.',
+			'messaging.noMessages' => 'No messages yet',
+			'messaging.noMessagesYet' => 'Send a message to start the conversation!',
+			'messaging.typeMessage' => 'Type a message...',
+			'messaging.failedToLoad' => 'Could not load messages',
+			'messaging.failedToSend' => 'Failed to send message. Please try again.',
+			'messaging.cannotMessage' => 'You can only message your packmates.',
 			'errors.failedToCreateEvent' => 'Failed to create event. Please try again.',
 			'errors.failedToUpdateEvent' => 'Failed to update event. Please try again.',
 			'errors.failedToCancelEvent' => 'Failed to cancel event. Please try again.',

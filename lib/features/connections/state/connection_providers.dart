@@ -81,6 +81,7 @@ class ConnectionActionNotifier extends Notifier<ConnectionActionState> {
       ref.invalidate(blockedUsersProvider);
       state = const ConnectionActionSuccess();
     } catch (e) {
+      debugPrint('ConnectionActionNotifier.block(): $e');
       state = ConnectionActionError(t.errors.failedToBlock);
     }
   }
@@ -94,6 +95,7 @@ class ConnectionActionNotifier extends Notifier<ConnectionActionState> {
       ref.invalidate(blockedUsersProvider);
       state = const ConnectionActionSuccess();
     } catch (e) {
+      debugPrint('ConnectionActionNotifier.blockAndHide(): $e');
       state = ConnectionActionError(t.errors.failedToBlockAndHide);
     }
   }
@@ -107,6 +109,7 @@ class ConnectionActionNotifier extends Notifier<ConnectionActionState> {
       ref.invalidate(blockedUsersProvider);
       state = const ConnectionActionSuccess();
     } catch (e) {
+      debugPrint('ConnectionActionNotifier.blockHideAndReport(): $e');
       state = ConnectionActionError(t.errors.failedToReport);
     }
   }
@@ -120,6 +123,7 @@ class ConnectionActionNotifier extends Notifier<ConnectionActionState> {
       ref.invalidate(blockedUsersProvider);
       state = const ConnectionActionSuccess();
     } catch (e) {
+      debugPrint('ConnectionActionNotifier.unblockUser(): $e');
       state = ConnectionActionError(t.errors.failedToUnblock);
     }
   }

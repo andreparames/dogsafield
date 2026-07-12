@@ -212,7 +212,7 @@ account:
   deleteTitle: Delete Account
   deleteBody: This permanently removes all your data. This action cannot be undone.
   deleteConfirmHint: Type DELETE to confirm
-  deleteConfirmError: Type DELETE to confirm
+  deleteConfirmError: Incorrect. Please type DELETE to confirm.
   deleteForever: Delete Forever
   signOut: Sign Out
   upgrade:
@@ -262,6 +262,17 @@ info:
       - title: Send feedback
         description: Found a bug or have a suggestion? Tap the chat bubble to share your thoughts with the team.
     gotIt: Got It
+
+messaging:
+  title: Messages
+  empty: No conversations yet
+  emptyHint: "Chat with your packmates after you've both confirmed meeting at an event."
+  noMessages: No messages yet
+  noMessagesYet: "Send a message to start the conversation!"
+  typeMessage: Type a message...
+  failedToLoad: Could not load messages
+  failedToSend: Failed to send message. Please try again.
+  cannotMessage: You can only message your packmates.
 
 errors:
   failedToCreateEvent: Failed to create event. Please try again.

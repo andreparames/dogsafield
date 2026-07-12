@@ -137,7 +137,7 @@ class _GatheringContent extends StatelessWidget {
           const SizedBox(height: 8),
           _InfoRow(
             icon: Icons.location_on,
-            text: event.locationName,
+            text: event.locationName.isNotEmpty ? event.locationName : context.t.hosting.create.selectedLocation,
           ),
           if (event.description != null && event.description!.isNotEmpty) ...[
             const SizedBox(height: 16),
