@@ -33,7 +33,7 @@ class FakeAccountRepository implements AccountRepository {
   int fieldIntroSeenCount = 0;
   int hostIntroSeenCount = 0;
   UserProfile? profile;
-  Dog? dog;
+  final List<Dog> dogs = [];
 
   @override
   Future<UserProfile> fetchProfile(String userId) async {
@@ -42,7 +42,37 @@ class FakeAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<Dog?> fetchDog(String ownerId) async => dog;
+  Future<Dog?> fetchDog(String ownerId) async =>
+      dogs.isEmpty ? null : dogs.first;
+
+  @override
+  Future<List<Dog>> fetchDogs(String ownerId) async => dogs;
+
+  @override
+  Future<void> updateProfile(String userId, Map<String, dynamic> fields) async {
+    if (shouldFail) throw Exception('Update failed');
+  }
+
+  @override
+  Future<void> updateDog(String dogId, Map<String, dynamic> fields) async {
+    if (shouldFail) throw Exception('Update failed');
+  }
+
+  @override
+  Future<void> addDog(Map<String, dynamic> fields) async {
+    if (shouldFail) throw Exception('Add failed');
+    dogs.add(Dog(
+      id: fields['id'] as String,
+      ownerId: fields['owner_id'] as String,
+      name: fields['name'] as String,
+    ));
+  }
+
+  @override
+  Future<void> deleteDog(String dogId) async {
+    if (shouldFail) throw Exception('Delete failed');
+    dogs.removeWhere((d) => d.id == dogId);
+  }
 
   @override
   Future<void> suspendAccount() async {
