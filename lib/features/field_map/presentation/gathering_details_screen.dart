@@ -119,13 +119,13 @@ String _describeDogs(List<Dog> dogs) {
   return 'has ${parts.sublist(0, parts.length - 1).join(', ')} and ${parts.last}';
 }
 
-class _GatheringContent extends StatelessWidget {
+class _GatheringContent extends ConsumerWidget {
   final GatheringDetail detail;
 
   const _GatheringContent({required this.detail});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final event = detail.event;
     final host = detail.host;
@@ -218,7 +218,10 @@ class _GatheringContent extends StatelessWidget {
           ),
           if (detail.attendees.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _AttendeeListSection(attendees: detail.attendees),
+            _AttendeeListSection(
+              attendees: detail.attendees,
+              blockedUserIds: ref.watch(blockedUserIdsProvider).value ?? {},
+            ),
           ],
           const SizedBox(height: 12),
           _HostActions(event: event),
@@ -315,15 +318,30 @@ class _HostCard extends StatelessWidget {
 }
 class _AttendeeListSection extends StatelessWidget {
   final List<AttendeeProfile> attendees;
+  final Set<String> blockedUserIds;
 
-  const _AttendeeListSection({required this.attendees});
+  const _AttendeeListSection({
+    required this.attendees,
+    this.blockedUserIds = const {},
+  });
 
   @override
   Widget build(BuildContext context) {
+    final sorted = List<AttendeeProfile>.from(attendees);
+    sorted.sort((a, b) {
+      final aBlocked = blockedUserIds.contains(a.profile.id);
+      final bBlocked = blockedUserIds.contains(b.profile.id);
+      if (aBlocked && !bBlocked) return -1;
+      if (!aBlocked && bBlocked) return 1;
+      return 0;
+    });
     return Column(
-      children: attendees.map((a) => Padding(
+      children: sorted.map((a) => Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: _AttendeeCard(attendee: a),
+        child: _AttendeeCard(
+          attendee: a,
+          isBlocked: blockedUserIds.contains(a.profile.id),
+        ),
       )).toList(),
     );
   }
@@ -331,8 +349,9 @@ class _AttendeeListSection extends StatelessWidget {
 
 class _AttendeeCard extends ConsumerWidget {
   final AttendeeProfile attendee;
+  final bool isBlocked;
 
-  const _AttendeeCard({required this.attendee});
+  const _AttendeeCard({required this.attendee, this.isBlocked = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -343,7 +362,11 @@ class _AttendeeCard extends ConsumerWidget {
         ref.read(authServiceProvider).currentUser?.id == attendee.profile.id;
 
     return Card(
-      color: isCurrentUser ? theme.colorScheme.primaryContainer : null,
+      color: isBlocked
+          ? theme.colorScheme.errorContainer
+          : isCurrentUser
+              ? theme.colorScheme.primaryContainer
+              : null,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -371,13 +394,22 @@ class _AttendeeCard extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           profile.displayName ?? 'Unknown',
-                          style: theme.textTheme.titleSmall,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: isBlocked ? theme.colorScheme.error : null,
+                          ),
                         ),
                       ),
+                      if (isBlocked)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Icon(Icons.block, size: 16, color: theme.colorScheme.error),
+                        ),
                       if (isCurrentUser)
                         Text(context.t.gathering.you,
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onPrimaryContainer,
+                              color: isBlocked
+                                  ? theme.colorScheme.onErrorContainer
+                                  : theme.colorScheme.onPrimaryContainer,
                             )),
                     ],
                   ),
@@ -535,7 +567,33 @@ class _JoinPackSection extends ConsumerWidget {
           );
         }
         return FilledButton.icon(
-          onPressed: () => ref.read(rsvpActionProvider(event.id).notifier).joinPack(),
+          onPressed: () async {
+            final notifier = ref.read(rsvpActionProvider(event.id).notifier);
+            final blocked = await notifier.blockedAttendeeNames();
+            if (blocked.isNotEmpty) {
+              if (!context.mounted) return;
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(ctx.t.gathering.blockedAttendeesFound),
+                  content: Text(ctx.t.gathering.blockedAttendeesWarning(names: blocked.join(', '))),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text(ctx.t.common.cancel),
+                    ),
+                    FilledButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(ctx.t.gathering.joinAnyway),
+                    ),
+                  ],
+                ),
+              );
+              if (confirm != true) return;
+            }
+            if (!context.mounted) return;
+            notifier.joinPack();
+          },
           icon: const Icon(Icons.group_add),
           label: Text(context.t.gathering.joinPack),
         );

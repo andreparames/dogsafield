@@ -71,6 +71,9 @@ gathering:
   leavePack: Leave Pack
   joinPack: Join Pack
   couldNotLoadPackStatus: Could not load pack status
+  blockedAttendeesFound: Blocked attendees found
+  blockedAttendeesWarning: "You blocked: $names. They are attending this event. Join anyway?"
+  joinAnyway: Join Anyway
 
 feedback:
   title: Send Feedback

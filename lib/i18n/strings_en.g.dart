@@ -185,6 +185,15 @@ class Translations$gathering$en {
 
 	/// en: 'Could not load pack status'
 	String get couldNotLoadPackStatus => 'Could not load pack status';
+
+	/// en: 'Blocked attendees found'
+	String get blockedAttendeesFound => 'Blocked attendees found';
+
+	/// en: 'You blocked: $names. They are attending this event. Join anyway?'
+	String blockedAttendeesWarning({required Object names}) => 'You blocked: ${names}. They are attending this event. Join anyway?';
+
+	/// en: 'Join Anyway'
+	String get joinAnyway => 'Join Anyway';
 }
 
 // Path: feedback
@@ -1239,6 +1248,9 @@ extension on Translations {
 			'gathering.leavePack' => 'Leave Pack',
 			'gathering.joinPack' => 'Join Pack',
 			'gathering.couldNotLoadPackStatus' => 'Could not load pack status',
+			'gathering.blockedAttendeesFound' => 'Blocked attendees found',
+			'gathering.blockedAttendeesWarning' => ({required Object names}) => 'You blocked: ${names}. They are attending this event. Join anyway?',
+			'gathering.joinAnyway' => 'Join Anyway',
 			'feedback.title' => 'Send Feedback',
 			'feedback.hint' => 'Share your thoughts, suggestions, or report an issue...',
 			'feedback.cancel' => 'Cancel',
