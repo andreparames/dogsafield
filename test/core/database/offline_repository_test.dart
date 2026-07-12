@@ -12,6 +12,13 @@ import 'package:dogsafield/shared/models/dog.dart';
 import 'package:dogsafield/shared/models/event.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
 
+class _DummySupabaseClient implements SupabaseClient {
+  @override
+  dynamic noSuchMethod(Invocation invocation) {
+    throw UnimplementedError('SupabaseClient should not be called in offline test');
+  }
+}
+
 class _OfflineConnectivity implements Connectivity {
   @override
   Future<List<ConnectivityResult>> checkConnectivity() async =>
@@ -29,7 +36,7 @@ void main() {
   late AppDatabase db;
   late LocalCacheService cache;
   late ConnectivityService offlineConnectivity;
-  late SupabaseClient dummyClient;
+  late _DummySupabaseClient dummyClient;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
@@ -39,7 +46,7 @@ void main() {
     offlineConnectivity = ConnectivityService(
       connectivity: _OfflineConnectivity(),
     );
-    dummyClient = SupabaseClient('http://localhost', 'fake-key');
+    dummyClient = _DummySupabaseClient();
   });
 
   tearDown(() async {
