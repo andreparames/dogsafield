@@ -292,6 +292,18 @@ class Translations$common$en {
 	/// en: 'Retry'
 	String get retry => 'Retry';
 
+	/// en: 'Save'
+	String get save => 'Save';
+
+	/// en: 'Add'
+	String get add => 'Add';
+
+	/// en: 'Uploading...'
+	String get uploading => 'Uploading...';
+
+	/// en: 'Saved'
+	String get saved => 'Saved';
+
 	/// en: 'Cancel'
 	String get cancel => 'Cancel';
 
@@ -350,6 +362,30 @@ class Translations$account$en {
 
 	/// en: 'Could not load account'
 	String get couldNotLoad => 'Could not load account';
+
+	/// en: 'Edit Profile'
+	String get editProfile => 'Edit Profile';
+
+	/// en: 'Display Name'
+	String get displayName => 'Display Name';
+
+	/// en: 'Change Photo'
+	String get changePhoto => 'Change Photo';
+
+	/// en: 'My Dogs'
+	String get myDogs => 'My Dogs';
+
+	/// en: 'Add a Dog'
+	String get addDog => 'Add a Dog';
+
+	/// en: 'Edit Dog'
+	String get editDog => 'Edit Dog';
+
+	/// en: 'Remove Dog'
+	String get removeDog => 'Remove Dog';
+
+	/// en: 'Are you sure you want to remove $dogName?'
+	String removeDogConfirm({required Object dogName}) => 'Are you sure you want to remove ${dogName}?';
 
 	/// en: 'My Events'
 	String get myEvents => 'My Events';
@@ -505,6 +541,9 @@ class Translations$errors$en {
 
 	/// en: 'Failed to delete account. Please try again.'
 	String get failedToDelete => 'Failed to delete account. Please try again.';
+
+	/// en: 'Failed to save. Please try again.'
+	String get failedToSave => 'Failed to save. Please try again.';
 
 	/// en: 'Failed to block user. Please try again.'
 	String get failedToBlock => 'Failed to block user. Please try again.';
