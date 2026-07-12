@@ -24,7 +24,7 @@ class GatheringRepository {
 
     final event = await _fetchEvent(eventId);
     final host = await _fetchProfile(event.hostId);
-    final hostDog = await _fetchDog(event.hostId);
+    final hostDogs = await _fetchDogs(event.hostId);
     final attendees = await _fetchAttendees(eventId);
 
     if (_cache != null) {
@@ -42,17 +42,17 @@ class GatheringRepository {
       }
       await _cache.upsertEvents([event]);
       await _cache.upsertProfiles([host]);
-      if (hostDog != null) await _cache.upsertDogs([hostDog]);
+      if (hostDogs.isNotEmpty) await _cache.upsertDogs(hostDogs);
       await _cache.upsertProfiles(attendees.map((a) => a.profile).toList());
       await _cache.upsertDogs(
-        attendees.where((a) => a.dog != null).map((a) => a.dog!).toList(),
+        attendees.expand((a) => a.dogs).toList(),
       );
     }
 
     return GatheringDetail(
       event: event,
       host: host,
-      hostDog: hostDog,
+      hostDogs: hostDogs,
       attendees: attendees,
     );
   }
@@ -66,21 +66,21 @@ class GatheringRepository {
     final host = await c.getProfile(event.hostId);
     if (host == null) throw Exception('Host not found in cache');
 
-    final hostDog = await c.getDog(event.hostId);
+    final hostDogs = await c.getDogs(event.hostId);
     final attendeeIds = await c.getAttendeeIds(eventId);
 
     final attendees = <AttendeeProfile>[];
     for (final uid in attendeeIds) {
       final profile = await c.getProfile(uid);
       if (profile == null) continue;
-      final dog = await c.getDog(uid);
-      attendees.add(AttendeeProfile(profile: profile, dog: dog));
+      final dogs = await c.getDogs(uid);
+      attendees.add(AttendeeProfile(profile: profile, dogs: dogs));
     }
 
     return GatheringDetail(
       event: event,
       host: host,
-      hostDog: hostDog,
+      hostDogs: hostDogs,
       attendees: attendees,
     );
   }
@@ -106,15 +106,13 @@ class GatheringRepository {
     return _rowToProfile(response);
   }
 
-  Future<Dog?> _fetchDog(String ownerId) async {
+  Future<List<Dog>> _fetchDogs(String ownerId) async {
     final response = await _client
         .from('dogs')
         .select()
-        .eq('owner_id', ownerId)
-        .limit(1);
+        .eq('owner_id', ownerId);
 
-    if (response.isEmpty) return null;
-    return _rowToDog(response.first);
+    return response.map((r) => _rowToDog(r)).toList();
   }
 
   Future<List<AttendeeProfile>> _fetchAttendees(String eventId) async {
@@ -137,10 +135,10 @@ class GatheringRepository {
       final profile = _rowToProfile(row);
       profileMap[profile.id] = profile;
     }
-    final dogMap = <String, Dog>{};
+    final dogsByOwner = <String, List<Dog>>{};
     for (final row in results[1]) {
       final ownerId = row['owner_id'] as String;
-      dogMap.putIfAbsent(ownerId, () => _rowToDog(row));
+      dogsByOwner.putIfAbsent(ownerId, () => []).add(_rowToDog(row));
     }
 
     return userIds.map((uid) {
@@ -148,7 +146,7 @@ class GatheringRepository {
       if (profile == null) return null;
       return AttendeeProfile(
         profile: profile,
-        dog: dogMap[uid],
+        dogs: dogsByOwner[uid] ?? [],
       );
     }).whereType<AttendeeProfile>().toList();
   }

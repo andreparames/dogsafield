@@ -132,7 +132,7 @@ class _AttendeeCheckTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final profile = attendee.profile;
-    final dog = attendee.dog;
+    final dogs = attendee.dogs;
 
     return CheckboxListTile(
       value: isSelected,
@@ -149,8 +149,8 @@ class _AttendeeCheckTile extends StatelessWidget {
             : const Icon(Icons.person, size: 20),
       ),
       title: Text(profile.displayName ?? 'Unknown'),
-      subtitle: dog != null
-          ? Text('🐕 ${dog.name}${dog.breed != null ? ' · ${dog.breed}' : ''}',
+      subtitle: dogs.isNotEmpty
+          ? Text('🐕 ${dogs.first.name}${dogs.first.breed != null ? ' · ${dogs.first.breed}' : ''}',
               style: theme.textTheme.bodySmall)
           : null,
     );

@@ -102,7 +102,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               GoogleMap(
                 initialCameraPosition: cameraPosition,
                 onMapCreated: (controller) => _mapController = controller,
-                myLocationEnabled: true,
+                myLocationEnabled: false,
                 myLocationButtonEnabled: true,
                 markers: markers,
               ),
@@ -147,17 +147,33 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                   ),
                 ),
               ),
-                      Positioned(
-                        top: 16,
-                        right: 16,
-                        child: IconButton(
-                          icon: Icon(Icons.chat_bubble_outline,
-                              color: theme.colorScheme.primary),
-                          tooltip: context.t.fieldMap.feedback,
-                          onPressed: () => _showFeedbackDialog(context),
-                        ),
-                      ),
-                    ],
+                       Positioned(
+                         top: 16,
+                         right: 16,
+                         child: IconButton(
+                           icon: Icon(Icons.chat_bubble_outline,
+                               color: theme.colorScheme.primary),
+                           tooltip: context.t.fieldMap.feedback,
+                           onPressed: () => _showFeedbackDialog(context),
+                         ),
+                       ),
+                       Positioned(
+                         right: 16,
+                         bottom: 16,
+                         child: FloatingActionButton.small(
+                           heroTag: 'recenter',
+                           onPressed: () {
+                             final pos = ref.read(currentPositionProvider).asData?.value;
+                             if (pos != null) {
+                               _mapController?.animateCamera(
+                                 CameraUpdate.newLatLng(LatLng(pos.latitude, pos.longitude)),
+                               );
+                             }
+                           },
+                           child: const Icon(Icons.my_location),
+                         ),
+                       ),
+                     ],
                   ),
                 ),
               ),

@@ -21,7 +21,7 @@ final gatheringDetailProvider =
   return GatheringDetail(
     event: detail.event,
     host: detail.host,
-    hostDog: detail.hostDog,
+    hostDogs: detail.hostDogs,
     attendees: detail.attendees
         .where((a) => !blockerIds.contains(a.profile.id))
         .toList(),
