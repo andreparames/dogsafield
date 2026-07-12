@@ -42,6 +42,7 @@ jobs:
       - run: flutter analyze
 
   build-apk:
+    needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
 
