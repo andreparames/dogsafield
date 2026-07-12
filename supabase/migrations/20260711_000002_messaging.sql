@@ -26,18 +26,22 @@ create index if not exists idx_conversations_user_b on conversations(user_b, las
 alter table conversations enable row level security;
 alter table messages enable row level security;
 
+drop policy if exists "Users can view own conversations" on conversations;
 create policy "Users can view own conversations"
   on conversations for select
   using (auth.uid() = user_a or auth.uid() = user_b);
 
+drop policy if exists "Users can insert conversations" on conversations;
 create policy "Users can insert conversations"
   on conversations for insert
   with check (auth.uid() = user_a or auth.uid() = user_b);
 
+drop policy if exists "Participants can update conversations" on conversations;
 create policy "Participants can update conversations"
   on conversations for update
   using (auth.uid() = user_a or auth.uid() = user_b);
 
+drop policy if exists "Participants can view messages" on messages;
 create policy "Participants can view messages"
   on messages for select
   using (
@@ -48,6 +52,7 @@ create policy "Participants can view messages"
     )
   );
 
+drop policy if exists "Participants can send messages" on messages;
 create policy "Participants can send messages"
   on messages for insert
   with check (
@@ -59,6 +64,7 @@ create policy "Participants can send messages"
     )
   );
 
+drop policy if exists "Participants can update messages read_at" on messages;
 create policy "Participants can update messages read_at"
   on messages for update
   using (

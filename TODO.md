@@ -67,8 +67,9 @@
 - [x] **Visibility filter queries** — `blockedUserIdsProvider`/`blockerIdsProvider` consumed by field_map (events) and gathering (attendees)
 - [x] Screens: `BlockedUsersScreen`, `ReportDialog`
 - [x] **Messaging integration** — cut DM on block (depends on messaging feature)
-- [ ] **Packmate revocation enforcement** — downstream effects beyond DB write
-- [ ] **Blocker notification** — alert host when blocked user RSVPs to their event
+- [x] **Packmate revocation enforcement** — block row deletes reverse-direction packmate row to prevent duplicate connections; `are_packmates` set to `false` on block, unblock uses `.or()` to handle both directions
+- [x] **Blocker visibility (RLS)** — events/attendance RLS checks both directions: viewer cannot see events hosted by someone they blocked, and cannot see attendance of people they blocked
+- [x] **Blocked attendee visibility** — blocked attendees shown at top of RSVP list in red with block icon; confirmation dialog when joining an event with blocked attendees
 - [ ] **Trust & Safety queue** — admin routing for Tier 3 reports
 
 ### Messaging (`lib/features/messaging/`)

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/database/providers.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
+import '../../connections/state/connection_providers.dart';
 import '../data/rsvp_repository.dart';
 import 'gathering_providers.dart';
 
@@ -51,6 +52,15 @@ class RsvpActionNotifier extends Notifier<RsvpActionState> {
 
   @override
   RsvpActionState build() => const RsvpActionIdle();
+
+  Future<List<String>> blockedAttendeeNames() async {
+    final blockedIds = ref.read(blockedUserIdsProvider).asData?.value ?? <String>{};
+    if (blockedIds.isEmpty) return [];
+    final detail = ref.read(gatheringDetailProvider(eventId)).asData?.value;
+    if (detail == null) return [];
+    final blocked = detail.attendees.where((a) => blockedIds.contains(a.profile.id));
+    return blocked.map((a) => a.profile.displayName ?? 'Unknown').toList();
+  }
 
   Future<void> joinPack() async {
     if (state is RsvpActionLoading) return;
