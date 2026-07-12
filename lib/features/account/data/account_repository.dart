@@ -17,15 +17,29 @@ class AccountRepository {
     return _rowToProfile(response);
   }
 
-  Future<Dog?> fetchDog(String ownerId) async {
+  Future<List<Dog>> fetchDogs(String ownerId) async {
     final response = await _client
         .from('dogs')
         .select()
         .eq('owner_id', ownerId)
-        .limit(1);
+        .order('created_at');
+    return response.map((row) => _rowToDog(row)).toList();
+  }
 
-    if (response.isEmpty) return null;
-    return _rowToDog(response.first);
+  Future<void> updateProfile(String userId, Map<String, dynamic> fields) async {
+    await _client.from('profiles').update(fields).eq('id', userId);
+  }
+
+  Future<void> updateDog(String dogId, Map<String, dynamic> fields) async {
+    await _client.from('dogs').update(fields).eq('id', dogId);
+  }
+
+  Future<void> addDog(Map<String, dynamic> fields) async {
+    await _client.from('dogs').insert(fields);
+  }
+
+  Future<void> deleteDog(String dogId) async {
+    await _client.from('dogs').delete().eq('id', dogId);
   }
 
   Future<void> suspendAccount() async {

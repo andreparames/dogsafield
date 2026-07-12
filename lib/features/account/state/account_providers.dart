@@ -9,9 +9,9 @@ import '../../../shared/models/user_profile.dart';
 
 class AccountDetail {
   final UserProfile profile;
-  final Dog? dog;
+  final List<Dog> dogs;
 
-  const AccountDetail({required this.profile, this.dog});
+  const AccountDetail({required this.profile, this.dogs = const []});
 }
 
 final accountRepositoryProvider = Provider<AccountRepository>((ref) {
@@ -24,8 +24,8 @@ final accountDetailProvider = FutureProvider<AccountDetail>((ref) async {
   final user = auth.currentUser;
   if (user == null) throw Exception('Not authenticated');
   final profile = await repo.fetchProfile(user.id);
-  final dog = await repo.fetchDog(user.id);
-  return AccountDetail(profile: profile, dog: dog);
+  final dogs = await repo.fetchDogs(user.id);
+  return AccountDetail(profile: profile, dogs: dogs);
 });
 
 sealed class AccountActionState {

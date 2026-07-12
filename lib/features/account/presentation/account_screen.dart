@@ -1,6 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
 import '../../onboarding/state/auth_provider.dart';
 import '../../onboarding/state/onboarding_state.dart';
@@ -49,15 +54,14 @@ class AccountScreen extends ConsumerWidget {
   }
 }
 
-class _AccountContent extends StatelessWidget {
+class _AccountContent extends ConsumerWidget {
   final AccountDetail detail;
 
   const _AccountContent({required this.detail});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final profile = detail.profile;
-    final dog = detail.dog;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -65,10 +69,8 @@ class _AccountContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _ProfileHeader(profile: profile),
-          if (dog != null) ...[
-            const SizedBox(height: 24),
-            _DogCard(dog: dog),
-          ],
+          const SizedBox(height: 24),
+          _DogsSection(dogs: detail.dogs, profile: profile),
           const SizedBox(height: 24),
           _TrialSection(profile: profile),
           if (profile.isFoundingPack) ...[
@@ -107,37 +109,69 @@ class _AccountContent extends StatelessWidget {
   }
 }
 
-class _ProfileHeader extends StatelessWidget {
+class _ProfileHeader extends ConsumerWidget {
   final UserProfile profile;
 
   const _ProfileHeader({required this.profile});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Row(
       children: [
-        CircleAvatar(
-          radius: 40,
-          child: profile.photoUrl != null
-              ? Image.network(
-                  profile.photoUrl!,
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 40),
-                )
-              : const Icon(Icons.person, size: 40),
+        GestureDetector(
+          onTap: () => _showEditProfileSheet(context, ref),
+          child: Stack(
+            children: [
+              CircleAvatar(
+                radius: 40,
+                child: profile.photoUrl != null
+                    ? ClipOval(
+                        child: Image.network(
+                          profile.photoUrl!,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 40),
+                        ),
+                      )
+                    : const Icon(Icons.person, size: 40),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.edit, size: 16, color: theme.colorScheme.onPrimary),
+                ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(width: 20),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                profile.displayName ?? context.t.common.unknown,
-                style: theme.textTheme.headlineSmall,
+              GestureDetector(
+                onTap: () => _showEditProfileSheet(context, ref),
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        profile.displayName ?? context.t.common.unknown,
+                        style: theme.textTheme.headlineSmall,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(Icons.edit, size: 16, color: theme.colorScheme.onSurfaceVariant),
+                  ],
+                ),
               ),
               Text(
                 profile.email,
@@ -151,15 +185,139 @@ class _ProfileHeader extends StatelessWidget {
       ],
     );
   }
+
+  void _showEditProfileSheet(BuildContext context, WidgetRef ref) {
+    final repo = ref.read(accountRepositoryProvider);
+    final nameCtrl = TextEditingController(text: profile.displayName ?? '');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 24,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(context.t.account.editProfile, style: Theme.of(ctx).textTheme.titleMedium),
+            const SizedBox(height: 16),
+            TextField(
+              controller: nameCtrl,
+              decoration: InputDecoration(
+                labelText: context.t.account.displayName,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: () async {
+                final picker = ImagePicker();
+                final picked = await picker.pickImage(source: ImageSource.gallery);
+                if (picked == null) return;
+                final user = ref.read(authServiceProvider).currentUser;
+                if (user == null) return;
+                if (!ctx.mounted) return;
+                Navigator.pop(ctx);
+                if (!context.mounted) return;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(context.t.common.uploading)),
+                );
+                try {
+                  final ext = picked.path.split('.').last;
+                  final path = 'verification_photos/${user.id}/${DateTime.now().millisecondsSinceEpoch}.$ext';
+                  await Supabase.instance.client.storage.from('photos').upload(path, File(picked.path));
+                  final url = Supabase.instance.client.storage.from('photos').getPublicUrl(path);
+                  await repo.updateProfile(user.id, {'photo_url': url});
+                  ref.invalidate(accountDetailProvider);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(context.t.common.saved)),
+                    );
+                  }
+                } catch (_) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(context.t.errors.failedToSave)),
+                    );
+                  }
+                }
+              },
+              icon: const Icon(Icons.photo),
+              label: Text(context.t.account.changePhoto),
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () async {
+                final name = nameCtrl.text.trim();
+                if (name.isEmpty) return;
+                final user = ref.read(authServiceProvider).currentUser;
+                if (user == null) return;
+                try {
+                  await repo.updateProfile(user.id, {'display_name': name});
+                  ref.invalidate(accountDetailProvider);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                } catch (_) {
+                  if (ctx.mounted) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      SnackBar(content: Text(context.t.errors.failedToSave)),
+                    );
+                  }
+                }
+              },
+              child: Text(context.t.common.save),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _DogCard extends StatelessWidget {
-  final Dog dog;
+class _DogsSection extends ConsumerWidget {
+  final List<Dog> dogs;
+  final UserProfile profile;
 
-  const _DogCard({required this.dog});
+  const _DogsSection({required this.dogs, required this.profile});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(context.t.account.myDogs, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        ...dogs.map((dog) => Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: _DogCard(dog: dog, ownerId: profile.id),
+        )),
+        OutlinedButton.icon(
+          onPressed: () => _showAddDogSheet(context, ref, profile.id),
+          icon: const Icon(Icons.add),
+          label: Text(context.t.account.addDog),
+        ),
+      ],
+    );
+  }
+
+  void _showAddDogSheet(BuildContext context, WidgetRef ref, String ownerId) {
+    _showDogEditSheet(context, ref, null, ownerId);
+  }
+}
+
+class _DogCard extends ConsumerWidget {
+  final Dog dog;
+  final String ownerId;
+
+  const _DogCard({required this.dog, required this.ownerId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Card(
@@ -209,6 +367,18 @@ class _DogCard extends StatelessWidget {
                 ],
               ),
             ),
+            Column(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, size: 20),
+                  onPressed: () => _showDogEditSheet(context, ref, dog, ownerId),
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete_outline, size: 20, color: theme.colorScheme.error),
+                  onPressed: () => _showDeleteDogDialog(context, ref),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -222,6 +392,163 @@ class _DogCard extends StatelessWidget {
       SocialVibe.socialLearner => context.t.vibe.socialLearner,
     };
   }
+
+  Future<void> _showDeleteDogDialog(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.t.account.removeDog),
+        content: Text(context.t.account.removeDogConfirm(dogName: dog.name)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.t.common.cancel)),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+            child: Text(context.t.common.remove),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await ref.read(accountRepositoryProvider).deleteDog(dog.id);
+      ref.invalidate(accountDetailProvider);
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.t.errors.failedToSave)),
+        );
+      }
+    }
+  }
+}
+
+void _showDogEditSheet(BuildContext context, WidgetRef ref, Dog? existing, String ownerId) {
+  final nameCtrl = TextEditingController(text: existing?.name ?? '');
+  final ageCtrl = TextEditingController(
+    text: existing?.age?.toString() ?? '',
+  );
+  final breedCtrl = TextEditingController(text: existing?.breed ?? '');
+  final icebreakerCtrl = TextEditingController(text: existing?.icebreakerAnswer ?? '');
+  SocialVibe? selectedVibe = existing?.vibe;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setSheetState) => Padding(
+        padding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 24,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                existing == null ? context.t.account.addDog : context.t.account.editDog,
+                style: Theme.of(ctx).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameCtrl,
+                decoration: InputDecoration(
+                  labelText: context.t.onboarding.profileForm.dogName,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: ageCtrl,
+                decoration: InputDecoration(
+                  labelText: context.t.onboarding.profileForm.age,
+                  border: const OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: breedCtrl,
+                decoration: InputDecoration(
+                  labelText: context.t.onboarding.profileForm.breed,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: icebreakerCtrl,
+                decoration: InputDecoration(
+                  labelText: context.t.onboarding.icebreaker.title,
+                  border: const OutlineInputBorder(),
+                ),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 16),
+              Text(context.t.onboarding.profileForm.socialVibe, style: Theme.of(ctx).textTheme.titleSmall),
+              const SizedBox(height: 4),
+              ...SocialVibe.values.map(
+                (v) => RadioListTile<SocialVibe>(
+                  title: Text(_vibeLabelFull(v, context)),
+                  value: v,
+                  groupValue: selectedVibe,
+                  onChanged: (val) => setSheetState(() => selectedVibe = val),
+                  contentPadding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: () async {
+                  final name = nameCtrl.text.trim();
+                  if (name.isEmpty) return;
+                  final repo = ref.read(accountRepositoryProvider);
+                  try {
+                    final fields = {
+                      'name': name,
+                      if (ageCtrl.text.trim().isNotEmpty) 'age': int.tryParse(ageCtrl.text.trim()),
+                      if (breedCtrl.text.trim().isNotEmpty) 'breed': breedCtrl.text.trim(),
+                      if (icebreakerCtrl.text.trim().isNotEmpty) 'icebreaker_answer': icebreakerCtrl.text.trim(),
+                      'vibe': selectedVibe?.name,
+                    };
+                    if (existing != null) {
+                      await repo.updateDog(existing.id, fields);
+                    } else {
+                      await repo.addDog({
+                        'id': const Uuid().v4(),
+                        'owner_id': ownerId,
+                        ...fields,
+                      });
+                    }
+                    ref.invalidate(accountDetailProvider);
+                    if (ctx.mounted) Navigator.pop(ctx);
+                  } catch (_) {
+                    if (ctx.mounted) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        SnackBar(content: Text(context.t.errors.failedToSave)),
+                      );
+                    }
+                  }
+                },
+                child: Text(existing == null ? context.t.common.add : context.t.common.save),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+String _vibeLabelFull(SocialVibe v, BuildContext context) {
+  return switch (v) {
+    SocialVibe.loungeLizard => context.t.vibe.loungeLizardFull,
+    SocialVibe.zoomieKing => context.t.vibe.zoomieKingFull,
+    SocialVibe.socialLearner => context.t.vibe.socialLearnerFull,
+  };
 }
 
 class _TrialSection extends StatelessWidget {
@@ -366,38 +693,98 @@ class _FoundingSection extends StatelessWidget {
   }
 }
 
-class _SafetySection extends StatelessWidget {
+class _SafetySection extends ConsumerWidget {
   final UserProfile profile;
 
   const _SafetySection({required this.profile});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(Icons.shield_outlined, color: theme.colorScheme.primary),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(context.t.account.safetyBoundaries, style: theme.textTheme.titleSmall),
-                  const SizedBox(height: 4),
-                  Text(
-                    profile.treatPolicy == TreatPolicy.okToShare
-                        ? context.t.treatPolicy.okToShareDetail
-                        : context.t.treatPolicy.askBeforeFeedingDetail,
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ],
+      child: InkWell(
+        onTap: () => _showTreatPolicySheet(context, ref),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(Icons.shield_outlined, color: theme.colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(context.t.account.safetyBoundaries, style: theme.textTheme.titleSmall),
+                    const SizedBox(height: 4),
+                    Text(
+                      profile.treatPolicy == TreatPolicy.okToShare
+                          ? context.t.treatPolicy.okToShareDetail
+                          : context.t.treatPolicy.askBeforeFeedingDetail,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              Icon(Icons.edit, size: 16, color: theme.colorScheme.onSurfaceVariant),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showTreatPolicySheet(BuildContext context, WidgetRef ref) {
+    TreatPolicy? selected = profile.treatPolicy;
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(context.t.account.safetyBoundaries, style: Theme.of(ctx).textTheme.titleMedium),
+              const SizedBox(height: 16),
+              RadioListTile<TreatPolicy>(
+                title: Text(context.t.treatPolicy.okToShareDetail),
+                value: TreatPolicy.okToShare,
+                groupValue: selected,
+                onChanged: (val) => setSheetState(() => selected = val),
+              ),
+              RadioListTile<TreatPolicy>(
+                title: Text(context.t.treatPolicy.askBeforeFeedingDetail),
+                value: TreatPolicy.askBeforeFeeding,
+                groupValue: selected,
+                onChanged: (val) => setSheetState(() => selected = val),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: () async {
+                  if (selected == null) return;
+                  final user = ref.read(authServiceProvider).currentUser;
+                  if (user == null) return;
+                  try {
+                    await ref.read(accountRepositoryProvider).updateProfile(
+                      user.id,
+                      {'treat_policy': selected!.name},
+                    );
+                    ref.invalidate(accountDetailProvider);
+                    if (ctx.mounted) Navigator.pop(ctx);
+                  } catch (_) {
+                    if (ctx.mounted) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        SnackBar(content: Text(context.t.errors.failedToSave)),
+                      );
+                    }
+                  }
+                },
+                child: Text(context.t.common.save),
+              ),
+            ],
+          ),
         ),
       ),
     );
