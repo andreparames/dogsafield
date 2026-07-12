@@ -68,7 +68,7 @@
 - [x] Screens: `BlockedUsersScreen`, `ReportDialog`
 - [x] **Messaging integration** — cut DM on block (depends on messaging feature)
 - [ ] **Packmate revocation enforcement** — downstream effects beyond DB write
-- [ ] **Blocker notification** — alert host when blocked user RSVPs to their event
+- [x] **Blocker visibility blocked** — RLS blocks visibility in both directions, so a blocker cannot see or RSVP to the blocked person's events; no notification needed
 - [ ] **Trust & Safety queue** — admin routing for Tier 3 reports
 
 ### Messaging (`lib/features/messaging/`)
