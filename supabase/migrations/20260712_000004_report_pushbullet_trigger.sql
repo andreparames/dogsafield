@@ -16,11 +16,16 @@ security definer
 as $$
 declare
   token text;
+  reporter_email text;
+  reported_email text;
 begin
   select value into token from app_config where key = 'pushbullet_token';
   if token is null or token = '' then
     return new;
   end if;
+
+  select email into reporter_email from profiles where id = new.reporter_id;
+  select email into reported_email from profiles where id = new.reported_id;
 
   perform net.http_post(
     url := 'https://api.pushbullet.com/v2/pushes',
@@ -30,8 +35,8 @@ begin
     ),
     body := jsonb_build_object(
       'type', 'note',
-      'title', 'Trust & Safety Report',
-      'body', format('Reporter: %s\nReported: %s\nReason: %s', new.reporter_id, new.reported_id, new.reason)
+      'title', 'Dogs Afield - Trust & Safety Report',
+      'body', format(E'Reporter: %s\nReported: %s\nReason: %s', reporter_email, reported_email, new.reason)
     )
   );
   return new;
