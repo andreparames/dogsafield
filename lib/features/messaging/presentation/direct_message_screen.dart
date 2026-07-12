@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
 import '../../onboarding/state/auth_provider.dart';
-import '../data/message.dart';
+import '../data/message.dart' show Message, MessageType;
 import '../state/messaging_providers.dart';
 
 class DirectMessageScreen extends ConsumerStatefulWidget {
@@ -114,6 +114,10 @@ class _DirectMessageScreenState extends ConsumerState<DirectMessageScreen> {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
+                    final isSystem = message.messageType != MessageType.text;
+                    if (isSystem) {
+                      return _SystemBubble(content: message.content);
+                    }
                     final isMe = message.senderId == currentUserId;
                     return _MessageBubble(
                       message: message,
@@ -259,6 +263,38 @@ class _MessageBubble extends StatelessWidget {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SystemBubble extends StatelessWidget {
+  final String content;
+
+  const _SystemBubble({required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Align(
+        alignment: Alignment.center,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest.withAlpha(180),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Text(
+            content,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontStyle: FontStyle.italic,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ),
       ),
     );
