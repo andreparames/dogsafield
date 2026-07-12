@@ -12,10 +12,16 @@ class ConnectionRepository {
     if (tier == 0) {
       await _client.from('connections')
           .delete()
-          .eq('user_id_a', user.id)
-          .eq('user_id_b', targetUserId);
+          .or('and(user_id_a.eq.${user.id},user_id_b.eq.$targetUserId),and(user_id_a.eq.$targetUserId,user_id_b.eq.${user.id})');
       return;
     }
+
+    // Remove any existing row in the opposite direction to prevent duplicate
+    // packmate/block rows for the same pair.
+    await _client.from('connections')
+        .delete()
+        .eq('user_id_a', targetUserId)
+        .eq('user_id_b', user.id);
 
     await _client.from('connections').upsert({
       'user_id_a': user.id,
