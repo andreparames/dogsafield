@@ -69,6 +69,7 @@
 - [x] **Messaging integration** — cut DM on block (depends on messaging feature)
 - [ ] **Packmate revocation enforcement** — downstream effects beyond DB write
 - [ ] **Blocker notification** — alert host when blocked user RSVPs to their event
+- [x] **Blocker visibility (RLS)** — events/attendance RLS checks both directions: viewer cannot see events hosted by someone they blocked, and cannot see attendance of people they blocked
 - [ ] **Trust & Safety queue** — admin routing for Tier 3 reports
 
 ### Messaging (`lib/features/messaging/`)
