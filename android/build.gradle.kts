@@ -13,8 +13,12 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 
     afterEvaluate {
-        if (extensions.findByName("android") != null) {
-            extensions.configure<com.android.build.gradle.BaseExtension> {
+        if (pluginManager.hasPlugin("com.android.library")) {
+            configure<com.android.build.gradle.LibraryExtension> {
+                compileSdkVersion(36)
+            }
+        } else if (pluginManager.hasPlugin("com.android.application")) {
+            configure<com.android.build.gradle.AppExtension> {
                 compileSdkVersion(36)
             }
         }
