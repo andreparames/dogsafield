@@ -4,7 +4,7 @@
 create table if not exists reports (
   id uuid primary key default gen_random_uuid(),
   reporter_id uuid not null references profiles(id) on delete cascade,
-  reported_id uuid not null references profiles(id) on delete cascade,
+  reported_id uuid references profiles(id) on delete set null,
   reason text not null,
   created_at timestamptz not null default now()
 );

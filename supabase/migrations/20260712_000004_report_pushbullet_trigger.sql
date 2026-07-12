@@ -1,3 +1,6 @@
+-- Enable pg_net extension for HTTP requests (idempotent)
+create extension if not exists pg_net;
+
 -- App config table for server-side secrets (RLS-protected, no user access)
 create table if not exists app_config (
   key text primary key,
@@ -13,6 +16,7 @@ create or replace function notify_admin_on_report()
 returns trigger
 language plpgsql
 security definer
+set search_path = pg_catalog, public
 as $$
 declare
   token text;
@@ -27,18 +31,23 @@ begin
   select email into reporter_email from profiles where id = new.reporter_id;
   select email into reported_email from profiles where id = new.reported_id;
 
-  perform net.http_post(
-    url := 'https://api.pushbullet.com/v2/pushes',
-    headers := jsonb_build_object(
-      'Access-Token', token,
-      'Content-Type', 'application/json'
-    ),
-    body := jsonb_build_object(
-      'type', 'note',
-      'title', 'Dogs Afield - Trust & Safety Report',
-      'body', format(E'Reporter: %s\nReported: %s\nReason: %s', reporter_email, reported_email, new.reason)
-    )
-  );
+  begin
+    perform net.http_post(
+      url := 'https://api.pushbullet.com/v2/pushes',
+      headers := jsonb_build_object(
+        'Access-Token', token,
+        'Content-Type', 'application/json'
+      ),
+      body := jsonb_build_object(
+        'type', 'note',
+        'title', 'Dogs Afield - Trust & Safety Report',
+        'body', format(E'Reporter: %s\nReported: %s\nReason: %s', reporter_email, reported_email, new.reason)
+      )
+    );
+  exception when others then
+    -- Notification failure must never prevent the report from being saved
+    null;
+  end;
   return new;
 end;
 $$;

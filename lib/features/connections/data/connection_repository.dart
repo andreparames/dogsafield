@@ -23,14 +23,6 @@ class ConnectionRepository {
         .eq('user_id_a', targetUserId)
         .eq('user_id_b', user.id);
 
-    await _client.from('connections').upsert({
-      'user_id_a': user.id,
-      'user_id_b': targetUserId,
-      'block_tier': tier,
-      'are_packmates': false,
-      'report_reason': reportReason,
-    }, onConflict: 'user_id_a, user_id_b');
-
     if (tier == 3 && reportReason != null) {
       await _client.from('reports').insert({
         'reporter_id': user.id,
@@ -38,6 +30,14 @@ class ConnectionRepository {
         'reason': reportReason,
       });
     }
+
+    await _client.from('connections').upsert({
+      'user_id_a': user.id,
+      'user_id_b': targetUserId,
+      'block_tier': tier,
+      'are_packmates': false,
+      'report_reason': reportReason,
+    }, onConflict: 'user_id_a, user_id_b');
   }
 
   Future<List<Map<String, dynamic>>> fetchBlockedUsers() async {
