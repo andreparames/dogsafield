@@ -332,17 +332,22 @@ class _DogPhotoTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
-    return GestureDetector(
-      onTap: () => _showDogEditSheet(context, ref, dog, ownerId),
-      child: ClipRRect(
+    return Semantics(
+      label: dog.name,
+      button: true,
+      child: InkWell(
+        onTap: () => _showDogEditSheet(context, ref, dog, ownerId),
         borderRadius: BorderRadius.circular(12),
-        child: dog.photoUrl != null
-            ? Image.network(
-                dog.photoUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _namePlaceholder(theme),
-              )
-            : _namePlaceholder(theme),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: dog.photoUrl != null
+              ? Image.network(
+                  dog.photoUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _namePlaceholder(theme),
+                )
+              : _namePlaceholder(theme),
+        ),
       ),
     );
   }
@@ -403,7 +408,7 @@ void _showDogEditSheet(BuildContext context, WidgetRef ref, Dog? existing, Strin
                       width: 120,
                       height: 120,
                       child: currentPhotoUrl != null
-                          ? Image.network(currentPhotoUrl, fit: BoxFit.cover,
+                          ? Image.network(currentPhotoUrl!, fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => _photoPlaceholder(ctx),
                             )
                           : _photoPlaceholder(ctx),
@@ -420,22 +425,18 @@ void _showDogEditSheet(BuildContext context, WidgetRef ref, Dog? existing, Strin
                         final picked = await picker.pickImage(source: ImageSource.gallery);
                         if (picked == null) return;
                         if (!ctx.mounted) return;
-                        Navigator.pop(ctx);
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(context.t.common.uploading)),
-                        );
                         try {
-                          await ref.read(accountRepositoryProvider).uploadDogPhoto(existing.id, picked.path);
+                          final url = await ref.read(accountRepositoryProvider).uploadDogPhoto(existing.id, picked.path);
+                          setSheetState(() => currentPhotoUrl = url);
                           ref.invalidate(accountDetailProvider);
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
                               SnackBar(content: Text(context.t.common.saved)),
                             );
                           }
                         } catch (_) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
                               SnackBar(content: Text(context.t.errors.failedToSave)),
                             );
                           }
@@ -451,22 +452,18 @@ void _showDogEditSheet(BuildContext context, WidgetRef ref, Dog? existing, Strin
                       TextButton.icon(
                         onPressed: () async {
                           if (!ctx.mounted) return;
-                          Navigator.pop(ctx);
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(context.t.common.uploading)),
-                          );
                           try {
                             await ref.read(accountRepositoryProvider).removeDogPhoto(existing.id);
+                            setSheetState(() => currentPhotoUrl = null);
                             ref.invalidate(accountDetailProvider);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                            if (ctx.mounted) {
+                              ScaffoldMessenger.of(ctx).showSnackBar(
                                 SnackBar(content: Text(context.t.common.saved)),
                               );
                             }
                           } catch (_) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                            if (ctx.mounted) {
+                              ScaffoldMessenger.of(ctx).showSnackBar(
                                 SnackBar(content: Text(context.t.errors.failedToSave)),
                               );
                             }

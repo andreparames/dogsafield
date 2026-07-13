@@ -39,21 +39,60 @@ class AccountRepository {
     await _client.from('dogs').insert(fields);
   }
 
-  Future<void> deleteDog(String dogId) async {
-    await _client.from('dogs').delete().eq('id', dogId);
-  }
-
   Future<String> uploadDogPhoto(String dogId, String localPath) async {
     final ext = localPath.split('.').last;
     final path = 'dog_photos/$dogId/${DateTime.now().millisecondsSinceEpoch}.$ext';
+    final previous = await _fetchDogPhotoUrl(dogId);
+    final oldPath = previous != null ? _storagePathFromUrl(previous) : null;
+    if (oldPath != null) {
+      await _client.storage.from('photos').remove([oldPath]);
+    }
     await _client.storage.from('photos').upload(path, File(localPath));
     final url = _client.storage.from('photos').getPublicUrl(path);
-    await _client.from('dogs').update({'photo_url': url}).eq('id', dogId);
+    try {
+      await _client.from('dogs').update({'photo_url': url}).eq('id', dogId);
+    } catch (_) {
+      await _client.storage.from('photos').remove([path]);
+      rethrow;
+    }
     return url;
   }
 
   Future<void> removeDogPhoto(String dogId) async {
+    final current = await _fetchDogPhotoUrl(dogId);
     await _client.from('dogs').update({'photo_url': null}).eq('id', dogId);
+    if (current != null) {
+      final oldPath = _storagePathFromUrl(current);
+      if (oldPath != null) {
+        await _client.storage.from('photos').remove([oldPath]);
+      }
+    }
+  }
+
+  Future<void> deleteDog(String dogId) async {
+    final url = await _fetchDogPhotoUrl(dogId);
+    await _client.from('dogs').delete().eq('id', dogId);
+    if (url != null) {
+      final path = _storagePathFromUrl(url);
+      if (path != null) {
+        await _client.storage.from('photos').remove([path]);
+      }
+    }
+  }
+
+  Future<String?> _fetchDogPhotoUrl(String dogId) async {
+    final row = await _client
+        .from('dogs')
+        .select('photo_url')
+        .eq('id', dogId)
+        .maybeSingle();
+    return row?['photo_url'] as String?;
+  }
+
+  String? _storagePathFromUrl(String url) {
+    final prefix = _client.storage.from('photos').getPublicUrl('');
+    if (!url.startsWith(prefix)) return null;
+    return url.substring(prefix.length);
   }
 
   Future<void> suspendAccount() async {
