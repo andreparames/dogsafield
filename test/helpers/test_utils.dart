@@ -98,6 +98,17 @@ class FakeAccountRepository implements AccountRepository {
   }
 
   @override
+  Future<String> uploadDogPhoto(String dogId, String localPath) async {
+    if (shouldFail) throw Exception('Upload failed');
+    return 'https://example.com/dog_photos/$dogId/photo.jpg';
+  }
+
+  @override
+  Future<void> removeDogPhoto(String dogId) async {
+    if (shouldFail) throw Exception('Remove failed');
+  }
+
+  @override
   Future<void> suspendAccount() async {
     if (shouldFail) throw Exception('Suspend failed');
   }

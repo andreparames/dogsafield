@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/dog.dart';
 import '../../../shared/models/user_profile.dart';
@@ -40,6 +41,19 @@ class AccountRepository {
 
   Future<void> deleteDog(String dogId) async {
     await _client.from('dogs').delete().eq('id', dogId);
+  }
+
+  Future<String> uploadDogPhoto(String dogId, String localPath) async {
+    final ext = localPath.split('.').last;
+    final path = 'dog_photos/$dogId/${DateTime.now().millisecondsSinceEpoch}.$ext';
+    await _client.storage.from('photos').upload(path, File(localPath));
+    final url = _client.storage.from('photos').getPublicUrl(path);
+    await _client.from('dogs').update({'photo_url': url}).eq('id', dogId);
+    return url;
+  }
+
+  Future<void> removeDogPhoto(String dogId) async {
+    await _client.from('dogs').update({'photo_url': null}).eq('id', dogId);
   }
 
   Future<void> suspendAccount() async {
@@ -108,6 +122,7 @@ class AccountRepository {
           ? SocialVibe.values.firstWhere((e) => e.name == row['vibe'])
           : null,
       icebreakerAnswer: row['icebreaker_answer'] as String?,
+      photoUrl: row['photo_url'] as String?,
     );
   }
 }

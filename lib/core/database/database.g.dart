@@ -1587,6 +1587,17 @@ class $DogsTableTable extends DogsTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _photoUrlMeta = const VerificationMeta(
+    'photoUrl',
+  );
+  @override
+  late final GeneratedColumn<String> photoUrl = GeneratedColumn<String>(
+    'photo_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1596,6 +1607,7 @@ class $DogsTableTable extends DogsTable
     breed,
     vibe,
     icebreakerAnswer,
+    photoUrl,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1657,6 +1669,12 @@ class $DogsTableTable extends DogsTable
         ),
       );
     }
+    if (data.containsKey('photo_url')) {
+      context.handle(
+        _photoUrlMeta,
+        photoUrl.isAcceptableOrUnknown(data['photo_url']!, _photoUrlMeta),
+      );
+    }
     return context;
   }
 
@@ -1697,6 +1715,10 @@ class $DogsTableTable extends DogsTable
         DriftSqlType.string,
         data['${effectivePrefix}icebreaker_answer'],
       ),
+      photoUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo_url'],
+      ),
     );
   }
 
@@ -1714,6 +1736,7 @@ class DogsTableData extends DataClass implements Insertable<DogsTableData> {
   final String? breed;
   final String? vibe;
   final String? icebreakerAnswer;
+  final String? photoUrl;
   const DogsTableData({
     required this.id,
     required this.ownerId,
@@ -1722,6 +1745,7 @@ class DogsTableData extends DataClass implements Insertable<DogsTableData> {
     this.breed,
     this.vibe,
     this.icebreakerAnswer,
+    this.photoUrl,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1741,6 +1765,9 @@ class DogsTableData extends DataClass implements Insertable<DogsTableData> {
     if (!nullToAbsent || icebreakerAnswer != null) {
       map['icebreaker_answer'] = Variable<String>(icebreakerAnswer);
     }
+    if (!nullToAbsent || photoUrl != null) {
+      map['photo_url'] = Variable<String>(photoUrl);
+    }
     return map;
   }
 
@@ -1757,6 +1784,10 @@ class DogsTableData extends DataClass implements Insertable<DogsTableData> {
           icebreakerAnswer == null && nullToAbsent
               ? const Value.absent()
               : Value(icebreakerAnswer),
+      photoUrl:
+          photoUrl == null && nullToAbsent
+              ? const Value.absent()
+              : Value(photoUrl),
     );
   }
 
@@ -1773,6 +1804,7 @@ class DogsTableData extends DataClass implements Insertable<DogsTableData> {
       breed: serializer.fromJson<String?>(json['breed']),
       vibe: serializer.fromJson<String?>(json['vibe']),
       icebreakerAnswer: serializer.fromJson<String?>(json['icebreakerAnswer']),
+      photoUrl: serializer.fromJson<String?>(json['photoUrl']),
     );
   }
   @override
@@ -1786,6 +1818,7 @@ class DogsTableData extends DataClass implements Insertable<DogsTableData> {
       'breed': serializer.toJson<String?>(breed),
       'vibe': serializer.toJson<String?>(vibe),
       'icebreakerAnswer': serializer.toJson<String?>(icebreakerAnswer),
+      'photoUrl': serializer.toJson<String?>(photoUrl),
     };
   }
 
@@ -1797,6 +1830,7 @@ class DogsTableData extends DataClass implements Insertable<DogsTableData> {
     Value<String?> breed = const Value.absent(),
     Value<String?> vibe = const Value.absent(),
     Value<String?> icebreakerAnswer = const Value.absent(),
+    Value<String?> photoUrl = const Value.absent(),
   }) => DogsTableData(
     id: id ?? this.id,
     ownerId: ownerId ?? this.ownerId,
@@ -1808,6 +1842,7 @@ class DogsTableData extends DataClass implements Insertable<DogsTableData> {
         icebreakerAnswer.present
             ? icebreakerAnswer.value
             : this.icebreakerAnswer,
+    photoUrl: photoUrl.present ? photoUrl.value : this.photoUrl,
   );
   DogsTableData copyWithCompanion(DogsTableCompanion data) {
     return DogsTableData(
@@ -1821,6 +1856,8 @@ class DogsTableData extends DataClass implements Insertable<DogsTableData> {
           data.icebreakerAnswer.present
               ? data.icebreakerAnswer.value
               : this.icebreakerAnswer,
+      photoUrl:
+          data.photoUrl.present ? data.photoUrl.value : this.photoUrl,
     );
   }
 
@@ -1833,14 +1870,16 @@ class DogsTableData extends DataClass implements Insertable<DogsTableData> {
           ..write('age: $age, ')
           ..write('breed: $breed, ')
           ..write('vibe: $vibe, ')
-          ..write('icebreakerAnswer: $icebreakerAnswer')
+          ..write('icebreakerAnswer: $icebreakerAnswer, ')
+          ..write('photoUrl: $photoUrl')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, ownerId, name, age, breed, vibe, icebreakerAnswer);
+  int get hashCode => Object.hash(
+    id, ownerId, name, age, breed, vibe, icebreakerAnswer, photoUrl,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1851,7 +1890,8 @@ class DogsTableData extends DataClass implements Insertable<DogsTableData> {
           other.age == this.age &&
           other.breed == this.breed &&
           other.vibe == this.vibe &&
-          other.icebreakerAnswer == this.icebreakerAnswer);
+          other.icebreakerAnswer == this.icebreakerAnswer &&
+          other.photoUrl == this.photoUrl);
 }
 
 class DogsTableCompanion extends UpdateCompanion<DogsTableData> {
@@ -1862,6 +1902,7 @@ class DogsTableCompanion extends UpdateCompanion<DogsTableData> {
   final Value<String?> breed;
   final Value<String?> vibe;
   final Value<String?> icebreakerAnswer;
+  final Value<String?> photoUrl;
   final Value<int> rowid;
   const DogsTableCompanion({
     this.id = const Value.absent(),
@@ -1871,6 +1912,7 @@ class DogsTableCompanion extends UpdateCompanion<DogsTableData> {
     this.breed = const Value.absent(),
     this.vibe = const Value.absent(),
     this.icebreakerAnswer = const Value.absent(),
+    this.photoUrl = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   DogsTableCompanion.insert({
@@ -1881,6 +1923,7 @@ class DogsTableCompanion extends UpdateCompanion<DogsTableData> {
     this.breed = const Value.absent(),
     this.vibe = const Value.absent(),
     this.icebreakerAnswer = const Value.absent(),
+    this.photoUrl = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        ownerId = Value(ownerId),
@@ -1893,6 +1936,7 @@ class DogsTableCompanion extends UpdateCompanion<DogsTableData> {
     Expression<String>? breed,
     Expression<String>? vibe,
     Expression<String>? icebreakerAnswer,
+    Expression<String>? photoUrl,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1903,6 +1947,7 @@ class DogsTableCompanion extends UpdateCompanion<DogsTableData> {
       if (breed != null) 'breed': breed,
       if (vibe != null) 'vibe': vibe,
       if (icebreakerAnswer != null) 'icebreaker_answer': icebreakerAnswer,
+      if (photoUrl != null) 'photo_url': photoUrl,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1915,6 +1960,7 @@ class DogsTableCompanion extends UpdateCompanion<DogsTableData> {
     Value<String?>? breed,
     Value<String?>? vibe,
     Value<String?>? icebreakerAnswer,
+    Value<String?>? photoUrl,
     Value<int>? rowid,
   }) {
     return DogsTableCompanion(
@@ -1925,6 +1971,7 @@ class DogsTableCompanion extends UpdateCompanion<DogsTableData> {
       breed: breed ?? this.breed,
       vibe: vibe ?? this.vibe,
       icebreakerAnswer: icebreakerAnswer ?? this.icebreakerAnswer,
+      photoUrl: photoUrl ?? this.photoUrl,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1953,6 +2000,9 @@ class DogsTableCompanion extends UpdateCompanion<DogsTableData> {
     if (icebreakerAnswer.present) {
       map['icebreaker_answer'] = Variable<String>(icebreakerAnswer.value);
     }
+    if (photoUrl.present) {
+      map['photo_url'] = Variable<String>(photoUrl.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1969,6 +2019,7 @@ class DogsTableCompanion extends UpdateCompanion<DogsTableData> {
           ..write('breed: $breed, ')
           ..write('vibe: $vibe, ')
           ..write('icebreakerAnswer: $icebreakerAnswer, ')
+          ..write('photoUrl: $photoUrl, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2990,6 +3041,7 @@ typedef $$DogsTableTableCreateCompanionBuilder =
       Value<String?> breed,
       Value<String?> vibe,
       Value<String?> icebreakerAnswer,
+      Value<String?> photoUrl,
       Value<int> rowid,
     });
 typedef $$DogsTableTableUpdateCompanionBuilder =
@@ -3001,6 +3053,7 @@ typedef $$DogsTableTableUpdateCompanionBuilder =
       Value<String?> breed,
       Value<String?> vibe,
       Value<String?> icebreakerAnswer,
+      Value<String?> photoUrl,
       Value<int> rowid,
     });
 
@@ -3045,6 +3098,11 @@ class $$DogsTableTableFilterComposer
 
   ColumnFilters<String> get icebreakerAnswer => $composableBuilder(
     column: $table.icebreakerAnswer,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get photoUrl => $composableBuilder(
+    column: $table.photoUrl,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -3092,6 +3150,11 @@ class $$DogsTableTableOrderingComposer
     column: $table.icebreakerAnswer,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get photoUrl => $composableBuilder(
+    column: $table.photoUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$DogsTableTableAnnotationComposer
@@ -3123,6 +3186,11 @@ class $$DogsTableTableAnnotationComposer
 
   GeneratedColumn<String> get icebreakerAnswer => $composableBuilder(
     column: $table.icebreakerAnswer,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get photoUrl => $composableBuilder(
+    column: $table.photoUrl,
     builder: (column) => column,
   );
 }
@@ -3165,6 +3233,7 @@ class $$DogsTableTableTableManager
                 Value<String?> breed = const Value.absent(),
                 Value<String?> vibe = const Value.absent(),
                 Value<String?> icebreakerAnswer = const Value.absent(),
+                Value<String?> photoUrl = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DogsTableCompanion(
                 id: id,
@@ -3174,6 +3243,7 @@ class $$DogsTableTableTableManager
                 breed: breed,
                 vibe: vibe,
                 icebreakerAnswer: icebreakerAnswer,
+                photoUrl: photoUrl,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3185,6 +3255,7 @@ class $$DogsTableTableTableManager
                 Value<String?> breed = const Value.absent(),
                 Value<String?> vibe = const Value.absent(),
                 Value<String?> icebreakerAnswer = const Value.absent(),
+                Value<String?> photoUrl = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DogsTableCompanion.insert(
                 id: id,
@@ -3194,6 +3265,7 @@ class $$DogsTableTableTableManager
                 breed: breed,
                 vibe: vibe,
                 icebreakerAnswer: icebreakerAnswer,
+                photoUrl: photoUrl,
                 rowid: rowid,
               ),
           withReferenceMapper:

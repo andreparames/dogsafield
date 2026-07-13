@@ -292,10 +292,22 @@ class _DogsSection extends ConsumerWidget {
       children: [
         Text(context.t.account.myDogs, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
-        ...dogs.map((dog) => Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: _DogCard(dog: dog, ownerId: profile.id),
-        )),
+        if (dogs.isNotEmpty)
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+            ),
+            itemCount: dogs.length,
+            itemBuilder: (context, index) {
+              final dog = dogs[index];
+              return _DogPhotoTile(dog: dog, ownerId: profile.id);
+            },
+          ),
+        if (dogs.isNotEmpty) const SizedBox(height: 8),
         OutlinedButton.icon(
           onPressed: () => _showAddDogSheet(context, ref, profile.id),
           icon: const Icon(Icons.add),
@@ -310,116 +322,45 @@ class _DogsSection extends ConsumerWidget {
   }
 }
 
-class _DogCard extends ConsumerWidget {
+class _DogPhotoTile extends ConsumerWidget {
   final Dog dog;
   final String ownerId;
 
-  const _DogCard({required this.dog, required this.ownerId});
+  const _DogPhotoTile({required this.dog, required this.ownerId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 28,
-              backgroundColor: theme.colorScheme.primaryContainer,
-              child: Text(
-                (dog.name.isNotEmpty ? dog.name[0].toUpperCase() : '?'),
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(dog.name, style: theme.textTheme.titleMedium),
-                  if (dog.breed != null) ...[
-                    const SizedBox(height: 4),
-                    Text(dog.breed!, style: theme.textTheme.bodyMedium),
-                  ],
-                  if (dog.vibe != null) ...[
-                    const SizedBox(height: 4),
-                    Chip(
-                      label: Text(_vibeLabel(dog.vibe!, context),
-                          style: theme.textTheme.labelSmall),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  ],
-                  if (dog.icebreakerAnswer != null && dog.icebreakerAnswer!.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      '\u201C${dog.icebreakerAnswer}\u201D',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontStyle: FontStyle.italic,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            Column(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, size: 20),
-                  onPressed: () => _showDogEditSheet(context, ref, dog, ownerId),
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete_outline, size: 20, color: theme.colorScheme.error),
-                  onPressed: () => _showDeleteDogDialog(context, ref),
-                ),
-              ],
-            ),
-          ],
+    return GestureDetector(
+      onTap: () => _showDogEditSheet(context, ref, dog, ownerId),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: dog.photoUrl != null
+            ? Image.network(
+                dog.photoUrl!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _namePlaceholder(theme),
+              )
+            : _namePlaceholder(theme),
+      ),
+    );
+  }
+
+  Widget _namePlaceholder(ThemeData theme) {
+    return Container(
+      color: theme.colorScheme.primaryContainer,
+      alignment: Alignment.center,
+      child: Text(
+        dog.name,
+        style: theme.textTheme.titleSmall?.copyWith(
+          color: theme.colorScheme.onPrimaryContainer,
         ),
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
     );
-  }
-
-  String _vibeLabel(SocialVibe vibe, BuildContext context) {
-    return switch (vibe) {
-      SocialVibe.loungeLizard => context.t.vibe.loungeLizard,
-      SocialVibe.zoomieKing => context.t.vibe.zoomieKing,
-      SocialVibe.socialLearner => context.t.vibe.socialLearner,
-    };
-  }
-
-  Future<void> _showDeleteDogDialog(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(context.t.account.removeDog),
-        content: Text(context.t.account.removeDogConfirm(dogName: dog.name)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.t.common.cancel)),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
-            child: Text(context.t.common.remove),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-    try {
-      await ref.read(accountRepositoryProvider).deleteDog(dog.id);
-      ref.invalidate(accountDetailProvider);
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.t.errors.failedToSave)),
-        );
-      }
-    }
   }
 }
 
@@ -431,6 +372,7 @@ void _showDogEditSheet(BuildContext context, WidgetRef ref, Dog? existing, Strin
   final breedCtrl = TextEditingController(text: existing?.breed ?? '');
   final icebreakerCtrl = TextEditingController(text: existing?.icebreakerAnswer ?? '');
   SocialVibe? selectedVibe = existing?.vibe;
+  String? currentPhotoUrl = existing?.photoUrl;
 
   showModalBottomSheet(
     context: context,
@@ -453,6 +395,94 @@ void _showDogEditSheet(BuildContext context, WidgetRef ref, Dog? existing, Strin
                 style: Theme.of(ctx).textTheme.titleMedium,
               ),
               const SizedBox(height: 16),
+              if (existing != null) ...[
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      width: 120,
+                      height: 120,
+                      child: currentPhotoUrl != null
+                          ? Image.network(currentPhotoUrl, fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => _photoPlaceholder(ctx),
+                            )
+                          : _photoPlaceholder(ctx),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () async {
+                        final picker = ImagePicker();
+                        final picked = await picker.pickImage(source: ImageSource.gallery);
+                        if (picked == null) return;
+                        if (!ctx.mounted) return;
+                        Navigator.pop(ctx);
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(context.t.common.uploading)),
+                        );
+                        try {
+                          await ref.read(accountRepositoryProvider).uploadDogPhoto(existing.id, picked.path);
+                          ref.invalidate(accountDetailProvider);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(context.t.common.saved)),
+                            );
+                          }
+                        } catch (_) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(context.t.errors.failedToSave)),
+                            );
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.photo, size: 18),
+                      label: Text(
+                        currentPhotoUrl != null ? context.t.account.changePhoto : context.t.account.addPhoto,
+                      ),
+                    ),
+                    if (currentPhotoUrl != null) ...[
+                      const SizedBox(width: 8),
+                      TextButton.icon(
+                        onPressed: () async {
+                          if (!ctx.mounted) return;
+                          Navigator.pop(ctx);
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(context.t.common.uploading)),
+                          );
+                          try {
+                            await ref.read(accountRepositoryProvider).removeDogPhoto(existing.id);
+                            ref.invalidate(accountDetailProvider);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(context.t.common.saved)),
+                              );
+                            }
+                          } catch (_) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(context.t.errors.failedToSave)),
+                              );
+                            }
+                          }
+                        },
+                        icon: Icon(Icons.delete_outline, size: 18, color: Theme.of(context).colorScheme.error),
+                        label: Text(
+                          context.t.account.deletePhoto,
+                          style: TextStyle(color: Theme.of(context).colorScheme.error),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
               TextField(
                 controller: nameCtrl,
                 decoration: InputDecoration(
@@ -535,11 +565,64 @@ void _showDogEditSheet(BuildContext context, WidgetRef ref, Dog? existing, Strin
                 },
                 child: Text(existing == null ? context.t.common.add : context.t.common.save),
               ),
+              if (existing != null) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: ctx,
+                        builder: (dlgCtx) => AlertDialog(
+                          title: Text(context.t.account.removeDog),
+                          content: Text(context.t.account.removeDogConfirm(dogName: existing.name)),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(dlgCtx, false), child: Text(context.t.common.cancel)),
+                            FilledButton(
+                              onPressed: () => Navigator.pop(dlgCtx, true),
+                              style: FilledButton.styleFrom(backgroundColor: Theme.of(dlgCtx).colorScheme.error),
+                              child: Text(context.t.common.remove),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirmed != true) return;
+                      try {
+                        await ref.read(accountRepositoryProvider).deleteDog(existing.id);
+                        ref.invalidate(accountDetailProvider);
+                        if (ctx.mounted) Navigator.pop(ctx);
+                      } catch (_) {
+                        if (ctx.mounted) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(content: Text(context.t.errors.failedToSave)),
+                          );
+                        }
+                      }
+                    },
+                    icon: Icon(Icons.delete_outline, color: Theme.of(ctx).colorScheme.error),
+                    label: Text(
+                      context.t.common.remove,
+                      style: TextStyle(color: Theme.of(ctx).colorScheme.error),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(ctx).colorScheme.error,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
       ),
     ),
+  );
+}
+
+Widget _photoPlaceholder(BuildContext context) {
+  return Container(
+    color: Theme.of(context).colorScheme.primaryContainer,
+    alignment: Alignment.center,
+    child: Icon(Icons.pets, color: Theme.of(context).colorScheme.onPrimaryContainer, size: 40),
   );
 }
 

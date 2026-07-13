@@ -44,6 +44,7 @@ class DogsTable extends Table {
   TextColumn get breed => text().nullable()();
   TextColumn get vibe => text().nullable()();
   TextColumn get icebreakerAnswer => text().nullable()();
+  TextColumn get photoUrl => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
