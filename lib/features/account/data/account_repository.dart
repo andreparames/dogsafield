@@ -44,9 +44,6 @@ class AccountRepository {
     final path = 'dog_photos/$dogId/${DateTime.now().millisecondsSinceEpoch}.$ext';
     final previous = await _fetchDogPhotoUrl(dogId);
     final oldPath = previous != null ? _storagePathFromUrl(previous) : null;
-    if (oldPath != null) {
-      await _client.storage.from('photos').remove([oldPath]);
-    }
     await _client.storage.from('photos').upload(path, File(localPath));
     final url = _client.storage.from('photos').getPublicUrl(path);
     try {
@@ -54,6 +51,12 @@ class AccountRepository {
     } catch (_) {
       await _client.storage.from('photos').remove([path]);
       rethrow;
+    }
+    if (oldPath != null) {
+      try {
+        await _client.storage.from('photos').remove([oldPath]);
+      } catch (_) {
+      }
     }
     return url;
   }
@@ -64,7 +67,10 @@ class AccountRepository {
     if (current != null) {
       final oldPath = _storagePathFromUrl(current);
       if (oldPath != null) {
-        await _client.storage.from('photos').remove([oldPath]);
+        try {
+          await _client.storage.from('photos').remove([oldPath]);
+        } catch (_) {
+        }
       }
     }
   }
@@ -75,7 +81,10 @@ class AccountRepository {
     if (url != null) {
       final path = _storagePathFromUrl(url);
       if (path != null) {
-        await _client.storage.from('photos').remove([path]);
+        try {
+          await _client.storage.from('photos').remove([path]);
+        } catch (_) {
+        }
       }
     }
   }
