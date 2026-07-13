@@ -71,6 +71,7 @@ class LocalCacheService {
           breed: Value(dog.breed),
           vibe: Value(dog.vibe?.name),
           icebreakerAnswer: Value(dog.icebreakerAnswer),
+          photoUrl: Value(dog.photoUrl),
         ),
       );
     }
@@ -258,6 +259,7 @@ class LocalCacheService {
       breed: row.breed,
       vibe: _safeEnum(SocialVibe.values, row.vibe),
       icebreakerAnswer: row.icebreakerAnswer,
+      photoUrl: row.photoUrl,
     );
   }
 }

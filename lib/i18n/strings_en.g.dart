@@ -456,6 +456,12 @@ class Translations$account$en {
 	/// en: 'Sign Out'
 	String get signOut => 'Sign Out';
 
+	/// en: 'Add Photo'
+	String get addPhoto => 'Add Photo';
+
+	/// en: 'Delete Photo'
+	String get deletePhoto => 'Delete Photo';
+
 	late final Translations$account$upgrade$en upgrade = Translations$account$upgrade$en._(_root);
 	late final Translations$account$suspend$en suspend = Translations$account$suspend$en._(_root);
 	late final Translations$account$rsvpLimit$en rsvpLimit = Translations$account$rsvpLimit$en._(_root);
@@ -1412,6 +1418,8 @@ extension on Translations {
 			'account.deleteConfirmError' => 'Incorrect. Please type DELETE to confirm.',
 			'account.deleteForever' => 'Delete Forever',
 			'account.signOut' => 'Sign Out',
+			'account.addPhoto' => 'Add Photo',
+			'account.deletePhoto' => 'Delete Photo',
 			'account.upgrade.title' => 'Upgrade',
 			'account.upgrade.heading' => 'Upgrade to Premium',
 			'account.upgrade.description' => 'Unlimited RSVPs, early access to events, and exclusive perks.',

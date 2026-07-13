@@ -12,6 +12,7 @@ class Dog {
   final String? breed;
   final SocialVibe? vibe;
   final String? icebreakerAnswer;
+  final String? photoUrl;
 
   const Dog({
     required this.id,
@@ -21,6 +22,7 @@ class Dog {
     this.breed,
     this.vibe,
     this.icebreakerAnswer,
+    this.photoUrl,
   });
 
   Dog copyWith({
@@ -30,6 +32,7 @@ class Dog {
     String? breed,
     SocialVibe? vibe,
     String? icebreakerAnswer,
+    String? photoUrl,
   }) {
     return Dog(
       id: id,
@@ -39,6 +42,7 @@ class Dog {
       breed: breed ?? this.breed,
       vibe: vibe ?? this.vibe,
       icebreakerAnswer: icebreakerAnswer ?? this.icebreakerAnswer,
+      photoUrl: photoUrl ?? this.photoUrl,
     );
   }
 }

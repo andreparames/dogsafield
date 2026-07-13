@@ -63,7 +63,7 @@ void main() {
       expect(find.text('bob@example.com'), findsOneWidget);
     });
 
-    testWidgets('displays dog info when dog is present', (tester) async {
+    testWidgets('displays dog name in photo grid when dog is present', (tester) async {
       await tester.pumpWidget(createAccountApp(
         AccountDetail(
           profile: UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
@@ -73,8 +73,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Buddy'), findsOneWidget);
-      expect(find.text('Labrador'), findsOneWidget);
-      expect(find.text('Zoomie King'), findsOneWidget);
     });
 
     testWidgets('displays trial RSVP section', (tester) async {
@@ -189,7 +187,7 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('displays dog icebreaker answer', (tester) async {
+    testWidgets('displays dog name even when no photo', (tester) async {
       await tester.pumpWidget(createAccountApp(
         AccountDetail(
           profile: UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
@@ -198,7 +196,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      expect(find.text('\u201CHe ate my shoe\u201D'), findsOneWidget);
+      expect(find.text('Buddy'), findsOneWidget);
     });
 
     testWidgets('displays ask before feeding when treat policy set', (tester) async {

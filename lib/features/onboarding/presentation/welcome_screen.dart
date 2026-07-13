@@ -18,10 +18,12 @@ class WelcomeScreen extends ConsumerWidget {
           child: Column(
             children: [
               const Spacer(),
-              Icon(Icons.pets, size: 80, color: theme.colorScheme.primary),
-              const SizedBox(height: 16),
-              Text(context.t.onboarding.appTitle, style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+              Image.asset(
+                'assets/images/logo.png',
+                width: MediaQuery.of(context).size.width * 0.8,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 24),
               Text(
                 context.t.onboarding.tagline,
                 textAlign: TextAlign.center,
