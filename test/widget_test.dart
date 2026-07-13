@@ -19,7 +19,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Dogs Afield'), findsOneWidget);
+    expect(find.text('Because great walks are better with great company.'), findsOneWidget);
     expect(find.text('Continue with Google'), findsOneWidget);
   });
 }
