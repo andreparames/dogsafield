@@ -59,6 +59,7 @@ run_app.bat
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/build/
 
 # Local build artifacts and screenshots
 *.apk
