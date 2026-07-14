@@ -5,6 +5,7 @@ import '../../../shared/models/user_profile.dart';
 enum OnboardingStep {
   welcome,
   photoUpload,
+  livenessVerification,
   profileForm,
   icebreaker,
   safetyBoundaries,
@@ -23,6 +24,8 @@ class OnboardingState {
   final String? localPhotoPath;
   final UserProfile? userProfile;
   final Dog? dog;
+  final Map<String, dynamic>? humanTargetFaceCoordinates;
+  final bool isBiometricsVerified;
 
   const OnboardingState({
     this.step = OnboardingStep.welcome,
@@ -34,6 +37,8 @@ class OnboardingState {
     this.localPhotoPath,
     this.userProfile,
     this.dog,
+    this.humanTargetFaceCoordinates,
+    this.isBiometricsVerified = false,
   });
 
   OnboardingState copyWith({
@@ -46,6 +51,8 @@ class OnboardingState {
     String? localPhotoPath,
     UserProfile? userProfile,
     Dog? dog,
+    Map<String, dynamic>? humanTargetFaceCoordinates,
+    bool? isBiometricsVerified,
   }) {
     return OnboardingState(
       step: step ?? this.step,
@@ -59,6 +66,10 @@ class OnboardingState {
       localPhotoPath: localPhotoPath ?? this.localPhotoPath,
       userProfile: userProfile ?? this.userProfile,
       dog: dog ?? this.dog,
+      humanTargetFaceCoordinates:
+          humanTargetFaceCoordinates ?? this.humanTargetFaceCoordinates,
+      isBiometricsVerified:
+          isBiometricsVerified ?? this.isBiometricsVerified,
     );
   }
 }
@@ -82,6 +93,14 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
 
   void setDog(Dog dog) {
     state = state.copyWith(dog: dog);
+  }
+
+  void setHumanTargetFaceCoordinates(Map<String, dynamic> coords) {
+    state = state.copyWith(humanTargetFaceCoordinates: coords);
+  }
+
+  void setBiometricsVerified(bool verified) {
+    state = state.copyWith(isBiometricsVerified: verified);
   }
 
   void initFromAuth(String id, String email, String? displayName) {

@@ -21,6 +21,7 @@ import 'package:dogsafield/features/messaging/data/messaging_repository.dart';
 import 'package:dogsafield/features/messaging/data/conversation.dart';
 import 'package:dogsafield/features/messaging/data/message.dart';
 import 'package:dogsafield/features/onboarding/data/auth_service.dart';
+import 'package:dogsafield/features/onboarding/data/biometrics_repository.dart';
 import 'package:dogsafield/features/onboarding/data/onboarding_repository.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
@@ -161,6 +162,46 @@ class FakeAuthService extends AuthService {
 
   @override
   Future<void> signOut() async {}
+}
+
+class FakeBiometricsRepository extends BiometricsRepository {
+  FakeBiometricsRepository() : super(Supabase.instance.client);
+
+  bool shouldFail = false;
+  bool shouldReject = false;
+  int sessionCallCount = 0;
+  int verifyCallCount = 0;
+
+  @override
+  Future<LivenessSessionResponse> createLivenessSession() async {
+    sessionCallCount++;
+    if (shouldFail) throw Exception('Session creation failed');
+    return const LivenessSessionResponse(
+      sessionId: 'test-session-id',
+      authToken: 'test-auth-token',
+    );
+  }
+
+  @override
+  Future<VerifyBiometricsResponse> verifyBiometrics({
+    required String imagePath,
+    required Map<String, dynamic> humanTargetFaceCoordinates,
+    required String verifySessionId,
+  }) async {
+    verifyCallCount++;
+    if (shouldFail) throw Exception('Verification failed');
+    if (shouldReject) {
+      return const VerifyBiometricsResponse(
+        isMatch: false,
+        livenessDecision: 'spoof',
+        errorMessage: 'Face did not match',
+      );
+    }
+    return const VerifyBiometricsResponse(
+      isMatch: true,
+      livenessDecision: 'realface',
+    );
+  }
 }
 
 class FakeOnboardingRepository implements OnboardingRepository {
@@ -477,6 +518,7 @@ Widget createTestApp(Widget child) {
       GoRoute(path: '/test', builder: (_, __) => child),
       GoRoute(path: '/onboarding/welcome', builder: (_, __) => const SizedBox()),
       GoRoute(path: '/onboarding/photo', builder: (_, __) => const SizedBox()),
+      GoRoute(path: '/onboarding/liveness', builder: (_, __) => const SizedBox()),
       GoRoute(path: '/onboarding/profile', builder: (_, __) => const SizedBox()),
       GoRoute(path: '/onboarding/icebreaker', builder: (_, __) => const SizedBox()),
       GoRoute(path: '/onboarding/safety', builder: (_, __) => const SizedBox()),

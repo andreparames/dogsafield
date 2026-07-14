@@ -151,5 +151,77 @@ void main() {
       expect(container.read(onboardingProvider).dog!.name, 'Max');
       expect(container.read(onboardingProvider).dog!.age, 5);
     });
+
+    test('setHumanTargetFaceCoordinates stores coordinates', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
+      final coords = {'left': 10.0, 'top': 20.0, 'width': 100.0, 'height': 150.0};
+      notifier.setHumanTargetFaceCoordinates(coords);
+
+      expect(container.read(onboardingProvider).humanTargetFaceCoordinates, coords);
+      expect(container.read(onboardingProvider).humanTargetFaceCoordinates!['left'], 10.0);
+    });
+
+    test('setHumanTargetFaceCoordinates replaces previous coords', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
+      notifier.setHumanTargetFaceCoordinates({'left': 5.0, 'top': 5.0, 'width': 50.0, 'height': 50.0});
+      notifier.setHumanTargetFaceCoordinates({'left': 10.0, 'top': 20.0, 'width': 100.0, 'height': 150.0});
+
+      expect(container.read(onboardingProvider).humanTargetFaceCoordinates!['left'], 10.0);
+      expect(container.read(onboardingProvider).humanTargetFaceCoordinates!['height'], 150.0);
+    });
+
+    test('setBiometricsVerified stores verification flag', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
+      expect(container.read(onboardingProvider).isBiometricsVerified, false);
+
+      notifier.setBiometricsVerified(true);
+      expect(container.read(onboardingProvider).isBiometricsVerified, true);
+
+      notifier.setBiometricsVerified(false);
+      expect(container.read(onboardingProvider).isBiometricsVerified, false);
+    });
+
+    test('step transitions include livenessVerification', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
+      notifier.setStep(OnboardingStep.livenessVerification);
+      expect(container.read(onboardingProvider).step, OnboardingStep.livenessVerification);
+    });
+
+    test('initial state has no coordinates and unverified biometrics', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final state = container.read(onboardingProvider);
+
+      expect(state.humanTargetFaceCoordinates, isNull);
+      expect(state.isBiometricsVerified, false);
+    });
+
+    test('reset clears biometrics fields', () {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(onboardingProvider.notifier);
+
+      notifier.setHumanTargetFaceCoordinates({'left': 10.0, 'top': 20.0, 'width': 100.0, 'height': 150.0});
+      notifier.setBiometricsVerified(true);
+      notifier.setStep(OnboardingStep.livenessVerification);
+
+      notifier.reset();
+
+      expect(container.read(onboardingProvider).humanTargetFaceCoordinates, isNull);
+      expect(container.read(onboardingProvider).isBiometricsVerified, false);
+      expect(container.read(onboardingProvider).step, OnboardingStep.welcome);
+    });
   });
 }

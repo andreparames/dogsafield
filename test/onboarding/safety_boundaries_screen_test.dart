@@ -32,6 +32,47 @@ void main() {
     expect(find.text(t.onboarding.safety.completeProfile), findsOneWidget);
   });
 
+  testWidgets('shows snackbar when biometrics not verified', (WidgetTester tester) async {
+    LocaleSettings.setLocaleSync(AppLocale.en);
+    final container = await createContainerWithCache(additionalOverrides: [
+      onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
+    ]);
+    addTearDown(container.dispose);
+    container.read(onboardingProvider.notifier).setUserProfile(
+      UserProfile(id: 'u1', email: 'a@b.com', displayName: 'Alice'),
+    );
+    container.read(onboardingProvider.notifier).setDog(
+      Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
+    );
+
+    final router = GoRouter(
+      initialLocation: '/test',
+      routes: [
+        GoRoute(path: '/test', builder: (_, __) => const SafetyBoundariesScreen()),
+        GoRoute(path: '/', builder: (_, __) => const SizedBox()),
+        GoRoute(path: '/onboarding/photo', builder: (_, __) => const Scaffold(body: Text('Photo Page'))),
+      ],
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: TranslationProvider(
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.textContaining(t.onboarding.safety.okToShare));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(t.onboarding.safety.completeProfile));
+    // pump once to show the SnackBar before navigation completes
+    await tester.pump();
+    expect(find.text(t.onboarding.safety.bioNotVerified), findsOneWidget);
+  });
+
   testWidgets('submits and navigates to home with valid data', (WidgetTester tester) async {
     final container = await createContainerWithCache(additionalOverrides: [
       onboardingRepositoryProvider.overrideWithValue(fakeOnboardingRepository),
@@ -43,6 +84,7 @@ void main() {
     container.read(onboardingProvider.notifier).setDog(
         Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
     );
+    container.read(onboardingProvider.notifier).setBiometricsVerified(true);
 
     final router = GoRouter(
       initialLocation: '/test',
@@ -87,6 +129,7 @@ void main() {
         Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
     );
     container.read(onboardingProvider.notifier).setLocalPhotoPath('/tmp/photo.png');
+    container.read(onboardingProvider.notifier).setBiometricsVerified(true);
 
     final router = GoRouter(
       initialLocation: '/test',
@@ -132,6 +175,7 @@ void main() {
     container.read(onboardingProvider.notifier).setDog(
         Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
     );
+    container.read(onboardingProvider.notifier).setBiometricsVerified(true);
 
     final router = GoRouter(
       initialLocation: '/test',

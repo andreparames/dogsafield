@@ -11,6 +11,9 @@ onboarding:
     hint: This helps others recognize you at the park.
     takePhoto: Take Photo
     chooseGallery: Choose from Gallery
+    personRequired: Please ensure exactly one human face is visible in the photo.
+    dogRequired: We couldn't see your dog! Make sure your furry friend is clearly in the frame.
+    checkingPhoto: Checking your photo...
   profileForm:
     title: Pup Profile
     dogName: "Dog's Name"
@@ -31,6 +34,15 @@ onboarding:
     yourStory: Your story
     promptRequired: Please select a prompt
     storyRequired: Please share your story
+  liveness:
+    title: Liveness Check
+    subtitle: Let's verify it's really you
+    hint: Follow the on-screen instructions to complete a quick verification.
+    initializing: Starting verification...
+    processing: Processing verification...
+    failed: Biometric check failed. Please ensure you are matching the person in the picture in a well-lit area.
+    sessionError: Could not start verification session. Please try again.
+    cancelled: Verification cancelled. Please try again.
   safety:
     title: Safety Boundaries
     treatPolicy: Treat Policy
@@ -40,6 +52,7 @@ onboarding:
     completeProfile: Complete Profile
     policyRequired: Please select a treat policy
     error: Something went wrong. Please try again.
+    bioNotVerified: Biometric verification not completed. Please go back and verify your identity.
 
 fieldMap:
   createEvent: Create Event

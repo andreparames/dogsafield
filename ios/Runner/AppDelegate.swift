@@ -8,6 +8,12 @@ import UIKit
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
+
+    guard let registrar = self.registrar(forPlugin: "AzureLivenessPlugin") else {
+      return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+    AzureLivenessPlugin.register(with: registrar)
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }

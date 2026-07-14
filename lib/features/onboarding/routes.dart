@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'presentation/welcome_screen.dart';
 import 'presentation/photo_upload_screen.dart';
+import 'presentation/liveness_verification_screen.dart';
 import 'presentation/profile_form_screen.dart';
 import 'presentation/icebreaker_screen.dart';
 import 'presentation/safety_boundaries_screen.dart';
@@ -15,6 +16,11 @@ List<RouteBase> onboardingRoutes = [
     path: '/onboarding/photo',
     name: 'photoUpload',
     builder: (context, state) => const PhotoUploadScreen(),
+  ),
+  GoRoute(
+    path: '/onboarding/liveness',
+    name: 'livenessVerification',
+    builder: (context, state) => const LivenessVerificationScreen(),
   ),
   GoRoute(
     path: '/onboarding/profile',

@@ -85,6 +85,7 @@ class Translations$onboarding$en {
 	late final Translations$onboarding$photoUpload$en photoUpload = Translations$onboarding$photoUpload$en._(_root);
 	late final Translations$onboarding$profileForm$en profileForm = Translations$onboarding$profileForm$en._(_root);
 	late final Translations$onboarding$icebreaker$en icebreaker = Translations$onboarding$icebreaker$en._(_root);
+	late final Translations$onboarding$liveness$en liveness = Translations$onboarding$liveness$en._(_root);
 	late final Translations$onboarding$safety$en safety = Translations$onboarding$safety$en._(_root);
 }
 
@@ -292,18 +293,6 @@ class Translations$common$en {
 	/// en: 'Retry'
 	String get retry => 'Retry';
 
-	/// en: 'Save'
-	String get save => 'Save';
-
-	/// en: 'Add'
-	String get add => 'Add';
-
-	/// en: 'Uploading...'
-	String get uploading => 'Uploading...';
-
-	/// en: 'Saved'
-	String get saved => 'Saved';
-
 	/// en: 'Cancel'
 	String get cancel => 'Cancel';
 
@@ -362,30 +351,6 @@ class Translations$account$en {
 
 	/// en: 'Could not load account'
 	String get couldNotLoad => 'Could not load account';
-
-	/// en: 'Edit Profile'
-	String get editProfile => 'Edit Profile';
-
-	/// en: 'Display Name'
-	String get displayName => 'Display Name';
-
-	/// en: 'Change Photo'
-	String get changePhoto => 'Change Photo';
-
-	/// en: 'My Dogs'
-	String get myDogs => 'My Dogs';
-
-	/// en: 'Add a Dog'
-	String get addDog => 'Add a Dog';
-
-	/// en: 'Edit Dog'
-	String get editDog => 'Edit Dog';
-
-	/// en: 'Remove Dog'
-	String get removeDog => 'Remove Dog';
-
-	/// en: 'Are you sure you want to remove $dogName?'
-	String removeDogConfirm({required Object dogName}) => 'Are you sure you want to remove ${dogName}?';
 
 	/// en: 'My Events'
 	String get myEvents => 'My Events';
@@ -548,9 +513,6 @@ class Translations$errors$en {
 	/// en: 'Failed to delete account. Please try again.'
 	String get failedToDelete => 'Failed to delete account. Please try again.';
 
-	/// en: 'Failed to save. Please try again.'
-	String get failedToSave => 'Failed to save. Please try again.';
-
 	/// en: 'Failed to block user. Please try again.'
 	String get failedToBlock => 'Failed to block user. Please try again.';
 
@@ -592,6 +554,15 @@ class Translations$onboarding$photoUpload$en {
 
 	/// en: 'Choose from Gallery'
 	String get chooseGallery => 'Choose from Gallery';
+
+	/// en: 'Please ensure exactly one human face is visible in the photo.'
+	String get personRequired => 'Please ensure exactly one human face is visible in the photo.';
+
+	/// en: 'We couldn't see your dog! Make sure your furry friend is clearly in the frame.'
+	String get dogRequired => 'We couldn\'t see your dog! Make sure your furry friend is clearly in the frame.';
+
+	/// en: 'Checking your photo...'
+	String get checkingPhoto => 'Checking your photo...';
 }
 
 // Path: onboarding.profileForm
@@ -653,6 +624,39 @@ class Translations$onboarding$icebreaker$en {
 	String get storyRequired => 'Please share your story';
 }
 
+// Path: onboarding.liveness
+class Translations$onboarding$liveness$en {
+	Translations$onboarding$liveness$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Liveness Check'
+	String get title => 'Liveness Check';
+
+	/// en: 'Let's verify it's really you'
+	String get subtitle => 'Let\'s verify it\'s really you';
+
+	/// en: 'Follow the on-screen instructions to complete a quick verification.'
+	String get hint => 'Follow the on-screen instructions to complete a quick verification.';
+
+	/// en: 'Starting verification...'
+	String get initializing => 'Starting verification...';
+
+	/// en: 'Processing verification...'
+	String get processing => 'Processing verification...';
+
+	/// en: 'Biometric check failed. Please ensure you are matching the person in the picture in a well-lit area.'
+	String get failed => 'Biometric check failed. Please ensure you are matching the person in the picture in a well-lit area.';
+
+	/// en: 'Could not start verification session. Please try again.'
+	String get sessionError => 'Could not start verification session. Please try again.';
+
+	/// en: 'Verification cancelled. Please try again.'
+	String get cancelled => 'Verification cancelled. Please try again.';
+}
+
 // Path: onboarding.safety
 class Translations$onboarding$safety$en {
 	Translations$onboarding$safety$en._(this._root);
@@ -684,6 +688,9 @@ class Translations$onboarding$safety$en {
 
 	/// en: 'Something went wrong. Please try again.'
 	String get error => 'Something went wrong. Please try again.';
+
+	/// en: 'Biometric verification not completed. Please go back and verify your identity.'
+	String get bioNotVerified => 'Biometric verification not completed. Please go back and verify your identity.';
 }
 
 // Path: event.type
@@ -1241,6 +1248,9 @@ extension on Translations {
 			'onboarding.photoUpload.hint' => 'This helps others recognize you at the park.',
 			'onboarding.photoUpload.takePhoto' => 'Take Photo',
 			'onboarding.photoUpload.chooseGallery' => 'Choose from Gallery',
+			'onboarding.photoUpload.personRequired' => 'Please ensure exactly one human face is visible in the photo.',
+			'onboarding.photoUpload.dogRequired' => 'We couldn\'t see your dog! Make sure your furry friend is clearly in the frame.',
+			'onboarding.photoUpload.checkingPhoto' => 'Checking your photo...',
 			'onboarding.profileForm.title' => 'Pup Profile',
 			'onboarding.profileForm.dogName' => 'Dog\'s Name',
 			'onboarding.profileForm.age' => 'Age',
@@ -1258,6 +1268,14 @@ extension on Translations {
 			'onboarding.icebreaker.yourStory' => 'Your story',
 			'onboarding.icebreaker.promptRequired' => 'Please select a prompt',
 			'onboarding.icebreaker.storyRequired' => 'Please share your story',
+			'onboarding.liveness.title' => 'Liveness Check',
+			'onboarding.liveness.subtitle' => 'Let\'s verify it\'s really you',
+			'onboarding.liveness.hint' => 'Follow the on-screen instructions to complete a quick verification.',
+			'onboarding.liveness.initializing' => 'Starting verification...',
+			'onboarding.liveness.processing' => 'Processing verification...',
+			'onboarding.liveness.failed' => 'Biometric check failed. Please ensure you are matching the person in the picture in a well-lit area.',
+			'onboarding.liveness.sessionError' => 'Could not start verification session. Please try again.',
+			'onboarding.liveness.cancelled' => 'Verification cancelled. Please try again.',
 			'onboarding.safety.title' => 'Safety Boundaries',
 			'onboarding.safety.treatPolicy' => 'Treat Policy',
 			'onboarding.safety.treatPolicySubtitle' => 'Let other owners know how you handle treats.',
@@ -1266,6 +1284,7 @@ extension on Translations {
 			'onboarding.safety.completeProfile' => 'Complete Profile',
 			'onboarding.safety.policyRequired' => 'Please select a treat policy',
 			'onboarding.safety.error' => 'Something went wrong. Please try again.',
+			'onboarding.safety.bioNotVerified' => 'Biometric verification not completed. Please go back and verify your identity.',
 			'fieldMap.createEvent' => 'Create Event',
 			'fieldMap.account' => 'Account',
 			'fieldMap.nearby' => 'Nearby',

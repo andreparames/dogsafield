@@ -72,6 +72,7 @@ void main() {
       container.read(onboardingProvider.notifier).setDog(
         Dog(id: 'd1', ownerId: 'u1', name: 'Buddy'),
       );
+      container.read(onboardingProvider.notifier).setBiometricsVerified(true);
 
       final router = goRouterForTest(
         route: '/test',

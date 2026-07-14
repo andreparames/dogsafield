@@ -78,6 +78,16 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
     }
 
     final onboarding = ref.read(onboardingProvider);
+    final t = context.t;
+
+    if (!onboarding.isBiometricsVerified) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.onboarding.safety.bioNotVerified)),
+      );
+      context.push('/onboarding/photo');
+      return;
+    }
+
     final repo = ref.read(onboardingRepositoryProvider);
     final cache = ref.read(localCacheServiceProvider);
     final notifier = ref.read(onboardingProvider.notifier);
@@ -109,7 +119,7 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
       if (!mounted) return;
       context.push('/');
     } catch (e) {
-      notifier.setSubmissionError(context.t.onboarding.safety.error);
+      notifier.setSubmissionError(t.onboarding.safety.error);
     } finally {
       notifier.setSubmitting(false);
     }
