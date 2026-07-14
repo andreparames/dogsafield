@@ -322,6 +322,18 @@ class Translations$common$en {
 
 	/// en: 'Subscribe'
 	String get subscribe => 'Subscribe';
+
+	/// en: 'Uploading...'
+	String get uploading => 'Uploading...';
+
+	/// en: 'Saved'
+	String get saved => 'Saved';
+
+	/// en: 'Save'
+	String get save => 'Save';
+
+	/// en: 'Add'
+	String get add => 'Add';
 }
 
 // Path: hosting
@@ -360,6 +372,30 @@ class Translations$account$en {
 
 	/// en: 'Trial RSVPs'
 	String get trialRsvps => 'Trial RSVPs';
+
+	/// en: 'Edit Profile'
+	String get editProfile => 'Edit Profile';
+
+	/// en: 'Display Name'
+	String get displayName => 'Display Name';
+
+	/// en: 'Change Photo'
+	String get changePhoto => 'Change Photo';
+
+	/// en: 'My Dogs'
+	String get myDogs => 'My Dogs';
+
+	/// en: 'Add Dog'
+	String get addDog => 'Add Dog';
+
+	/// en: 'Edit Dog'
+	String get editDog => 'Edit Dog';
+
+	/// en: 'Remove Dog'
+	String get removeDog => 'Remove Dog';
+
+	/// en: 'Remove ${dogName}? This cannot be undone.'
+	String removeDogConfirm({required Object dogName}) => 'Remove ${dogName}? This cannot be undone.';
 
 	/// en: 'About Trial RSVPs'
 	String get aboutTrialTitle => 'About Trial RSVPs';
@@ -530,6 +566,9 @@ class Translations$errors$en {
 
 	/// en: 'Failed to cancel RSVP: $error'
 	String failedToCancelRsvp({required Object error}) => 'Failed to cancel RSVP: ${error}';
+
+	/// en: 'Failed to save. Please try again.'
+	String get failedToSave => 'Failed to save. Please try again.';
 }
 
 // Path: onboarding.photoUpload
@@ -1345,6 +1384,10 @@ extension on Translations {
 			'common.unblock' => 'Unblock',
 			'common.upgrade' => 'Upgrade',
 			'common.subscribe' => 'Subscribe',
+			'common.uploading' => 'Uploading...',
+			'common.saved' => 'Saved',
+			'common.save' => 'Save',
+			'common.add' => 'Add',
 			'hosting.create.titleCreate' => 'Create Event',
 			'hosting.create.titleEdit' => 'Edit Event',
 			'hosting.create.eventType' => 'Event Type',
@@ -1417,6 +1460,14 @@ extension on Translations {
 			'account.myEvents' => 'My Events',
 			'account.blockedUsers' => 'Blocked Users',
 			'account.trialRsvps' => 'Trial RSVPs',
+			'account.editProfile' => 'Edit Profile',
+			'account.displayName' => 'Display Name',
+			'account.changePhoto' => 'Change Photo',
+			'account.myDogs' => 'My Dogs',
+			'account.addDog' => 'Add Dog',
+			'account.editDog' => 'Edit Dog',
+			'account.removeDog' => 'Remove Dog',
+			'account.removeDogConfirm' => ({required Object dogName}) => 'Remove ${dogName}? This cannot be undone.',
 			'account.aboutTrialTitle' => 'About Trial RSVPs',
 			'account.aboutTrialBody' => ({required Object max}) => 'You can use up to ${max} trial RSVPs to attend events without a Founding Pack subscription. Each RSVP gives you full access to the event. After your trial runs out, upgrade to keep joining the pack.',
 			'account.rsvpsRemaining' => ({required Object remaining, required Object max}) => 'You have ${remaining} of ${max} free RSVPs remaining.',
@@ -1494,6 +1545,7 @@ extension on Translations {
 			'errors.failedToUnblock' => 'Failed to unblock user. Please try again.',
 			'errors.failedToRsvp' => ({required Object error}) => 'Failed to RSVP: ${error}',
 			'errors.failedToCancelRsvp' => ({required Object error}) => 'Failed to cancel RSVP: ${error}',
+			'errors.failedToSave' => 'Failed to save. Please try again.',
 			_ => null,
 		};
 	}

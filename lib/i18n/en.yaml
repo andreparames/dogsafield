@@ -128,6 +128,10 @@ common:
   unblock: Unblock
   upgrade: Upgrade
   subscribe: Subscribe
+  uploading: Uploading...
+  saved: Saved
+  save: Save
+  add: Add
 
 hosting:
   create:
@@ -211,6 +215,14 @@ account:
   myEvents: My Events
   blockedUsers: Blocked Users
   trialRsvps: Trial RSVPs
+  editProfile: Edit Profile
+  displayName: Display Name
+  changePhoto: Change Photo
+  myDogs: My Dogs
+  addDog: Add Dog
+  editDog: Edit Dog
+  removeDog: Remove Dog
+  removeDogConfirm: "Remove ${dogName}? This cannot be undone."
   aboutTrialTitle: About Trial RSVPs
   aboutTrialBody: "You can use up to $max trial RSVPs to attend events without a Founding Pack subscription. Each RSVP gives you full access to the event. After your trial runs out, upgrade to keep joining the pack."
   rsvpsRemaining: "You have $remaining of $max free RSVPs remaining."
@@ -304,3 +316,4 @@ errors:
   failedToUnblock: Failed to unblock user. Please try again.
   failedToRsvp: "Failed to RSVP: $error"
   failedToCancelRsvp: "Failed to cancel RSVP: $error"
+  failedToSave: Failed to save. Please try again.
