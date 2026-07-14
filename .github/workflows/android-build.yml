@@ -50,6 +50,11 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/keystore.jks
 
+      - name: Install NDK
+        run: |
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "ndk;27.0.12077973" || \
+            (sleep 5 && $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "ndk;27.0.12077973")
+
       - name: Build Release Bundle
         run: flutter build appbundle --release --dart-define=SUPABASE_URL=https://noxyxxzetsrtkvrgpheq.supabase.co --dart-define=SUPABASE_PUB_KEY=sb_publishable_4myRJqQA46l6bvIa7VfOXw_Z-o6Hp4-
         env:
