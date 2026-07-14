@@ -37,7 +37,7 @@ class _LivenessVerificationScreenState extends ConsumerState<LivenessVerificatio
               ? null
               : IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: () => _cancel(context),
+                  onPressed: _cancel,
                 ),
         ),
         body: Center(
@@ -74,13 +74,13 @@ class _LivenessVerificationScreenState extends ConsumerState<LivenessVerificatio
                   Column(
                     children: [
                       FilledButton.icon(
-                        onPressed: () => _startVerification(context),
+                        onPressed: _startVerification,
                         icon: const Icon(Icons.play_arrow),
                         label: Text(t.common.next),
                       ),
                       const SizedBox(height: 12),
                       TextButton(
-                        onPressed: () => _cancel(context),
+                        onPressed: _cancel,
                         child: Text(t.common.cancel),
                       ),
                     ],
@@ -93,7 +93,7 @@ class _LivenessVerificationScreenState extends ConsumerState<LivenessVerificatio
     );
   }
 
-  Future<void> _startVerification(BuildContext context) async {
+  Future<void> _startVerification() async {
     final notifier = ref.read(onboardingProvider.notifier);
     final t = context.t;
 
@@ -111,7 +111,7 @@ class _LivenessVerificationScreenState extends ConsumerState<LivenessVerificatio
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(t.onboarding.liveness.cancelled)),
         );
-        _cancel(context);
+        _cancel();
         return;
       }
 
@@ -124,7 +124,7 @@ class _LivenessVerificationScreenState extends ConsumerState<LivenessVerificatio
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(t.onboarding.liveness.failed)),
         );
-        _cancel(context);
+        _cancel();
         return;
       }
 
@@ -145,14 +145,14 @@ class _LivenessVerificationScreenState extends ConsumerState<LivenessVerificatio
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(t.onboarding.liveness.failed)),
         );
-        _resetToPhoto(context);
+        _resetToPhoto();
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${t.onboarding.liveness.sessionError}: $e')),
       );
-      _resetToPhoto(context);
+      _resetToPhoto();
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -166,23 +166,22 @@ class _LivenessVerificationScreenState extends ConsumerState<LivenessVerificatio
       );
       return sessionId;
     } on MissingPluginException {
-      // platform channel not registered (e.g., test environment)
       return authToken;
     }
   }
 
-  void _resetToPhoto(BuildContext context) {
+  void _resetToPhoto() {
     final notifier = ref.read(onboardingProvider.notifier);
     notifier.setStep(OnboardingStep.photoUpload);
-    if (context.mounted) {
+    if (mounted) {
       context.pushReplacement('/onboarding/photo', extra: {'retry': true});
     }
   }
 
-  void _cancel(BuildContext context) {
+  void _cancel() {
     final notifier = ref.read(onboardingProvider.notifier);
     notifier.reset();
-    if (context.mounted) {
+    if (mounted) {
       context.pushReplacement('/onboarding/welcome');
     }
   }

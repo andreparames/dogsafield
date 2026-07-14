@@ -42,9 +42,7 @@ class BiometricsService {
       final text = object.labels.isNotEmpty ? object.labels.first.text.toLowerCase() : '';
       if (text == 'person') {
         personCount++;
-        if (personRect == null) {
-          personRect = object.boundingBox;
-        }
+        personRect ??= object.boundingBox;
       } else if (text == 'dog') {
         dogCount++;
       }
