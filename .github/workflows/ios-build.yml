@@ -14,15 +14,17 @@ jobs:
     runs-on: macos-14
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
 
       - name: Select Xcode 15.4
-        uses: maxim-lobanov/setup-xcode@v1
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90
         with:
           xcode-version: '15.4'
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
           flutter-version: '3.29.3'
           cache: true
@@ -30,4 +32,4 @@ jobs:
       - run: flutter pub get
 
       - name: Build iOS (simulator, no codesign)
-        run: flutter build ios --debug --no-codesign --dart-define=SUPABASE_URL=https://noxyxxzetsrtkvrgpheq.supabase.co --dart-define=SUPABASE_PUB_KEY=sb_publishable_4myRJqQA46l6bvIa7VfOXw_Z-o6Hp4-
+        run: flutter build ios --debug --no-codesign --simulator --dart-define=SUPABASE_URL=https://noxyxxzetsrtkvrgpheq.supabase.co --dart-define=SUPABASE_PUB_KEY=sb_publishable_4myRJqQA46l6bvIa7VfOXw_Z-o6Hp4-
