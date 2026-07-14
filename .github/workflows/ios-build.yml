@@ -33,3 +33,10 @@ jobs:
 
       - name: Build iOS (simulator, no codesign)
         run: flutter build ios --debug --no-codesign --simulator --dart-define=SUPABASE_URL=https://noxyxxzetsrtkvrgpheq.supabase.co --dart-define=SUPABASE_PUB_KEY=sb_publishable_4myRJqQA46l6bvIa7VfOXw_Z-o6Hp4-
+
+      - name: Upload .app artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f48907a1d3
+        with:
+          name: ios-simulator-app
+          path: build/ios/iphonesimulator/Runner.app
+          compression-level: 0
