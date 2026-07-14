@@ -127,3 +127,9 @@
 - [ ] **Push Notifications** — integrate FCM/APNs for offline delivery of DMs and events using `pg_net` DB triggers or Edge Functions
 - [ ] **Hub Parks** — designated parks shown during city launch periods
 - [ ] **AI photo verification** — stub or integrate computer vision check for dual-subject photo
+
+### CI/CD
+- [ ] **iOS TestFlight deployment** — add to `ios-build.yml`:
+  - Import distribution certificate and App Store provisioning profile
+  - Run `flutter build ipa --release`
+  - Upload to TestFlight via App Store Connect API or `altool`
