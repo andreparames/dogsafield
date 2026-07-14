@@ -1,0 +1,64 @@
+name: Android — Build & Deploy to Play Store
+
+on:
+  push:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & Upload to Play Store
+    runs-on: ubuntu-latest
+
+    env:
+      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Flutter SDK
+        id: cache-flutter
+        uses: actions/cache@v4
+        with:
+          path: /opt/flutter
+          key: flutter-3.29.3-${{ runner.os }}
+
+      - name: Install Flutter
+        if: steps.cache-flutter.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq curl git unzip xz-utils zip libglu1-mesa
+          git clone --depth 1 -b 3.29.3 https://github.com/flutter/flutter.git /opt/flutter
+
+      - name: Add Flutter to PATH
+        run: echo "/opt/flutter/bin" >> $GITHUB_PATH
+
+      - run: flutter pub get
+
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/keystore.jks
+
+      - name: Build Release Bundle
+        run: flutter build appbundle --release --dart-define=SUPABASE_URL=https://noxyxxzetsrtkvrgpheq.supabase.co --dart-define=SUPABASE_PUB_KEY=sb_publishable_4myRJqQA46l6bvIa7VfOXw_Z-o6Hp4-
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload to Play Store (Internal Track)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.dogsafield.dogsafield
+          releaseFiles: build/app/outputs/bundle/release/*.aab
+          track: internal
