@@ -12,6 +12,7 @@ import '../state/rsvp_providers.dart';
 import 'feedback_dialog.dart';
 import 'event_bottom_sheet.dart';
 import 'event_marker_icon.dart';
+import 'location_unavailable_dialog.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
 
 class FieldMapScreen extends ConsumerStatefulWidget {
@@ -23,6 +24,7 @@ class FieldMapScreen extends ConsumerStatefulWidget {
 
 class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   GoogleMapController? _mapController;
+  LatLng? _fallbackPosition;
 
   @override
   void dispose() {
@@ -32,7 +34,6 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final locationAsync = ref.watch(currentPositionProvider);
     final events = ref.watch(discoveredEventsProvider);
     final rsvpIdsAsync = ref.watch(myRsvpIdsProvider);
@@ -44,6 +45,12 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)),
         );
       });
+    });
+
+    ref.listen(currentPositionProvider, (previous, next) {
+      if (next.hasError && previous?.hasError != true) {
+        _showLocationUnavailableDialog();
+      }
     });
 
     ref.listen(allEventsProvider, (_, next) {
@@ -63,130 +70,26 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
             zoom: 15,
           );
 
-          final markers = <Marker>{};
-
-          final rsvpIds = rsvpIdsAsync.asData?.value ?? {};
-          for (final event in events) {
-            markers.add(
-              Marker(
-                markerId: MarkerId(event.id),
-                position: LatLng(event.latitude, event.longitude),
-                icon: markerIconForType(event.type, isRsvpd: rsvpIds.contains(event.id)),
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (_) => EventBottomSheet(
-                      event: event,
-                      showRsvpAction: showRsvps,
-                    ),
-                  );
-                },
-              ),
-            );
-          }
-
-          return Stack(
-            children: [
-              GoogleMap(
-                initialCameraPosition: cameraPosition,
-                onMapCreated: (controller) => _mapController = controller,
-                myLocationEnabled: false,
-                myLocationButtonEnabled: true,
-                markers: markers,
-              ),
-              Positioned.fill(
-                child: SafeArea(
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        top: 16,
-                        left: 16,
-                child: CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                  child: IconButton(
-                    icon: Icon(Icons.person, color: Theme.of(context).colorScheme.onPrimaryContainer),
-                    onPressed: () => context.push('/account'),
-                    tooltip: context.t.fieldMap.account,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 16,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: SegmentedButton<bool>(
-                    segments: [
-                      ButtonSegment(
-                        value: false,
-                        label: Text(context.t.fieldMap.nearby),
-                        icon: Icon(Icons.map),
-                      ),
-                      ButtonSegment(
-                        value: true,
-                        label: Text(context.t.fieldMap.myPacks),
-                        icon: Icon(Icons.bookmark),
-                      ),
-                    ],
-                    selected: {showRsvps},
-                    onSelectionChanged: (selected) {
-                      ref.read(rsvpFilterProvider.notifier).set(selected.first);
-                    },
-                  ),
-                ),
-              ),
-                       Positioned(
-                         top: 16,
-                         right: 16,
-                         child: IconButton(
-                           icon: Icon(Icons.chat_bubble_outline,
-                               color: theme.colorScheme.primary),
-                           tooltip: context.t.fieldMap.feedback,
-                           onPressed: () => _showFeedbackDialog(context),
-                         ),
-                       ),
-                        Positioned(
-                          right: 16,
-                          bottom: 128,
-                          child: FloatingActionButton.small(
-                           heroTag: 'recenter',
-                           onPressed: () {
-                             final pos = ref.read(currentPositionProvider).asData?.value;
-                             if (pos != null) {
-                               _mapController?.animateCamera(
-                                 CameraUpdate.newLatLng(LatLng(pos.latitude, pos.longitude)),
-                               );
-                             }
-                           },
-                           child: const Icon(Icons.my_location),
-                         ),
-                       ),
-                       Positioned(
-                         left: 16,
-                         bottom: 16,
-                         child: FloatingActionButton(
-                           heroTag: 'addEvent',
-                           onPressed: () {
-                             final profile = ref.read(onboardingProvider).userProfile;
-                             if (profile == null || !profile.hasSeenHostIntro) {
-                               context.push('/hosting/responsibility');
-                             } else {
-                               context.push('/hosting/create');
-                             }
-                           },
-                           tooltip: context.t.fieldMap.createEvent,
-                           child: const Icon(Icons.add),
-                         ),
-                       ),
-                     ],
-                  ),
-                ),
-              ),
-            ],
-          );
+          return _buildMap(context, cameraPosition, events, rsvpIdsAsync, showRsvps);
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () {
+          if (_fallbackPosition != null) {
+            final cameraPosition = CameraPosition(
+              target: _fallbackPosition!,
+              zoom: 12,
+            );
+            return _buildMap(context, cameraPosition, events, rsvpIdsAsync, showRsvps);
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
         error: (error, stack) {
+          if (_fallbackPosition != null) {
+            final cameraPosition = CameraPosition(
+              target: _fallbackPosition!,
+              zoom: 12,
+            );
+            return _buildMap(context, cameraPosition, events, rsvpIdsAsync, showRsvps);
+          }
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(32),
@@ -222,11 +125,169 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     );
   }
 
+  Widget _buildMap(
+    BuildContext context,
+    CameraPosition cameraPosition,
+    List<dynamic> events,
+    AsyncValue<dynamic> rsvpIdsAsync,
+    bool showRsvps,
+  ) {
+    final theme = Theme.of(context);
+    final markers = <Marker>{};
+    final rsvpIds = rsvpIdsAsync.asData?.value ?? {};
+    for (final event in events) {
+      markers.add(
+        Marker(
+          markerId: MarkerId(event.id),
+          position: LatLng(event.latitude, event.longitude),
+          icon: markerIconForType(event.type, isRsvpd: rsvpIds.contains(event.id)),
+          onTap: () {
+            showModalBottomSheet(
+              context: context,
+              builder: (_) => EventBottomSheet(
+                event: event,
+                showRsvpAction: showRsvps,
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    return Stack(
+      children: [
+        GoogleMap(
+          initialCameraPosition: cameraPosition,
+          onMapCreated: (controller) => _mapController = controller,
+          myLocationEnabled: false,
+          myLocationButtonEnabled: _fallbackPosition == null,
+          markers: markers,
+        ),
+        Positioned.fill(
+          child: SafeArea(
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  child: CircleAvatar(
+                    backgroundColor: theme.colorScheme.primaryContainer,
+                    child: IconButton(
+                      icon: Icon(Icons.person, color: theme.colorScheme.onPrimaryContainer),
+                      onPressed: () => context.push('/account'),
+                      tooltip: context.t.fieldMap.account,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 16,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: SegmentedButton<bool>(
+                      segments: [
+                        ButtonSegment(
+                          value: false,
+                          label: Text(context.t.fieldMap.nearby),
+                          icon: Icon(Icons.map),
+                        ),
+                        ButtonSegment(
+                          value: true,
+                          label: Text(context.t.fieldMap.myPacks),
+                          icon: Icon(Icons.bookmark),
+                        ),
+                      ],
+                      selected: {showRsvps},
+                      onSelectionChanged: (selected) {
+                        ref.read(rsvpFilterProvider.notifier).set(selected.first);
+                      },
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: IconButton(
+                    icon: Icon(Icons.chat_bubble_outline, color: theme.colorScheme.primary),
+                    tooltip: context.t.fieldMap.feedback,
+                    onPressed: () => _showFeedbackDialog(context),
+                  ),
+                ),
+                if (_fallbackPosition == null)
+                  Positioned(
+                    right: 16,
+                    bottom: 128,
+                    child: FloatingActionButton.small(
+                      heroTag: 'recenter',
+                      onPressed: () {
+                        final pos = ref.read(currentPositionProvider).asData?.value;
+                        if (pos != null) {
+                          _mapController?.animateCamera(
+                            CameraUpdate.newLatLng(LatLng(pos.latitude, pos.longitude)),
+                          );
+                        }
+                      },
+                      child: const Icon(Icons.my_location),
+                    ),
+                  ),
+                Positioned(
+                  left: 16,
+                  bottom: 16,
+                  child: FloatingActionButton(
+                    heroTag: 'addEvent',
+                    onPressed: () {
+                      final profile = ref.read(onboardingProvider).userProfile;
+                      if (profile == null || !profile.hasSeenHostIntro) {
+                        context.push('/hosting/responsibility');
+                      } else {
+                        context.push('/hosting/create');
+                      }
+                    },
+                    tooltip: context.t.fieldMap.createEvent,
+                    child: const Icon(Icons.add),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   void _showFeedbackDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (_) => FeedbackDialog(
         onSubmit: (message) => ref.read(feedbackProvider.notifier).submit(message),
+      ),
+    );
+  }
+
+  void _showLocationUnavailableDialog() {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => LocationUnavailableDialog(
+        onEnableLocation: () async {
+          Navigator.of(context).pop();
+          final service = LocationService();
+          final enabled = await service.isLocationEnabled();
+          if (!enabled) {
+            await Geolocator.openLocationSettings();
+          } else {
+            ref.invalidate(currentPositionProvider);
+          }
+        },
+        onRegionSelected: (region) {
+          setState(() {
+            _fallbackPosition = LatLng(region.centerLatitude, region.centerLongitude);
+          });
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLngZoom(_fallbackPosition!, 12),
+          );
+        },
       ),
     );
   }

@@ -23,9 +23,11 @@ import 'package:dogsafield/features/messaging/data/message.dart';
 import 'package:dogsafield/features/onboarding/data/auth_service.dart';
 import 'package:dogsafield/features/onboarding/data/onboarding_repository.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
+import 'package:dogsafield/features/field_map/data/region_repository.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
 import 'package:dogsafield/shared/models/dog.dart';
 import 'package:dogsafield/shared/models/event.dart';
+import 'package:dogsafield/shared/models/region.dart';
 import 'package:dogsafield/shared/models/user_profile.dart';
 
 class FakeAccountRepository implements AccountRepository {
@@ -337,6 +339,17 @@ class FakeConnectionRepository implements ConnectionRepository {
   }
 }
 
+class FakeRegionRepository implements RegionRepository {
+  List<Region> regions = [];
+  bool shouldFail = false;
+
+  @override
+  Future<List<Region>> fetchEnabledRegions() async {
+    if (shouldFail) throw Exception('Fetch failed');
+    return regions;
+  }
+}
+
 class FakeMessagingRepository implements MessagingRepository {
   bool shouldFail = false;
   bool canMessageResult = true;
@@ -468,6 +481,7 @@ final fakeOnboardingRepository = FakeOnboardingRepository();
 final fakeAccountRepository = FakeAccountRepository();
 final fakeConnectionRepository = FakeConnectionRepository();
 final fakeMessagingRepository = FakeMessagingRepository();
+final fakeRegionRepository = FakeRegionRepository();
 
 Widget createTestApp(Widget child) {
   LocaleSettings.setLocaleSync(AppLocale.en);
