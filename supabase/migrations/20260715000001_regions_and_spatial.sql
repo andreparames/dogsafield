@@ -1,9 +1,15 @@
 -- Add regions table and PostGIS spatial support for events
+-- Drops unused cities table
 
 -- 1. Enable PostGIS (idempotent)
 create extension if not exists postgis with schema extensions;
 
--- 2. Regions table
+-- 2. Drop unused cities table and FK
+alter table profiles drop constraint if exists profiles_founding_city_id_fkey;
+alter table profiles drop column if exists founding_city_id;
+drop table if exists cities;
+
+-- 3. Regions table
 create table if not exists regions (
   id uuid primary key default gen_random_uuid(),
   name text not null unique,
@@ -14,23 +20,23 @@ create table if not exists regions (
   updated_at timestamptz not null default now()
 );
 
--- 3. Generated location column on events (keeps existing lat/lng intact)
+-- 4. Generated location column on events (keeps existing lat/lng intact)
 alter table events
   add column if not exists location geography(Point, 4326)
   generated always as (st_makepoint(longitude, latitude)) stored;
 
--- 4. Spatial index for distance queries on events
+-- 5. Spatial index for distance queries on events
 create index if not exists idx_events_location_geo on events using gist (location);
 
--- 5. Spatial index on regions center
+-- 6. Spatial index on regions center
 create index if not exists idx_regions_center on regions using gist (center);
 
--- 6. RLS for regions
+-- 7. RLS for regions
 alter table regions enable row level security;
 
 create policy "Regions are publicly readable"
   on regions for select using (true);
 
--- 7. Auto-update updated_at for regions
+-- 8. Auto-update updated_at for regions
 create trigger set_regions_updated_at before update on regions
   for each row execute function update_updated_at();
