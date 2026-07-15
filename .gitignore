@@ -52,6 +52,9 @@ ios/Flutter/Local.xcconfig
 # Local environment variables (Supabase credentials, etc.)
 .env
 
+# Play Store service account keys
+dogsafield-*.json
+
 # Development launcher
 run_app.bat
 

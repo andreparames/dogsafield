@@ -89,7 +89,7 @@ jobs:
             (sleep 5 && $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "ndk;27.0.12077973")
 
       - name: Build Release Bundle
-        run: flutter build appbundle --release --dart-define=SUPABASE_URL=https://noxyxxzetsrtkvrgpheq.supabase.co --dart-define=SUPABASE_PUB_KEY=sb_publishable_4myRJqQA46l6bvIa7VfOXw_Z-o6Hp4-
+        run: flutter build appbundle --release --build-number=${{ github.run_number }} --dart-define=SUPABASE_URL=https://noxyxxzetsrtkvrgpheq.supabase.co --dart-define=SUPABASE_PUB_KEY=sb_publishable_4myRJqQA46l6bvIa7VfOXw_Z-o6Hp4-
         env:
           GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
