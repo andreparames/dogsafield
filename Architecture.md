@@ -9,7 +9,7 @@
 - **slang** for i18n
 
 ## Directory Structure (lib/)
-```
+```text
 lib/
   main.dart                    # Entry point, Supabase init, auth listener
   app.dart                     # MaterialApp widget

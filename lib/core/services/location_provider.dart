@@ -12,6 +12,10 @@ final locationPermissionProvider = FutureProvider<LocationPermission>((ref) {
 
 final currentPositionProvider = FutureProvider<Position>((ref) async {
   final service = ref.watch(locationServiceProvider);
+  final enabled = await service.isLocationEnabled();
+  if (!enabled) {
+    throw Exception('Location services are disabled');
+  }
   var permission = await service.checkPermission();
   if (permission == LocationPermission.denied) {
     permission = await service.requestPermission();
@@ -21,10 +25,6 @@ final currentPositionProvider = FutureProvider<Position>((ref) async {
   }
   if (permission == LocationPermission.deniedForever) {
     throw Exception('Location permission denied forever');
-  }
-  final enabled = await service.isLocationEnabled();
-  if (!enabled) {
-    throw Exception('Location services are disabled');
   }
   return service.getCurrentLocation();
 });
