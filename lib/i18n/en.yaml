@@ -53,6 +53,13 @@ fieldMap:
   permissionDenied: Location permission is required to show the map.
   locationDisabled: Location services are disabled. Enable them in settings.
   failedToLoadEvents: "Failed to load events: $error"
+  locationUnavailable:
+    title: Location Unavailable
+    body: "We can't access your device location. You can enable it in settings, or pick a region to browse."
+    enableLocation: Enable Location
+    orSelectRegion: "— or select a region —"
+    selectRegion: Select Region
+    failedToLoadRegions: Failed to load regions
   viewDetails: View Details
   leavePack: Leave Pack
   leavePackComingSoon: "Leave Pack \u2014 coming soon"

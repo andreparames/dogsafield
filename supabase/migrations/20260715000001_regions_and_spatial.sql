@@ -13,7 +13,9 @@ drop table if exists cities;
 create table if not exists regions (
   id uuid primary key default gen_random_uuid(),
   name text not null unique,
-  center geography(Point, 4326) not null,
+  center_lat double precision not null,
+  center_lng double precision not null,
+  center geography(Point, 4326) generated always as (st_makepoint(center_lng, center_lat)) stored,
   radius_km double precision not null check (radius_km > 0),
   is_enabled boolean not null default true,
   created_at timestamptz not null default now(),

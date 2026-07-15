@@ -129,6 +129,8 @@ class Translations$fieldMap$en {
 	/// en: 'Failed to load events: $error'
 	String failedToLoadEvents({required Object error}) => 'Failed to load events: ${error}';
 
+	late final Translations$fieldMap$locationUnavailable$en locationUnavailable = Translations$fieldMap$locationUnavailable$en._(_root);
+
 	/// en: 'View Details'
 	String get viewDetails => 'View Details';
 
@@ -137,6 +139,33 @@ class Translations$fieldMap$en {
 
 	/// en: 'Leave Pack — coming soon'
 	String get leavePackComingSoon => 'Leave Pack — coming soon';
+}
+
+// Path: fieldMap.locationUnavailable
+class Translations$fieldMap$locationUnavailable$en {
+	Translations$fieldMap$locationUnavailable$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Location Unavailable'
+	String get title => 'Location Unavailable';
+
+	/// en: 'We can't access your device location. You can enable it in settings, or pick a region to browse.'
+	String get body => 'We can\'t access your device location. You can enable it in settings, or pick a region to browse.';
+
+	/// en: 'Enable Location'
+	String get enableLocation => 'Enable Location';
+
+	/// en: '— or select a region —'
+	String get orSelectRegion => '— or select a region —';
+
+	/// en: 'Select Region'
+	String get selectRegion => 'Select Region';
+
+	/// en: 'Failed to load regions'
+	String get failedToLoadRegions => 'Failed to load regions';
 }
 
 // Path: gathering
@@ -1277,6 +1306,12 @@ extension on Translations {
 			'fieldMap.permissionDenied' => 'Location permission is required to show the map.',
 			'fieldMap.locationDisabled' => 'Location services are disabled. Enable them in settings.',
 			'fieldMap.failedToLoadEvents' => ({required Object error}) => 'Failed to load events: ${error}',
+			'fieldMap.locationUnavailable.title' => 'Location Unavailable',
+			'fieldMap.locationUnavailable.body' => 'We can\'t access your device location. You can enable it in settings, or pick a region to browse.',
+			'fieldMap.locationUnavailable.enableLocation' => 'Enable Location',
+			'fieldMap.locationUnavailable.orSelectRegion' => '— or select a region —',
+			'fieldMap.locationUnavailable.selectRegion' => 'Select Region',
+			'fieldMap.locationUnavailable.failedToLoadRegions' => 'Failed to load regions',
 			'fieldMap.viewDetails' => 'View Details',
 			'fieldMap.leavePack' => 'Leave Pack',
 			'fieldMap.leavePackComingSoon' => 'Leave Pack — coming soon',
