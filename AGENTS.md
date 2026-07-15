@@ -24,6 +24,7 @@
 - Flutter/Dart project with Riverpod state management
 - Supabase backend with PostgreSQL
 - Migrations in `supabase/migrations/`
+- Full architecture docs: [Architecture.md](Architecture.md)
 
 ## Credentials & Secrets (GitHub)
 | Secret | Value |

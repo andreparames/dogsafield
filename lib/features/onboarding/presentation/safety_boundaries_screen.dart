@@ -22,7 +22,17 @@ class _SafetyBoundariesScreenState extends ConsumerState<SafetyBoundariesScreen>
     final theme = Theme.of(context);
     final state = ref.watch(onboardingProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(context.t.onboarding.safety.title)),
+      appBar: AppBar(
+        title: Text(context.t.onboarding.safety.title),
+        actions: [
+          TextButton(
+            onPressed: () {
+              ref.read(authServiceProvider).signOut();
+            },
+            child: Text(context.t.common.cancel),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
