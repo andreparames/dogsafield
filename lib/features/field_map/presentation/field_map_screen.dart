@@ -145,10 +145,10 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                            onPressed: () => _showFeedbackDialog(context),
                          ),
                        ),
-                       Positioned(
-                         right: 16,
-                         bottom: 16,
-                         child: FloatingActionButton.small(
+                        Positioned(
+                          right: 16,
+                          bottom: 128,
+                          child: FloatingActionButton.small(
                            heroTag: 'recenter',
                            onPressed: () {
                              final pos = ref.read(currentPositionProvider).asData?.value;

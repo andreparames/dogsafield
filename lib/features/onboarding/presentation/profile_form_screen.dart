@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
 import '../../../shared/models/dog.dart';
+import '../state/auth_provider.dart';
 import '../state/onboarding_state.dart';
 
 class ProfileFormScreen extends ConsumerStatefulWidget {
@@ -32,7 +33,17 @@ class _ProfileFormScreenState extends ConsumerState<ProfileFormScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(context.t.onboarding.profileForm.title)),
+      appBar: AppBar(
+        title: Text(context.t.onboarding.profileForm.title),
+        actions: [
+          TextButton(
+            onPressed: () {
+              ref.read(authServiceProvider).signOut();
+            },
+            child: Text(context.t.common.cancel),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

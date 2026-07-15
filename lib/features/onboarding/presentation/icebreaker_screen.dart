@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
+import '../state/auth_provider.dart';
 import '../state/onboarding_state.dart';
 
 class IcebreakerScreen extends ConsumerStatefulWidget {
@@ -31,7 +32,17 @@ class _IcebreakerScreenState extends ConsumerState<IcebreakerScreen> {
       context.t.onboarding.icebreaker.prompts.favoriteSnack,
     ];
     return Scaffold(
-      appBar: AppBar(title: Text(context.t.onboarding.icebreaker.title)),
+      appBar: AppBar(
+        title: Text(context.t.onboarding.icebreaker.title),
+        actions: [
+          TextButton(
+            onPressed: () {
+              ref.read(authServiceProvider).signOut();
+            },
+            child: Text(context.t.common.cancel),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

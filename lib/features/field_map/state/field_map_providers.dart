@@ -4,6 +4,7 @@ import '../../../core/database/providers.dart';
 import '../../../core/services/location_provider.dart';
 import '../../../shared/models/event.dart';
 import '../../connections/state/connection_providers.dart';
+import '../../onboarding/state/auth_provider.dart';
 import '../data/field_map_repository.dart';
 import 'rsvp_providers.dart';
 
@@ -38,8 +39,9 @@ final discoveredEventsProvider = Provider<List<DogEvent>>((ref) {
   final showRsvps = ref.watch(rsvpFilterProvider);
   final allEvents = ref.watch(allEventsProvider).value ?? [];
   final blockerIds = ref.watch(blockerIdsProvider).value ?? <String>{};
+  final currentUserId = ref.watch(authServiceProvider).currentUser?.id;
   final visible = allEvents.where((e) => !blockerIds.contains(e.hostId)).toList();
   if (!showRsvps) return visible;
   final rsvpIds = ref.watch(myRsvpIdsProvider).value ?? {};
-  return visible.where((e) => rsvpIds.contains(e.id)).toList();
+  return visible.where((e) => rsvpIds.contains(e.id) || e.hostId == currentUserId).toList();
 });
