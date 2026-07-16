@@ -14,12 +14,12 @@ void main() {
     expect(find.text('Continue with Apple'), findsOneWidget);
   });
 
-  testWidgets('logo tap counter reaches 7 and attempts navigation',
+  testWidgets('logo tap counter reaches 7 and navigates to reviewer login',
       (WidgetTester tester) async {
     await tester.pumpWidget(createTestApp(const WelcomeScreen()));
     await tester.pumpAndSettle();
 
-    final logo = find.byType(GestureDetector).first;
+    final logo = find.byKey(const Key('welcomeLogo'));
 
     // Tap 6 times — should not trigger navigation.
     for (var i = 0; i < 6; i++) {
@@ -27,12 +27,10 @@ void main() {
       await tester.pump();
     }
 
-    // 7th tap calls Navigator.pushNamed('reviewerLogin'). In the test
-    // harness this route doesn't exist, so the framework throws.
+    // 7th tap triggers GoRouter push to reviewer-login.
     await tester.tap(logo);
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    // Drain the overflow warning and the missing-route error.
-    while (tester.takeException() != null) {}
+    expect(find.text('Reviewer Login'), findsOneWidget);
   });
 }

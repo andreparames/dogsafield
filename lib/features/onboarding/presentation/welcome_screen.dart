@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
 import '../state/auth_provider.dart';
 
@@ -17,7 +18,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     _tapCount++;
     if (_tapCount >= 7) {
       _tapCount = 0;
-      Navigator.of(context).pushNamed('reviewerLogin');
+      context.push('/onboarding/reviewer-login');
     }
   }
 
@@ -34,10 +35,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             children: [
               const Spacer(),
               GestureDetector(
+                key: const Key('welcomeLogo'),
                 onTap: _onLogoTap,
                 child: Image.asset(
                   'assets/images/logo.png',
                   width: MediaQuery.of(context).size.width * 0.8,
+                  height: 180,
                   fit: BoxFit.contain,
                 ),
               ),

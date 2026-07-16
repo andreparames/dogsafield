@@ -512,7 +512,7 @@ Widget createTestApp(Widget child) {
     routes: [
       GoRoute(path: '/test', builder: (_, __) => child),
       GoRoute(path: '/onboarding/welcome', builder: (_, __) => const SizedBox()),
-      GoRoute(path: '/onboarding/reviewer-login', builder: (_, __) => const Scaffold(body: Text('Reviewer Login'))),
+      GoRoute(path: '/onboarding/reviewer-login', name: 'reviewerLogin', builder: (_, __) => const Scaffold(body: Text('Reviewer Login'))),
       GoRoute(path: '/onboarding/photo', builder: (_, __) => const SizedBox()),
       GoRoute(path: '/onboarding/profile', builder: (_, __) => const SizedBox()),
       GoRoute(path: '/onboarding/icebreaker', builder: (_, __) => const SizedBox()),

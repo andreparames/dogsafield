@@ -82,7 +82,9 @@ class _ReviewerLoginScreenState extends ConsumerState<ReviewerLoginScreen> {
                   border: const OutlineInputBorder(),
                 ),
                 obscureText: true,
+                autofocus: true,
                 enabled: !_isLoading,
+                onSubmitted: _isLoading ? null : (_) => _submit(),
               ),
               const SizedBox(height: 16),
               FilledButton(
