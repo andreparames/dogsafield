@@ -1,0 +1,80 @@
+name: Atlas Migration Lint
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'supabase/migrations/**'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Atlas
+        uses: ariga/atlas-action@v0
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y -qq postgresql-client
+
+      - name: Seed Supabase mocks
+        run: |
+          psql "postgres://postgres:postgres@localhost:5432/postgres" <<'SQL'
+            create schema if not exists auth;
+            create table if not exists auth.users (id uuid primary key);
+            create or replace function auth.uid()
+            returns uuid
+            language sql
+            as $$ select '00000000-0000-0000-0000-000000000000'::uuid $$;
+
+            create schema if not exists extensions;
+          SQL
+
+      - name: Detect changed migrations
+        id: changed
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'supabase/migrations/*.sql')
+          if [ -z "$CHANGED" ]; then
+            echo "No migration changes detected, skipping."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Changed migration files:"
+          echo "$CHANGED"
+
+          # Find the earliest changed file and count all migrations from there
+          ALL=$(ls -1 supabase/migrations/*.sql | sort)
+          EARLIEST=$(echo "$CHANGED" | xargs -I{} basename {} | sort | head -1)
+
+          COUNT=$(echo "$ALL" | awk -v e="$EARLIEST" '
+            BEGIN { c=0; f=0 }
+            { if (index($0, e)) f=1; if (f) c++ }
+            END { print c }
+          ')
+
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "Will lint latest $COUNT migration(s) from $EARLIEST onward"
+
+      - name: Lint migrations
+        if: steps.changed.outputs.has_changes == 'true'
+        run: atlas migrate lint --env ci --latest ${{ steps.changed.outputs.count }}
