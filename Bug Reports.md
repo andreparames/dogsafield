@@ -1,0 +1,5 @@
+- The elements on the screen Verification Photo are not centered on the screen
+- There should always be a button during the signup process to cancel and go back to the login screen
+- The button to center on my location is overlapping the zoom buttons
+- I created an event which shows when the Nearby filter is enabled, but disappears when I filter by My Packs
+- When first loading the filter, it shows an error "Unable to get your location". Only when I click Retry does it ask for permission to access it

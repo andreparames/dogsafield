@@ -3,11 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
 import '../state/auth_provider.dart';
 
-class WelcomeScreen extends ConsumerWidget {
+class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
+  int _tapCount = 0;
+
+  void _onLogoTap() {
+    _tapCount++;
+    if (_tapCount >= 7) {
+      _tapCount = 0;
+      Navigator.of(context).pushNamed('reviewerLogin');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isSigningIn = ref.watch(signingInProvider);
 
@@ -18,10 +33,13 @@ class WelcomeScreen extends ConsumerWidget {
           child: Column(
             children: [
               const Spacer(),
-              Image.asset(
-                'assets/images/logo.png',
-                width: MediaQuery.of(context).size.width * 0.8,
-                fit: BoxFit.contain,
+              GestureDetector(
+                onTap: _onLogoTap,
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  fit: BoxFit.contain,
+                ),
               ),
               const SizedBox(height: 24),
               Text(

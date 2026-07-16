@@ -27,6 +27,17 @@ class AuthService {
     );
   }
 
+  Future<void> signInWithEmailPassword(String email, String password) async {
+    await _client.auth.signInWithPassword(email: email, password: password);
+  }
+
+  Future<String?> validateReviewerCode(String code) async {
+    final result = await _client.rpc('validate_reviewer_code', params: {
+      'p_code': code,
+    });
+    return result as String?;
+  }
+
   Future<void> signOut() async {
     await _client.auth.signOut();
   }

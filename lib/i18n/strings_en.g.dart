@@ -85,6 +85,25 @@ class Translations$onboarding$en {
 	late final Translations$onboarding$photoUpload$en photoUpload = Translations$onboarding$photoUpload$en._(_root);
 	late final Translations$onboarding$profileForm$en profileForm = Translations$onboarding$profileForm$en._(_root);
 	late final Translations$onboarding$icebreaker$en icebreaker = Translations$onboarding$icebreaker$en._(_root);
+
+	/// en: 'Reviewer Access'
+	String get reviewerAccess => 'Reviewer Access';
+
+	/// en: 'Enter the access code provided by the team.'
+	String get reviewerSubtitle => 'Enter the access code provided by the team.';
+
+	/// en: 'Access Code'
+	String get reviewerCodeLabel => 'Access Code';
+
+	/// en: 'Sign In'
+	String get reviewerSignIn => 'Sign In';
+
+	/// en: 'Invalid or expired access code.'
+	String get invalidReviewerCode => 'Invalid or expired access code.';
+
+	/// en: 'Reviewer sign-in failed: $error'
+	String reviewerSignInFailed({required Object error}) => 'Reviewer sign-in failed: ${error}';
+
 	late final Translations$onboarding$safety$en safety = Translations$onboarding$safety$en._(_root);
 }
 
@@ -139,33 +158,6 @@ class Translations$fieldMap$en {
 
 	/// en: 'Leave Pack — coming soon'
 	String get leavePackComingSoon => 'Leave Pack — coming soon';
-}
-
-// Path: fieldMap.locationUnavailable
-class Translations$fieldMap$locationUnavailable$en {
-	Translations$fieldMap$locationUnavailable$en._(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// en: 'Location Unavailable'
-	String get title => 'Location Unavailable';
-
-	/// en: 'We can't access your device location. You can enable it in settings, or pick a region to browse.'
-	String get body => 'We can\'t access your device location. You can enable it in settings, or pick a region to browse.';
-
-	/// en: 'Enable Location'
-	String get enableLocation => 'Enable Location';
-
-	/// en: '— or select a region —'
-	String get orSelectRegion => '— or select a region —';
-
-	/// en: 'Select Region'
-	String get selectRegion => 'Select Region';
-
-	/// en: 'Failed to load regions'
-	String get failedToLoadRegions => 'Failed to load regions';
 }
 
 // Path: gathering
@@ -321,18 +313,6 @@ class Translations$common$en {
 	/// en: 'Retry'
 	String get retry => 'Retry';
 
-	/// en: 'Save'
-	String get save => 'Save';
-
-	/// en: 'Add'
-	String get add => 'Add';
-
-	/// en: 'Uploading...'
-	String get uploading => 'Uploading...';
-
-	/// en: 'Saved'
-	String get saved => 'Saved';
-
 	/// en: 'Cancel'
 	String get cancel => 'Cancel';
 
@@ -391,30 +371,6 @@ class Translations$account$en {
 
 	/// en: 'Could not load account'
 	String get couldNotLoad => 'Could not load account';
-
-	/// en: 'Edit Profile'
-	String get editProfile => 'Edit Profile';
-
-	/// en: 'Display Name'
-	String get displayName => 'Display Name';
-
-	/// en: 'Change Photo'
-	String get changePhoto => 'Change Photo';
-
-	/// en: 'My Dogs'
-	String get myDogs => 'My Dogs';
-
-	/// en: 'Add a Dog'
-	String get addDog => 'Add a Dog';
-
-	/// en: 'Edit Dog'
-	String get editDog => 'Edit Dog';
-
-	/// en: 'Remove Dog'
-	String get removeDog => 'Remove Dog';
-
-	/// en: 'Are you sure you want to remove $dogName?'
-	String removeDogConfirm({required Object dogName}) => 'Are you sure you want to remove ${dogName}?';
 
 	/// en: 'My Events'
 	String get myEvents => 'My Events';
@@ -577,9 +533,6 @@ class Translations$errors$en {
 	/// en: 'Failed to delete account. Please try again.'
 	String get failedToDelete => 'Failed to delete account. Please try again.';
 
-	/// en: 'Failed to save. Please try again.'
-	String get failedToSave => 'Failed to save. Please try again.';
-
 	/// en: 'Failed to block user. Please try again.'
 	String get failedToBlock => 'Failed to block user. Please try again.';
 
@@ -713,6 +666,33 @@ class Translations$onboarding$safety$en {
 
 	/// en: 'Something went wrong. Please try again.'
 	String get error => 'Something went wrong. Please try again.';
+}
+
+// Path: fieldMap.locationUnavailable
+class Translations$fieldMap$locationUnavailable$en {
+	Translations$fieldMap$locationUnavailable$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Location Unavailable'
+	String get title => 'Location Unavailable';
+
+	/// en: 'We can't access your device location. You can enable it in settings, or pick a region to browse.'
+	String get body => 'We can\'t access your device location. You can enable it in settings, or pick a region to browse.';
+
+	/// en: 'Enable Location'
+	String get enableLocation => 'Enable Location';
+
+	/// en: '— or select a region —'
+	String get orSelectRegion => '— or select a region —';
+
+	/// en: 'Select Region'
+	String get selectRegion => 'Select Region';
+
+	/// en: 'Failed to load regions'
+	String get failedToLoadRegions => 'Failed to load regions';
 }
 
 // Path: event.type
@@ -1287,6 +1267,12 @@ extension on Translations {
 			'onboarding.icebreaker.yourStory' => 'Your story',
 			'onboarding.icebreaker.promptRequired' => 'Please select a prompt',
 			'onboarding.icebreaker.storyRequired' => 'Please share your story',
+			'onboarding.reviewerAccess' => 'Reviewer Access',
+			'onboarding.reviewerSubtitle' => 'Enter the access code provided by the team.',
+			'onboarding.reviewerCodeLabel' => 'Access Code',
+			'onboarding.reviewerSignIn' => 'Sign In',
+			'onboarding.invalidReviewerCode' => 'Invalid or expired access code.',
+			'onboarding.reviewerSignInFailed' => ({required Object error}) => 'Reviewer sign-in failed: ${error}',
 			'onboarding.safety.title' => 'Safety Boundaries',
 			'onboarding.safety.treatPolicy' => 'Treat Policy',
 			'onboarding.safety.treatPolicySubtitle' => 'Let other owners know how you handle treats.',

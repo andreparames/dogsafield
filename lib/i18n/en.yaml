@@ -31,6 +31,12 @@ onboarding:
     yourStory: Your story
     promptRequired: Please select a prompt
     storyRequired: Please share your story
+  reviewerAccess: Reviewer Access
+  reviewerSubtitle: Enter the access code provided by the team.
+  reviewerCodeLabel: Access Code
+  reviewerSignIn: Sign In
+  invalidReviewerCode: Invalid or expired access code.
+  reviewerSignInFailed: "Reviewer sign-in failed: $error"
   safety:
     title: Safety Boundaries
     treatPolicy: Treat Policy
