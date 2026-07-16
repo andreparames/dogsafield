@@ -144,6 +144,16 @@ class FakeAuthService extends AuthService {
   bool _isAuthenticatedOverride = false;
   User? _currentUserOverride;
 
+  /// When non-null, [validateReviewerCode] returns this for any code.
+  /// When null, the method returns null (invalid code).
+  String? reviewerEmailForCode;
+
+  /// If true, [signInWithEmailPassword] throws.
+  bool signInShouldFail = false;
+
+  String? lastSignInEmail;
+  String? lastSignInPassword;
+
   void setAuthenticated({required bool value, User? user}) {
     _isAuthenticatedOverride = value;
     _currentUserOverride = user;
@@ -163,6 +173,18 @@ class FakeAuthService extends AuthService {
 
   @override
   Future<void> signOut() async {}
+
+  @override
+  Future<void> signInWithEmailPassword(String email, String password) async {
+    lastSignInEmail = email;
+    lastSignInPassword = password;
+    if (signInShouldFail) throw Exception('Sign-in failed');
+  }
+
+  @override
+  Future<String?> validateReviewerCode(String code) async {
+    return reviewerEmailForCode;
+  }
 }
 
 class FakeOnboardingRepository implements OnboardingRepository {
@@ -490,6 +512,7 @@ Widget createTestApp(Widget child) {
     routes: [
       GoRoute(path: '/test', builder: (_, __) => child),
       GoRoute(path: '/onboarding/welcome', builder: (_, __) => const SizedBox()),
+      GoRoute(path: '/onboarding/reviewer-login', builder: (_, __) => const Scaffold(body: Text('Reviewer Login'))),
       GoRoute(path: '/onboarding/photo', builder: (_, __) => const SizedBox()),
       GoRoute(path: '/onboarding/profile', builder: (_, __) => const SizedBox()),
       GoRoute(path: '/onboarding/icebreaker', builder: (_, __) => const SizedBox()),
