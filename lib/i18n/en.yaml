@@ -31,6 +31,12 @@ onboarding:
     yourStory: Your story
     promptRequired: Please select a prompt
     storyRequired: Please share your story
+  reviewerAccess: Reviewer Access
+  reviewerSubtitle: Enter the access code provided by the team.
+  reviewerCodeLabel: Access Code
+  reviewerSignIn: Sign In
+  invalidReviewerCode: Invalid or expired access code.
+  reviewerSignInFailed: "Reviewer sign-in failed: $error"
   safety:
     title: Safety Boundaries
     treatPolicy: Treat Policy
@@ -122,6 +128,10 @@ common:
   unblock: Unblock
   upgrade: Upgrade
   subscribe: Subscribe
+  add: Add
+  save: Save
+  saved: Saved
+  uploading: Uploading...
 
 hosting:
   create:
@@ -202,6 +212,14 @@ hosting:
 account:
   title: Account
   couldNotLoad: Could not load account
+  editProfile: Edit Profile
+  displayName: Display Name
+  changePhoto: Change Photo
+  myDogs: My Dogs
+  addDog: Add Dog
+  editDog: Edit Dog
+  removeDog: Remove Dog
+  removeDogConfirm: "Remove $dogName?"
   myEvents: My Events
   blockedUsers: Blocked Users
   trialRsvps: Trial RSVPs
@@ -287,6 +305,7 @@ messaging:
   cannotMessage: You can only message your packmates.
 
 errors:
+  failedToSave: Failed to save. Please try again.
   failedToCreateEvent: Failed to create event. Please try again.
   failedToUpdateEvent: Failed to update event. Please try again.
   failedToCancelEvent: Failed to cancel event. Please try again.

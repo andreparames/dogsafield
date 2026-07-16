@@ -24,9 +24,9 @@ final _appRouter = GoRouter(
     final container = ProviderScope.containerOf(context);
     final auth = container.read(authServiceProvider);
     final authed = auth.isAuthenticated;
-    final location = state.uri.toString();
+    final location = state.uri.path;
 
-    if (!authed && location != '/onboarding/welcome') return '/onboarding/welcome';
+    if (!authed && location != '/onboarding/welcome' && location != '/onboarding/reviewer-login') return '/onboarding/welcome';
     if (suspendedNotifier.value && location != '/account/suspended') return '/account/suspended';
     if (authed && location.startsWith('/onboarding/')) {
       container.read(onboardingAutoInitProvider);
