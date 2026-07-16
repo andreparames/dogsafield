@@ -1,0 +1,1 @@
+Dogs Afield is a field tracking app for dog handlers and trainers. Mark scent locations, track paths on a map, log findings, and share data with your team in real time. Built for off-grid use with offline-first sync via Supabase.
