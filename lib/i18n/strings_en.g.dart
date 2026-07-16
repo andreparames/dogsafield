@@ -342,6 +342,18 @@ class Translations$common$en {
 
 	/// en: 'Subscribe'
 	String get subscribe => 'Subscribe';
+
+	/// en: 'Add'
+	String get add => 'Add';
+
+	/// en: 'Save'
+	String get save => 'Save';
+
+	/// en: 'Saved'
+	String get saved => 'Saved';
+
+	/// en: 'Uploading...'
+	String get uploading => 'Uploading...';
 }
 
 // Path: hosting
@@ -371,6 +383,30 @@ class Translations$account$en {
 
 	/// en: 'Could not load account'
 	String get couldNotLoad => 'Could not load account';
+
+	/// en: 'Edit Profile'
+	String get editProfile => 'Edit Profile';
+
+	/// en: 'Display Name'
+	String get displayName => 'Display Name';
+
+	/// en: 'Change Photo'
+	String get changePhoto => 'Change Photo';
+
+	/// en: 'My Dogs'
+	String get myDogs => 'My Dogs';
+
+	/// en: 'Add Dog'
+	String get addDog => 'Add Dog';
+
+	/// en: 'Edit Dog'
+	String get editDog => 'Edit Dog';
+
+	/// en: 'Remove Dog'
+	String get removeDog => 'Remove Dog';
+
+	/// en: 'Remove $dogName?'
+	String removeDogConfirm({required Object dogName}) => 'Remove ${dogName}?';
 
 	/// en: 'My Events'
 	String get myEvents => 'My Events';
@@ -517,6 +553,9 @@ class Translations$errors$en {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Failed to save. Please try again.'
+	String get failedToSave => 'Failed to save. Please try again.';
 
 	/// en: 'Failed to create event. Please try again.'
 	String get failedToCreateEvent => 'Failed to create event. Please try again.';
@@ -1347,6 +1386,10 @@ extension on Translations {
 			'common.unblock' => 'Unblock',
 			'common.upgrade' => 'Upgrade',
 			'common.subscribe' => 'Subscribe',
+			'common.add' => 'Add',
+			'common.save' => 'Save',
+			'common.saved' => 'Saved',
+			'common.uploading' => 'Uploading...',
 			'hosting.create.titleCreate' => 'Create Event',
 			'hosting.create.titleEdit' => 'Edit Event',
 			'hosting.create.eventType' => 'Event Type',
@@ -1416,6 +1459,14 @@ extension on Translations {
 			'hosting.responsibility.iUnderstand' => 'I Understand',
 			'account.title' => 'Account',
 			'account.couldNotLoad' => 'Could not load account',
+			'account.editProfile' => 'Edit Profile',
+			'account.displayName' => 'Display Name',
+			'account.changePhoto' => 'Change Photo',
+			'account.myDogs' => 'My Dogs',
+			'account.addDog' => 'Add Dog',
+			'account.editDog' => 'Edit Dog',
+			'account.removeDog' => 'Remove Dog',
+			'account.removeDogConfirm' => ({required Object dogName}) => 'Remove ${dogName}?',
 			'account.myEvents' => 'My Events',
 			'account.blockedUsers' => 'Blocked Users',
 			'account.trialRsvps' => 'Trial RSVPs',
@@ -1485,6 +1536,7 @@ extension on Translations {
 			'messaging.failedToLoad' => 'Could not load messages',
 			'messaging.failedToSend' => 'Failed to send message. Please try again.',
 			'messaging.cannotMessage' => 'You can only message your packmates.',
+			'errors.failedToSave' => 'Failed to save. Please try again.',
 			'errors.failedToCreateEvent' => 'Failed to create event. Please try again.',
 			'errors.failedToUpdateEvent' => 'Failed to update event. Please try again.',
 			'errors.failedToCancelEvent' => 'Failed to cancel event. Please try again.',
