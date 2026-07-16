@@ -5,7 +5,10 @@
 create extension if not exists postgis with schema extensions;
 
 -- 2. Update profiles_public view before removing founding_city_id
-create or replace view profiles_public
+--    Must DROP first because CREATE OR REPLACE cannot change column count
+drop view if exists profiles_public;
+
+create view profiles_public
 with (security_barrier = true)
 as
 select
@@ -23,6 +26,8 @@ where (is_suspended = false or auth.uid() = id)
       and connections.user_id_a = profiles.id
       and connections.user_id_b = auth.uid()
   );
+
+grant select on profiles_public to authenticated, anon;
 
 -- 3. Drop unused cities table and FK
 alter table profiles drop constraint if exists profiles_founding_city_id_fkey;
