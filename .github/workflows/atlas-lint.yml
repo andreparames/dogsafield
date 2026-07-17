@@ -28,6 +28,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Atlas
         uses: ariga/atlas-action@v0
@@ -50,8 +51,10 @@ jobs:
 
       - name: Detect changed migrations
         id: changed
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'supabase/migrations/*.sql')
+          CHANGED=$(git diff --name-only "origin/$BASE_REF...HEAD" -- 'supabase/migrations/*.sql')
           if [ -z "$CHANGED" ]; then
             echo "No migration changes detected, skipping."
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
