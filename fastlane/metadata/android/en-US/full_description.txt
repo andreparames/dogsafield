@@ -1,0 +1,10 @@
+Discover dog-friendly events and meetups happening near you. Dogs Afield connects you with a local community of dog owners for walks, park hangs, and outdoor adventures.
+
+Features:
+- See nearby dog events on an interactive map
+- Host your own walks, meetups, and playdates
+- RSVP to events and let other owners know you're coming
+- Verify connections after meeting up — build your local pack
+- Message other dog owners directly
+
+You and your dog deserve more than the same walk every day. Explore what's happening around you.
