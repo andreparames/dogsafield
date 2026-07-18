@@ -26,6 +26,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isSigningIn = ref.watch(signingInProvider);
+    final authed = ref.watch(authServiceProvider).isAuthenticated;
 
     return Scaffold(
       body: SafeArea(
@@ -37,6 +38,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               return ValueListenableBuilder(
                 valueListenable: profileCheckFailedNotifier,
                 builder: (context, profileFailed, child) {
+                  final showLoading = checkingProfile || authed;
+
                   return Column(
                     children: [
                       const Spacer(),
@@ -57,7 +60,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                         style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                       ),
                       const SizedBox(height: 48),
-                      if (checkingProfile)
+                      if (showLoading)
                         const CircularProgressIndicator()
                       else if (profileFailed)
                         Column(
