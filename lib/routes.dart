@@ -36,12 +36,9 @@ final _appRouter = GoRouter(
     if (authed) {
       container.read(onboardingAutoInitProvider);
 
-      if (isCheckingExistingProfileNotifier.value) {
-        return null;
-      }
-
-      if (profileCheckFailedNotifier.value) {
-        return null;
+      if (isCheckingExistingProfileNotifier.value ||
+          profileCheckFailedNotifier.value) {
+        return location == '/onboarding/welcome' ? null : '/onboarding/welcome';
       }
 
       final onboarding = container.read(onboardingProvider);

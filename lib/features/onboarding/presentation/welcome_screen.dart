@@ -38,8 +38,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               return ValueListenableBuilder(
                 valueListenable: profileCheckFailedNotifier,
                 builder: (context, profileFailed, child) {
-                  final showLoading = checkingProfile || authed;
-
                   return Column(
                     children: [
                       const Spacer(),
@@ -60,9 +58,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                         style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                       ),
                       const SizedBox(height: 48),
-                      if (showLoading)
-                        const CircularProgressIndicator()
-                      else if (profileFailed)
+                      if (profileFailed)
                         Column(
                           children: [
                             const Icon(Icons.cloud_off, size: 48, color: Colors.grey),
@@ -83,6 +79,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                             ),
                           ],
                         )
+                      else if (checkingProfile || authed)
+                        const CircularProgressIndicator()
                       else ...[
                         const Spacer(),
                         FilledButton.icon(

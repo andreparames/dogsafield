@@ -38,6 +38,6 @@ final currentPositionProvider = FutureProvider<Position>((ref) async {
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.low,
       ),
-    );
+    ).timeout(const Duration(seconds: 10));
   }
 });
