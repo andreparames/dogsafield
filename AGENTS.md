@@ -28,7 +28,7 @@
 
 ## GitHub
 - **Remote**: `andreparames/dogsafield`
-- **Default branch**: `master` (NOT `main`)
+- **Default branch**: `develop`
 - **Branch protection**: master requires PRs (can be bypassed with admin)
 
 ## Repo
