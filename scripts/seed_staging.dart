@@ -32,6 +32,8 @@ void main(List<String> args) async {
     ]) {
       await client.from(table).delete().neq('id', '00000000-0000-0000-0000-000000000000');
     }
+    await client.from('reviewer_codes').delete().neq('code', '');
+    await _clearAuthUsers(supabaseUrl, serviceKey);
     print('✓ existing data cleared');
 
     print('\nSeeding staging database...\n');
@@ -73,6 +75,32 @@ void main(List<String> args) async {
     exit(1);
   } finally {
     client.dispose();
+  }
+}
+
+Future<void> _clearAuthUsers(String baseUrl, String key) async {
+  final client = HttpClient();
+  try {
+    final request = await client.getUrl(Uri.parse('$baseUrl/auth/v1/admin/users'));
+    request.headers.set('apikey', key);
+    request.headers.set('Authorization', 'Bearer $key');
+    final response = await request.close();
+    final body = await response.transform(utf8.decoder).join();
+    if (response.statusCode >= 300) return;
+    final users = jsonDecode(body)['users'] as List?;
+    if (users == null) return;
+    for (final u in users) {
+      final id = u['id'] as String?;
+      if (id == null) continue;
+      try {
+        final del = await client.deleteUrl(Uri.parse('$baseUrl/auth/v1/admin/users/$id'));
+        del.headers.set('apikey', key);
+        del.headers.set('Authorization', 'Bearer $key');
+        await del.close();
+      } catch (_) {}
+    }
+  } finally {
+    client.close();
   }
 }
 
