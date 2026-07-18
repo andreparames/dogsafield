@@ -3,12 +3,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/database/providers.dart';
+import '../../../shared/models/user_profile.dart';
 import '../data/auth_service.dart';
 import '../data/onboarding_repository.dart';
 import 'onboarding_state.dart';
 
 final authRefreshNotifier = ValueNotifier(0);
 final suspendedNotifier = ValueNotifier(false);
+final isCheckingExistingProfileNotifier = ValueNotifier(false);
 
 final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(Supabase.instance.client);
@@ -43,33 +45,31 @@ void _initFromUser(Ref ref, User user) {
 }
 
 Future<void> _checkExistingProfile(Ref ref) async {
-  final user = ref.read(authServiceProvider).currentUser;
-  if (user == null) return;
-  final repo = ref.read(onboardingRepositoryProvider);
   try {
-    final existing = await repo.fetchProfile(user.id);
+    final user = ref.read(authServiceProvider).currentUser;
+    if (user == null) return;
+
+    final repo = ref.read(onboardingRepositoryProvider);
+    UserProfile? existing;
+    try {
+      existing = await repo.fetchProfile(user.id);
+    } catch (_) {
+      final cache = ref.read(localCacheServiceProvider);
+      existing = await cache.getProfile(user.id);
+    }
+
     if (existing == null) return;
+
     if (existing.isSuspended) {
       suspendedNotifier.value = true;
-      authRefreshNotifier.value++;
       return;
     }
+
     final notifier = ref.read(onboardingProvider.notifier);
     notifier.setUserProfile(existing);
     notifier.setStep(OnboardingStep.complete);
-    authRefreshNotifier.value++;
-  } catch (_) {
-    final cache = ref.read(localCacheServiceProvider);
-    final cached = await cache.getProfile(user.id);
-    if (cached == null) return;
-    if (cached.isSuspended) {
-      suspendedNotifier.value = true;
-      authRefreshNotifier.value++;
-      return;
-    }
-    final notifier = ref.read(onboardingProvider.notifier);
-    notifier.setUserProfile(cached);
-    notifier.setStep(OnboardingStep.complete);
+  } finally {
+    isCheckingExistingProfileNotifier.value = false;
     authRefreshNotifier.value++;
   }
 }
@@ -91,6 +91,9 @@ final onboardingAutoInitProvider = Provider<void>((ref) {
   if (!auth.isAuthenticated) return;
   final user = auth.currentUser;
   if (user == null) return;
+
+  isCheckingExistingProfileNotifier.value = true;
+
   Timer.run(() {
     if (disposed) return;
     _initFromUser(ref, user);

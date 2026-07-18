@@ -5,6 +5,7 @@ import 'features/onboarding/routes.dart';
 import 'features/onboarding/state/auth_provider.dart';
 import 'features/onboarding/state/onboarding_state.dart';
 import 'features/field_map/presentation/field_map_screen.dart';
+import 'features/splash/splash_screen.dart';
 import 'features/account/presentation/suspend_screen.dart';
 import 'features/account/routes.dart';
 import 'features/field_map/routes.dart';
@@ -28,24 +29,38 @@ final _appRouter = GoRouter(
 
     if (!authed && location != '/onboarding/welcome' && location != '/onboarding/reviewer-login') return '/onboarding/welcome';
     if (suspendedNotifier.value && location != '/account/suspended') return '/account/suspended';
-    if (authed && location.startsWith('/onboarding/')) {
+
+    if (authed) {
       container.read(onboardingAutoInitProvider);
+
+      if (isCheckingExistingProfileNotifier.value) {
+        if (location != '/splash') return '/splash';
+        return null;
+      }
+
       final onboarding = container.read(onboardingProvider);
-      if (onboarding.step == OnboardingStep.complete) return '/';
+
+      if (onboarding.step == OnboardingStep.complete) {
+        if (location != '/') return '/';
+        final profile = onboarding.userProfile;
+        if (profile != null && !profile.hasSeenFieldIntro) return '/field/intro';
+        return null;
+      }
+
+      if (!location.startsWith('/onboarding/')) return '/onboarding/welcome';
       if (location == '/onboarding/welcome') return '/onboarding/photo';
     }
-    if (authed && location == '/') {
-      container.read(onboardingAutoInitProvider);
-      final onboarding = container.read(onboardingProvider);
-      final profile = onboarding.userProfile;
-      if (profile != null && !profile.hasSeenFieldIntro) return '/field/intro';
-    }
+
     return null;
   },
   routes: [
     GoRoute(
       path: '/',
       builder: (context, state) => const FieldMapScreen(),
+    ),
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => const SplashScreen(),
     ),
     GoRoute(
       path: '/account/suspended',
