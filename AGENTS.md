@@ -5,15 +5,26 @@
 - **No `2>&1`** — PowerShell syntax differs; just let the tool capture output naturally
 
 ## Supabase
+### Production
 - **Project ref**: `noxyxxzetsrtkvrgpheq`
 - **Auth**: Uses Management API (`POST /database/query`) — NOT direct DB password
 - **Access token**: read from `C:\Users\andre\.supabase\access_token`
   - Also stored in Windows Credential Manager under `Supabase CLI:supabase`
   - Also set as GitHub secret `SUPABASE_ACCESS_TOKEN`
 - **GitHub secret `SUPABASE_PROJECT_ID`**: `noxyxxzetsrtkvrgpheq`
-- **CI**: `.github/workflows/supabase-migrations.yml` runs on push to `main`/`master`
-  - Steps: `supabase link --project-ref` then `supabase db push --linked`
-  - Both steps use `SUPABASE_ACCESS_TOKEN` at job-level env
+
+### Staging
+- **Project ref**: `tovgtnnogrloovgxargu`
+- **DB password**: `THpyFXuaJ3NwP0lW`
+- **GitHub secret `STAGING_PROJECT_ID`**: `tovgtnnogrloovgxargu`
+- **GitHub secret `STAGING_DB_PASSWORD`**: `THpyFXuaJ3NwP0lW`
+
+### CI
+- **File**: `.github/workflows/supabase-migrations.yml`
+- **Push to `develop`** → deploys to **staging** project
+- **Push to `main`/`master`** → deploys to **production** project
+- Steps: validate locally (`supabase db start` + `reset`), then `supabase link --project-ref` + `supabase db push --linked`
+- Uses `SUPABASE_ACCESS_TOKEN` at job-level env, selects project ref via branch conditional
 
 ## GitHub
 - **Remote**: `andreparames/dogsafield`
@@ -42,3 +53,5 @@
 | `GOOGLE_MAPS_API_KEY` | Set |
 | `SUPABASE_ACCESS_TOKEN` | (read from `C:\Users\andre\.supabase\access_token`) |
 | `SUPABASE_PROJECT_ID` | noxyxxzetsrtkvrgpheq |
+| `STAGING_PROJECT_ID` | tovgtnnogrloovgxargu |
+| `STAGING_DB_PASSWORD` | THpyFXuaJ3NwP0lW |
