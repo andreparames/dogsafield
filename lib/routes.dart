@@ -26,14 +26,10 @@ final _appRouter = GoRouter(
     final authed = auth.isAuthenticated;
     final location = state.uri.path;
 
-    print('[REDIRECT] path=$location authed=$authed');
-
     if (!authed && location != '/onboarding/welcome' && location != '/onboarding/reviewer-login') {
-      print('[REDIRECT] -> /onboarding/welcome (not authed)');
       return '/onboarding/welcome';
     }
     if (suspendedNotifier.value && location != '/account/suspended') {
-      print('[REDIRECT] -> /account/suspended');
       return '/account/suspended';
     }
 
@@ -41,41 +37,33 @@ final _appRouter = GoRouter(
       container.read(onboardingAutoInitProvider);
 
       if (isCheckingExistingProfileNotifier.value) {
-        print('[REDIRECT] checking existing profile, staying at $location');
         return null;
       }
 
       if (profileCheckFailedNotifier.value) {
-        print('[REDIRECT] profile check failed, staying at $location');
         return null;
       }
 
       final onboarding = container.read(onboardingProvider);
-      print('[REDIRECT] step=${onboarding.step} hasProfile=${onboarding.userProfile != null}');
 
       final profile = onboarding.userProfile;
       if (onboarding.step == OnboardingStep.complete) {
         if (profile != null && !profile.hasSeenFieldIntro) {
           if (location != '/field/intro') {
-            print('[REDIRECT] -> /field/intro (intro needed)');
             return '/field/intro';
           }
           return null;
         }
         if (location == '/onboarding/welcome') {
-          print('[REDIRECT] -> / (field map)');
           return '/';
         }
-        print('[REDIRECT] allowing navigation to $location');
         return null;
       }
 
       if (!location.startsWith('/onboarding/')) {
-        print('[REDIRECT] -> /onboarding/welcome (incomplete)');
         return '/onboarding/welcome';
       }
       if (location == '/onboarding/welcome') {
-        print('[REDIRECT] -> /onboarding/photo');
         return '/onboarding/photo';
       }
     }

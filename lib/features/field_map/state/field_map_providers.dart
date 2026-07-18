@@ -27,16 +27,12 @@ final rsvpFilterProvider = NotifierProvider<RsvpFilterNotifier, bool>(
     RsvpFilterNotifier.new);
 
 final allEventsProvider = FutureProvider<List<DogEvent>>((ref) async {
-  print('[EVENTS] Waiting for position...');
   final position = await ref.watch(currentPositionProvider.future);
-  print('[EVENTS] Got position, fetching nearby events...');
   final repo = ref.watch(fieldMapRepositoryProvider);
-  final events = await repo.fetchEventsNearby(
+  return repo.fetchEventsNearby(
     latitude: position.latitude,
     longitude: position.longitude,
   );
-  print('[EVENTS] Fetched ${events.length} events');
-  return events;
 });
 
 final discoveredEventsProvider = Provider<List<DogEvent>>((ref) {
