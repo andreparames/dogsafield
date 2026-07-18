@@ -180,8 +180,7 @@ Future<int> _insertDogs(SupabaseClient client, List<String> userIds) async {
 Future<List<String>> _insertRegions(SupabaseClient client) async {
   final ids = <String>[];
   for (final r in [
-    ('San Francisco', 37.7749, -122.4194, 30.0),
-    ('New York', 40.7128, -74.0060, 25.0),
+    ('San Francisco', 37.7749, -122.4194, 50.0),
   ]) {
     final resp = await client.from('regions').insert({
       'name': r.$1,
@@ -215,10 +214,10 @@ Future<List<String>> _insertEvents(
       'Baker Beach', 37.7935, -122.4834,
       _daysFromNow(-7), 20, ['Towels', 'Fresh water', 'Sun protection'],
       ['Dog-friendly beach', 'Parking']),
-    (userIds[5], regionIds[1], 'fieldGames',
-      'Field Games at Central Park',
-      'Agility and fetch games on the Great Lawn',
-      'Central Park', 40.7829, -73.9654,
+    (userIds[5], regionIds[0], 'fieldGames',
+      'Field Games at Golden Gate Park',
+      'Agility and fetch games on the big field',
+      'Golden Gate Park', 37.7694, -122.4862,
       _daysFromNow(10), 12, ['Frisbee', 'Balls', 'Water bowl'],
       ['Large field', 'Parking', 'Dog park']),
     (userIds[0], regionIds[0], 'packWalk',
