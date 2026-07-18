@@ -26,6 +26,9 @@
 - Steps: validate locally (`supabase db start` + `reset`), then `supabase link --project-ref` + `supabase db push --linked`
 - Uses `SUPABASE_ACCESS_TOKEN` at job-level env, selects project ref via branch conditional
 
+### CodeRabbit
+- After fixing review comments, ask CodeRabbit to re-review by commenting `@coderabbitai are the issues fixed?` on the PR
+
 ## GitHub
 - **Remote**: `andreparames/dogsafield`
 - **Default branch**: `develop`
