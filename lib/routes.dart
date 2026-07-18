@@ -40,10 +40,13 @@ final _appRouter = GoRouter(
 
       final onboarding = container.read(onboardingProvider);
 
-      if (onboarding.step == OnboardingStep.complete) {
+      final profile = onboarding.userProfile;
+      if (onboarding.step == OnboardingStep.complete || hasCachedFullProfileNotifier.value) {
+        if (profile != null && !profile.hasSeenFieldIntro) {
+          if (location != '/field/intro') return '/field/intro';
+          return null;
+        }
         if (location != '/') return '/';
-        final profile = onboarding.userProfile;
-        if (profile != null && !profile.hasSeenFieldIntro) return '/field/intro';
         return null;
       }
 
