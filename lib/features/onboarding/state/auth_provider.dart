@@ -11,6 +11,7 @@ import 'onboarding_state.dart';
 final authRefreshNotifier = ValueNotifier(0);
 final suspendedNotifier = ValueNotifier(false);
 final isCheckingExistingProfileNotifier = ValueNotifier(false);
+final profileCheckFailedNotifier = ValueNotifier(false);
 final hasCachedFullProfileNotifier = ValueNotifier(false);
 
 final authServiceProvider = Provider<AuthService>((ref) {
@@ -47,19 +48,40 @@ void _initFromUser(Ref ref, User user) {
 
 Future<void> _checkExistingProfile(Ref ref) async {
   hasCachedFullProfileNotifier.value = false;
+  profileCheckFailedNotifier.value = false;
   try {
     final user = ref.read(authServiceProvider).currentUser;
     if (user == null) return;
 
     final repo = ref.read(onboardingRepositoryProvider);
     UserProfile? existing;
-    bool fromCache = false;
     try {
       existing = await repo.fetchProfile(user.id);
     } catch (_) {
+      bool? confirmedNotSuspended;
+      try {
+        final result = await Supabase.instance.client
+            .from('profiles')
+            .select('is_suspended')
+            .eq('id', user.id)
+            .limit(1)
+            .single();
+        final isSuspended = result['is_suspended'] as bool?;
+        if (isSuspended == true) {
+          suspendedNotifier.value = true;
+          return;
+        }
+        confirmedNotSuspended = isSuspended == false;
+      } catch (_) {}
+
+      if (confirmedNotSuspended != true) {
+        profileCheckFailedNotifier.value = true;
+        return;
+      }
+
       final cache = ref.read(localCacheServiceProvider);
       existing = await cache.getProfile(user.id);
-      fromCache = true;
+      if (existing == null) return;
     }
 
     if (existing == null) return;
@@ -71,11 +93,7 @@ Future<void> _checkExistingProfile(Ref ref) async {
 
     final notifier = ref.read(onboardingProvider.notifier);
     notifier.setUserProfile(existing);
-    if (fromCache) {
-      hasCachedFullProfileNotifier.value = true;
-    } else {
-      notifier.setStep(OnboardingStep.complete);
-    }
+    notifier.setStep(OnboardingStep.complete);
   } finally {
     isCheckingExistingProfileNotifier.value = false;
     authRefreshNotifier.value++;

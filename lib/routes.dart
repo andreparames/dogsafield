@@ -38,10 +38,15 @@ final _appRouter = GoRouter(
         return null;
       }
 
+      if (profileCheckFailedNotifier.value) {
+        if (location != '/splash') return '/splash';
+        return null;
+      }
+
       final onboarding = container.read(onboardingProvider);
 
       final profile = onboarding.userProfile;
-      if (onboarding.step == OnboardingStep.complete || hasCachedFullProfileNotifier.value) {
+      if (onboarding.step == OnboardingStep.complete) {
         if (profile != null && !profile.hasSeenFieldIntro) {
           if (location != '/field/intro') return '/field/intro';
           return null;
