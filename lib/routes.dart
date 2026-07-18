@@ -5,7 +5,6 @@ import 'features/onboarding/routes.dart';
 import 'features/onboarding/state/auth_provider.dart';
 import 'features/onboarding/state/onboarding_state.dart';
 import 'features/field_map/presentation/field_map_screen.dart';
-import 'features/splash/splash_screen.dart';
 import 'features/account/presentation/suspend_screen.dart';
 import 'features/account/routes.dart';
 import 'features/field_map/routes.dart';
@@ -42,21 +41,12 @@ final _appRouter = GoRouter(
       container.read(onboardingAutoInitProvider);
 
       if (isCheckingExistingProfileNotifier.value) {
-        print('[REDIRECT] checking existing profile, loc=$location');
-        if (location != '/splash') {
-          print('[REDIRECT] -> /splash');
-          return '/splash';
-        }
-        print('[REDIRECT] already on splash, staying');
+        print('[REDIRECT] checking existing profile, staying at $location');
         return null;
       }
 
       if (profileCheckFailedNotifier.value) {
-        print('[REDIRECT] profile check failed');
-        if (location != '/splash') {
-          print('[REDIRECT] -> /splash');
-          return '/splash';
-        }
+        print('[REDIRECT] profile check failed, staying at $location');
         return null;
       }
 
@@ -72,7 +62,7 @@ final _appRouter = GoRouter(
           }
           return null;
         }
-        if (location == '/splash' || location == '/onboarding/welcome') {
+        if (location != '/') {
           print('[REDIRECT] -> / (field map)');
           return '/';
         }
@@ -96,10 +86,6 @@ final _appRouter = GoRouter(
     GoRoute(
       path: '/',
       builder: (context, state) => const FieldMapScreen(),
-    ),
-    GoRoute(
-      path: '/splash',
-      builder: (context, state) => const SplashScreen(),
     ),
     GoRoute(
       path: '/account/suspended',
