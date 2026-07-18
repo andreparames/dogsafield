@@ -66,6 +66,9 @@ dev_dependencies:
   sqlparser: ^0.41.2
   slang_build_runner: ^4.18.0
 
+  supabase: ^2.6.0
+  faker: ^2.2.0
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
