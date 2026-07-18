@@ -27,36 +27,67 @@ final _appRouter = GoRouter(
     final authed = auth.isAuthenticated;
     final location = state.uri.path;
 
-    if (!authed && location != '/onboarding/welcome' && location != '/onboarding/reviewer-login') return '/onboarding/welcome';
-    if (suspendedNotifier.value && location != '/account/suspended') return '/account/suspended';
+    print('[REDIRECT] path=$location authed=$authed');
+
+    if (!authed && location != '/onboarding/welcome' && location != '/onboarding/reviewer-login') {
+      print('[REDIRECT] -> /onboarding/welcome (not authed)');
+      return '/onboarding/welcome';
+    }
+    if (suspendedNotifier.value && location != '/account/suspended') {
+      print('[REDIRECT] -> /account/suspended');
+      return '/account/suspended';
+    }
 
     if (authed) {
       container.read(onboardingAutoInitProvider);
 
       if (isCheckingExistingProfileNotifier.value) {
-        if (location != '/splash') return '/splash';
+        print('[REDIRECT] checking existing profile, loc=$location');
+        if (location != '/splash') {
+          print('[REDIRECT] -> /splash');
+          return '/splash';
+        }
+        print('[REDIRECT] already on splash, staying');
         return null;
       }
 
       if (profileCheckFailedNotifier.value) {
-        if (location != '/splash') return '/splash';
+        print('[REDIRECT] profile check failed');
+        if (location != '/splash') {
+          print('[REDIRECT] -> /splash');
+          return '/splash';
+        }
         return null;
       }
 
       final onboarding = container.read(onboardingProvider);
+      print('[REDIRECT] step=${onboarding.step} hasProfile=${onboarding.userProfile != null}');
 
       final profile = onboarding.userProfile;
       if (onboarding.step == OnboardingStep.complete) {
         if (profile != null && !profile.hasSeenFieldIntro) {
-          if (location != '/field/intro') return '/field/intro';
+          if (location != '/field/intro') {
+            print('[REDIRECT] -> /field/intro (intro needed)');
+            return '/field/intro';
+          }
           return null;
         }
-        if (location != '/') return '/';
+        if (location == '/splash' || location == '/onboarding/welcome') {
+          print('[REDIRECT] -> / (field map)');
+          return '/';
+        }
+        print('[REDIRECT] allowing navigation to $location');
         return null;
       }
 
-      if (!location.startsWith('/onboarding/')) return '/onboarding/welcome';
-      if (location == '/onboarding/welcome') return '/onboarding/photo';
+      if (!location.startsWith('/onboarding/')) {
+        print('[REDIRECT] -> /onboarding/welcome (incomplete)');
+        return '/onboarding/welcome';
+      }
+      if (location == '/onboarding/welcome') {
+        print('[REDIRECT] -> /onboarding/photo');
+        return '/onboarding/photo';
+      }
     }
 
     return null;

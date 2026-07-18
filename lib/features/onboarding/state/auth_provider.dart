@@ -49,17 +49,26 @@ void _initFromUser(Ref ref, User user) {
 Future<void> _checkExistingProfile(Ref ref) async {
   hasCachedFullProfileNotifier.value = false;
   profileCheckFailedNotifier.value = false;
+  print('[AUTH] _checkExistingProfile started');
   try {
     final user = ref.read(authServiceProvider).currentUser;
-    if (user == null) return;
+    print('[AUTH] currentUser=${user?.id}');
+    if (user == null) {
+      print('[AUTH] no user, returning');
+      return;
+    }
 
     final repo = ref.read(onboardingRepositoryProvider);
     UserProfile? existing;
     try {
+      print('[AUTH] fetching profile from Supabase...');
       existing = await repo.fetchProfile(user.id);
-    } catch (_) {
+      print('[AUTH] Supabase profile result: ${existing != null}');
+    } catch (e) {
+      print('[AUTH] fetchProfile error: $e');
       bool? confirmedNotSuspended;
       try {
+        print('[AUTH] checking suspension status...');
         final result = await Supabase.instance.client
             .from('profiles')
             .select('is_suspended')
@@ -67,34 +76,49 @@ Future<void> _checkExistingProfile(Ref ref) async {
             .limit(1)
             .single();
         final isSuspended = result['is_suspended'] as bool?;
+        print('[AUTH] suspension check: suspended=$isSuspended');
         if (isSuspended == true) {
           suspendedNotifier.value = true;
           return;
         }
         confirmedNotSuspended = isSuspended == false;
-      } catch (_) {}
+      } catch (e2) {
+        print('[AUTH] suspension check error: $e2');
+      }
 
       if (confirmedNotSuspended != true) {
+        print('[AUTH] could not confirm not suspended -> profileCheckFailed');
         profileCheckFailedNotifier.value = true;
         return;
       }
 
+      print('[AUTH] trying cache...');
       final cache = ref.read(localCacheServiceProvider);
       existing = await cache.getProfile(user.id);
-      if (existing == null) return;
+      print('[AUTH] cache profile result: ${existing != null}');
+      if (existing == null) {
+        print('[AUTH] no cached profile, returning');
+        return;
+      }
     }
 
-    if (existing == null) return;
+    if (existing == null) {
+      print('[AUTH] existing is null, returning');
+      return;
+    }
 
     if (existing.isSuspended) {
+      print('[AUTH] user is suspended');
       suspendedNotifier.value = true;
       return;
     }
 
+    print('[AUTH] setting user profile and completing onboarding');
     final notifier = ref.read(onboardingProvider.notifier);
     notifier.setUserProfile(existing);
     notifier.setStep(OnboardingStep.complete);
   } finally {
+    print('[AUTH] _checkExistingProfile done');
     isCheckingExistingProfileNotifier.value = false;
     authRefreshNotifier.value++;
   }

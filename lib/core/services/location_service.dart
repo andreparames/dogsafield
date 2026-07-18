@@ -13,9 +13,9 @@ class LocationService {
     return Geolocator.isLocationServiceEnabled();
   }
 
-  Future<Position> getCurrentLocation() {
+  Future<Position> getCurrentLocation({LocationSettings? locationSettings}) {
     return Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
+      locationSettings: locationSettings ?? const LocationSettings(
         accuracy: LocationAccuracy.high,
       ),
     );
