@@ -120,6 +120,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                         ),
                         const SizedBox(height: 32),
                       ],
+                      const Spacer(),
                     ],
                   );
                 },
