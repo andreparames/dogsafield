@@ -62,7 +62,7 @@ final _appRouter = GoRouter(
           }
           return null;
         }
-        if (location != '/') {
+        if (location == '/onboarding/welcome') {
           print('[REDIRECT] -> / (field map)');
           return '/';
         }
