@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class WaitlistEntry {
@@ -27,34 +28,29 @@ class WaitlistRepository {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
 
-    final response = await _client.from('waitlist').insert({
-      'walk_id': walkId,
-      'user_id': user.id,
-      'status': 'waiting',
-    }).select().single();
+    final response = await _client.rpc('join_waitlist', params: {
+      'p_walk_id': walkId,
+    }).single();
 
-    return _rowToEntry(response);
+    return _rpcRowToEntry(response);
   }
 
   Future<void> confirmSpot(String walkId) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
 
-    final response = await _client.from('waitlist').update({
-      'status': 'confirmed',
-      'confirmed_at': DateTime.now().toUtc().toIso8601String(),
-    }).eq('walk_id', walkId).eq('user_id', user.id).eq('status', 'waiting').select();
-
-    if (response.isEmpty) throw Exception('No waiting entry found to confirm');
+    await _client.rpc('confirm_waitlist_spot', params: {
+      'p_walk_id': walkId,
+    });
   }
 
   Future<void> leaveWaitlist(String walkId) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
 
-    await _client.from('waitlist').delete()
-        .eq('walk_id', walkId)
-        .eq('user_id', user.id);
+    await _client.rpc('leave_waitlist', params: {
+      'p_walk_id': walkId,
+    });
   }
 
   Future<WaitlistEntry?> fetchMyStatus(String walkId) async {
@@ -71,21 +67,14 @@ class WaitlistRepository {
   }
 
   Future<Map<String, int>> fetchCounts(String walkId) async {
-    final rows = await _client.from('waitlist').select('status')
-        .eq('walk_id', walkId);
+    final response = await _client.rpc('get_waitlist_counts', params: {
+      'p_walk_id': walkId,
+    }).single();
 
-    int waiting = 0, confirmed = 0, released = 0;
-    for (final r in rows) {
-      switch (r['status'] as String) {
-        case 'waiting': waiting++; break;
-        case 'confirmed': confirmed++; break;
-        case 'released': released++; break;
-      }
-    }
     return {
-      'waiting': waiting,
-      'confirmed': confirmed,
-      'released': released,
+      'waiting': (response['waiting'] as num).toInt(),
+      'confirmed': (response['confirmed'] as num).toInt(),
+      'released': (response['released'] as num).toInt(),
     };
   }
 
@@ -100,5 +89,11 @@ class WaitlistRepository {
           : null,
       createdAt: DateTime.parse(row['created_at'] as String),
     );
+  }
+
+  WaitlistEntry _rpcRowToEntry(dynamic row) {
+    if (row is Map<String, dynamic>) return _rowToEntry(row);
+    if (row is String) return _rowToEntry(jsonDecode(row) as Map<String, dynamic>);
+    throw Exception('Unexpected RPC response type: ${row.runtimeType}');
   }
 }

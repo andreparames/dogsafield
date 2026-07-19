@@ -340,6 +340,10 @@ class FakeWaitlistRepository implements WaitlistRepository {
   @override
   Future<WaitlistEntry> joinWaitlist(String walkId) async {
     if (shouldFail) throw Exception('Join failed');
+    final existing = _entries[walkId];
+    if (existing != null && existing.status == 'waiting') {
+      throw Exception('Already on waitlist');
+    }
     final entry = WaitlistEntry(
       id: 'wl-$walkId',
       walkId: walkId,
@@ -356,6 +360,7 @@ class FakeWaitlistRepository implements WaitlistRepository {
     if (shouldFail) throw Exception('Confirm failed');
     final existing = _entries[walkId];
     if (existing == null) throw Exception('Not on waitlist');
+    if (existing.status != 'waiting') throw Exception('No waiting entry found to confirm');
     _entries[walkId] = WaitlistEntry(
       id: existing.id,
       walkId: existing.walkId,

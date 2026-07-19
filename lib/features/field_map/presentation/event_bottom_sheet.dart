@@ -24,9 +24,8 @@ class EventBottomSheet extends ConsumerWidget {
 
     String dateStr;
     if (isPackWalk && event.scheduledDate != null) {
-      final d = event.scheduledDate!;
       dateStr = context.t.packWalk.scheduledDate(
-        date: '${d.month}/${d.day}',
+        date: formatScheduleDate(event.scheduledDate!),
       );
     } else {
       dateStr = '${event.dateTime.month}/${event.dateTime.day}/${event.dateTime.year} '

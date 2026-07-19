@@ -35,3 +35,7 @@ IconData eventTypeIcon(EventType type) {
       return Icons.sports;
   }
 }
+
+String formatScheduleDate(DateTime date) {
+  return '${date.month}/${date.day}';
+}

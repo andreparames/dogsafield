@@ -100,7 +100,7 @@ class _PackWalkContent extends ConsumerWidget {
             _InfoRow(
               icon: Icons.calendar_today,
               text: context.t.packWalk.scheduledDate(
-                date: '${event.scheduledDate!.month}/${event.scheduledDate!.day}',
+                date: formatScheduleDate(event.scheduledDate!),
               ),
             ),
             const SizedBox(height: 8),

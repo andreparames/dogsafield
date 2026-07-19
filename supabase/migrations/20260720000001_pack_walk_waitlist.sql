@@ -22,21 +22,145 @@ create index if not exists idx_events_waitlist_status on events(waitlist_status)
 -- RLS
 alter table waitlist enable row level security;
 
+-- Users can view only their own waitlist rows
 create policy "Users can view own waitlist entries"
   on waitlist for select using (auth.uid() = user_id);
 
+-- Hosts can view waitlist for their events
 create policy "Hosts can view waitlist for their events"
   on waitlist for select using (
     exists (select 1 from events where events.id = waitlist.walk_id and events.host_id = auth.uid())
   );
 
-create policy "Users can insert own waitlist entries"
-  on waitlist for insert with check (auth.uid() = user_id);
+-- Users can delete their own waitlist entries (leaving)
+create policy "Users can delete own waitlist entries"
+  on waitlist for delete using (auth.uid() = user_id);
 
-create policy "Users can update own waitlist entries"
-  on waitlist for update using (auth.uid() = user_id);
+-- NOTE: INSERT and UPDATE are NOT allowed directly.
+-- All mutations go through SECURITY DEFINER RPCs below
+-- that enforce state transitions, capacity, and event validation.
+
+-- RPC: get aggregate waitlist counts for a walk (any authenticated user)
+create or replace function get_waitlist_counts(p_walk_id uuid)
+returns table(waiting int, confirmed int, released int)
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+begin
+  return query
+  select
+    count(*) filter (where status = 'waiting')::int,
+    count(*) filter (where status = 'confirmed')::int,
+    count(*) filter (where status = 'released')::int
+  from waitlist
+  where walk_id = p_walk_id;
+end;
+$$;
+
+-- RPC: join (or rejoin) the waitlist for a pack walk
+create or replace function join_waitlist(p_walk_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  rec events%rowtype;
+  existing_status text;
+  new_row waitlist;
+begin
+  -- Lock the event row to serialize concurrent joins
+  select * into rec
+  from events
+  where id = p_walk_id
+  for update;
+
+  if not found then
+    raise exception 'Event not found' using errcode = 'P0002';
+  end if;
+
+  if rec.type != 'packWalk' then
+    raise exception 'Cannot join waitlist: not a pack walk' using errcode = 'P0003';
+  end if;
+
+  if rec.is_cancelled then
+    raise exception 'Cannot join waitlist: event is cancelled' using errcode = 'P0004';
+  end if;
+
+  if rec.waitlist_status = 'full' then
+    raise exception 'Cannot join waitlist: walk is at full capacity' using errcode = 'P0005';
+  end if;
+
+  -- Check for existing entry
+  select status into existing_status
+  from waitlist
+  where walk_id = p_walk_id and user_id = auth.uid();
+
+  if found then
+    if existing_status in ('waiting', 'confirmed') then
+      raise exception 'Already on the waitlist' using errcode = 'P0006';
+    end if;
+    -- released/declined: update back to waiting
+    update waitlist
+    set status = 'waiting', confirmed_at = null
+    where walk_id = p_walk_id and user_id = auth.uid()
+    returning * into new_row;
+  else
+    insert into waitlist (walk_id, user_id, status)
+    values (p_walk_id, auth.uid(), 'waiting')
+    returning * into new_row;
+  end if;
+
+  return row_to_json(new_row)::jsonb;
+end;
+$$;
+
+-- RPC: confirm a waiting spot
+create or replace function confirm_waitlist_spot(p_walk_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  new_row waitlist;
+begin
+  update waitlist
+  set status = 'confirmed',
+      confirmed_at = now()
+  where walk_id = p_walk_id
+    and user_id = auth.uid()
+    and status = 'waiting'
+  returning * into new_row;
+
+  if not found then
+    raise exception 'No waiting entry found to confirm' using errcode = 'P0007';
+  end if;
+
+  return row_to_json(new_row)::jsonb;
+end;
+$$;
+
+-- RPC: leave the waitlist (delete own entry)
+create or replace function leave_waitlist(p_walk_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+begin
+  delete from waitlist
+  where walk_id = p_walk_id and user_id = auth.uid();
+
+  if not found then
+    raise exception 'No waitlist entry found' using errcode = 'P0008';
+  end if;
+end;
+$$;
 
 -- Trigger function: recalculate event state from waitlist counts
+-- Uses FOR UPDATE to serialize concurrent threshold checks
 create or replace function recalc_waitlist_state()
 returns trigger
 language plpgsql
@@ -51,14 +175,16 @@ declare
 begin
   e_id := coalesce(new.walk_id, old.walk_id);
 
+  -- Lock the event row to prevent race conditions
   select min_threshold, max_attendees into min_req, max_cap
-  from events where id = e_id;
-  
+  from events where id = e_id
+  for update;
+
   select count(*) into current_count
   from waitlist
   where walk_id = e_id
     and status in ('waiting', 'confirmed');
-  
+
   -- Unlock if threshold met
   if current_count >= min_req then
     update events
@@ -73,7 +199,7 @@ begin
     where id = e_id
       and waitlist_status = 'forming';
   end if;
-  
+
   -- Mark full if at capacity
   if current_count >= max_cap then
     update events
@@ -81,8 +207,8 @@ begin
     where id = e_id
       and waitlist_status in ('forming', 'unlocked');
   end if;
-  
-  -- Revert to forming if below threshold and not full
+
+  -- Revert to forming if below threshold
   if current_count < min_req then
     update events
     set waitlist_status = 'forming',
@@ -90,7 +216,7 @@ begin
     where id = e_id
       and waitlist_status in ('unlocked', 'full');
   end if;
-  
+
   return coalesce(new, old);
 end;
 $$;
@@ -131,7 +257,7 @@ begin
     and e.scheduled_date is not null
     and e.scheduled_date - interval '24 hours' <= now()
     and w.status = 'waiting';
-  
+
   -- Revert to forming if not enough confirmed remain after releases
   update events e
   set waitlist_status = 'forming',
