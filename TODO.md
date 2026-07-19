@@ -133,3 +133,4 @@
   - Import distribution certificate and App Store provisioning profile
   - Run `flutter build ipa --release`
   - Upload to TestFlight via App Store Connect API or `altool`
+- [x] **Integration test scaffold removed** — unit tests with fakes cover Dart logic; SQL triggers/RLS are Supabase's domain
