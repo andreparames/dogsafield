@@ -20,6 +20,7 @@ class HostingRepository {
       'longitude': event.longitude,
       'date_time': event.dateTime.toUtc().toIso8601String(),
       'max_attendees': event.maxAttendees,
+      'min_threshold': event.minThreshold,
       'what_to_bring': event.whatToBring,
       'amenity_tags': event.amenityTags,
     }).select().single();
@@ -41,6 +42,7 @@ class HostingRepository {
           'longitude': event.longitude,
           'date_time': event.dateTime.toUtc().toIso8601String(),
           'max_attendees': event.maxAttendees,
+          'min_threshold': event.minThreshold,
           'what_to_bring': event.whatToBring,
           'amenity_tags': event.amenityTags,
         })

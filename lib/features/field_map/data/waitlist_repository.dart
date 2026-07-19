@@ -40,10 +40,12 @@ class WaitlistRepository {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
 
-    await _client.from('waitlist').update({
+    final response = await _client.from('waitlist').update({
       'status': 'confirmed',
       'confirmed_at': DateTime.now().toUtc().toIso8601String(),
-    }).eq('walk_id', walkId).eq('user_id', user.id);
+    }).eq('walk_id', walkId).eq('user_id', user.id).eq('status', 'waiting').select();
+
+    if (response.isEmpty) throw Exception('No waiting entry found to confirm');
   }
 
   Future<void> leaveWaitlist(String walkId) async {

@@ -36,8 +36,8 @@ create policy "Users can insert own waitlist entries"
 create policy "Users can update own waitlist entries"
   on waitlist for update using (auth.uid() = user_id);
 
--- Trigger function: on waitlist insert, check threshold and capacity
-create or replace function check_waitlist_threshold()
+-- Trigger function: recalculate event state from waitlist counts
+create or replace function recalc_waitlist_state()
 returns trigger
 language plpgsql
 security definer
@@ -47,13 +47,16 @@ declare
   current_count int;
   min_req int;
   max_cap int;
+  e_id uuid;
 begin
+  e_id := coalesce(new.walk_id, old.walk_id);
+
   select min_threshold, max_attendees into min_req, max_cap
-  from events where id = new.walk_id;
+  from events where id = e_id;
   
   select count(*) into current_count
   from waitlist
-  where walk_id = new.walk_id
+  where walk_id = e_id
     and status in ('waiting', 'confirmed');
   
   -- Unlock if threshold met
@@ -62,12 +65,12 @@ begin
     set waitlist_status = 'unlocked',
         scheduled_date =
           case
-            when extract(dow from now()) between 2 and 4 then
+            when extract(dow from now()) between 1 and 5 then
               date_trunc('week', now()) + interval '5 days' + interval '10 hours'
             else
               date_trunc('week', now()) + interval '12 days' + interval '10 hours'
           end
-    where id = new.walk_id
+    where id = e_id
       and waitlist_status = 'forming';
   end if;
   
@@ -75,11 +78,20 @@ begin
   if current_count >= max_cap then
     update events
     set waitlist_status = 'full'
-    where id = new.walk_id
+    where id = e_id
       and waitlist_status in ('forming', 'unlocked');
   end if;
   
-  return new;
+  -- Revert to forming if below threshold and not full
+  if current_count < min_req then
+    update events
+    set waitlist_status = 'forming',
+        scheduled_date = null
+    where id = e_id
+      and waitlist_status in ('unlocked', 'full');
+  end if;
+  
+  return coalesce(new, old);
 end;
 $$;
 
@@ -87,7 +99,20 @@ drop trigger if exists on_waitlist_insert on waitlist;
 create trigger on_waitlist_insert
   after insert on waitlist
   for each row
-  execute function check_waitlist_threshold();
+  execute function recalc_waitlist_state();
+
+drop trigger if exists on_waitlist_update on waitlist;
+create trigger on_waitlist_update
+  after update of status on waitlist
+  for each row
+  when (old.status is distinct from new.status)
+  execute function recalc_waitlist_state();
+
+drop trigger if exists on_waitlist_delete on waitlist;
+create trigger on_waitlist_delete
+  after delete on waitlist
+  for each row
+  execute function recalc_waitlist_state();
 
 -- Auto-release unconfirmed spots (callable via pg_cron or manual)
 create or replace function release_unconfirmed_spots()
@@ -102,7 +127,7 @@ begin
   set status = 'released'
   from events e
   where w.walk_id = e.id
-    and e.waitlist_status = 'unlocked'
+    and e.waitlist_status in ('unlocked', 'full')
     and e.scheduled_date is not null
     and e.scheduled_date - interval '24 hours' <= now()
     and w.status = 'waiting';
@@ -111,7 +136,7 @@ begin
   update events e
   set waitlist_status = 'forming',
       scheduled_date = null
-  where e.waitlist_status = 'unlocked'
+  where e.waitlist_status in ('unlocked', 'full')
     and e.scheduled_date is not null
     and e.scheduled_date - interval '24 hours' <= now()
     and (

@@ -341,7 +341,7 @@ class FakeWaitlistRepository implements WaitlistRepository {
   Future<WaitlistEntry> joinWaitlist(String walkId) async {
     if (shouldFail) throw Exception('Join failed');
     final entry = WaitlistEntry(
-      id: 'wl-${walkId}',
+      id: 'wl-$walkId',
       walkId: walkId,
       userId: 'current-user',
       status: 'waiting',

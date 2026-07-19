@@ -588,6 +588,9 @@ class Translations$packWalk$en {
 	/// en: 'Your spot: Released — join another walk'
 	String get spotReleased => 'Your spot: Released — join another walk';
 
+	/// en: 'Your spot: Declined'
+	String get spotDeclined => 'Your spot: Declined';
+
 	/// en: 'Pack's Full — join another walk!'
 	String get packFullMessage => 'Pack\'s Full — join another walk!';
 
@@ -1611,6 +1614,7 @@ extension on Translations {
 			'packWalk.spotWaiting' => 'Your spot: Waiting',
 			'packWalk.spotConfirmed' => 'Your spot: Confirmed',
 			'packWalk.spotReleased' => 'Your spot: Released — join another walk',
+			'packWalk.spotDeclined' => 'Your spot: Declined',
 			'packWalk.packFullMessage' => 'Pack\'s Full — join another walk!',
 			'packWalk.confirmYourSpot' => 'Confirm your spot for this Saturday\'s walk',
 			'packWalk.spotConfirmedSnackbar' => 'You\'re confirmed for the walk!',

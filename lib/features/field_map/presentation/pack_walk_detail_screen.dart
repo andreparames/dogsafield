@@ -213,8 +213,8 @@ class _WaitlistProgressSection extends ConsumerWidget {
     return countsAsync.when(
       data: (counts) {
         final joined = (counts['waiting'] ?? 0) + (counts['confirmed'] ?? 0);
-        final progress = event.maxAttendees > 0
-            ? (joined / event.maxAttendees).clamp(0.0, 1.0)
+        final progress = event.minThreshold > 0
+            ? (joined / event.minThreshold).clamp(0.0, 1.0)
             : 0.0;
         final needed = (event.minThreshold - joined).clamp(0, event.minThreshold);
 
@@ -271,31 +271,12 @@ class _WaitlistActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final userId = ref.read(authServiceProvider).currentUser?.id;
     if (userId == event.hostId) {
       return FilledButton.icon(
         onPressed: () => context.push('/hosting/edit', extra: event),
         icon: const Icon(Icons.edit),
         label: Text(context.t.gathering.editEvent),
-      );
-    }
-
-    if (event.waitlistStatus == 'full') {
-      return Card(
-        color: theme.colorScheme.errorContainer,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Icon(Icons.group_off, color: theme.colorScheme.error),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(context.t.packWalk.packFullMessage),
-              ),
-            ],
-          ),
-        ),
       );
     }
 
@@ -320,9 +301,6 @@ class _JoinWaitlistSection extends ConsumerWidget {
         );
         ref.read(waitlistActionProvider(event.id).notifier).reset();
       } else if (next is WaitlistActionSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.t.packWalk.joinedWaitlist)),
-        );
         ref.read(waitlistActionProvider(event.id).notifier).reset();
       }
     });
@@ -337,44 +315,7 @@ class _JoinWaitlistSection extends ConsumerWidget {
     return myStatusAsync.when(
       data: (myStatus) {
         if (myStatus == null) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (event.waitlistStatus == 'unlocked') ...[
-                Text(
-                  context.t.packWalk.confirmYourSpot,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-              FilledButton.icon(
-                onPressed: () async {
-                  final notifier = ref.read(waitlistActionProvider(event.id).notifier);
-                  await notifier.joinWaitlist();
-                  if (!context.mounted) return;
-                  if (event.waitlistStatus == 'unlocked') {
-                    await notifier.confirmSpot();
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(context.t.packWalk.spotConfirmedSnackbar)),
-                    );
-                  }
-                },
-                icon: Icon(
-                  event.waitlistStatus == 'unlocked'
-                      ? Icons.check_circle
-                      : Icons.group_add,
-                ),
-                label: Text(
-                  event.waitlistStatus == 'unlocked'
-                      ? context.t.packWalk.confirmSpot
-                      : context.t.packWalk.joinWaitlist,
-                ),
-              ),
-            ],
-          );
+          return _buildJoinButtons(context, ref);
         }
 
         return Column(
@@ -406,6 +347,14 @@ class _JoinWaitlistSection extends ConsumerWidget {
                 icon: const Icon(Icons.bookmark_remove),
                 label: Text(context.t.packWalk.leaveWaitlist),
               ),
+            if (myStatus.status == 'released' || myStatus.status == 'declined')
+              FilledButton.icon(
+                onPressed: () {
+                  ref.read(waitlistActionProvider(event.id).notifier).joinWaitlist();
+                },
+                icon: const Icon(Icons.group_add),
+                label: Text(context.t.packWalk.joinWaitlist),
+              ),
           ],
         );
       },
@@ -423,6 +372,72 @@ class _JoinWaitlistSection extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildJoinButtons(BuildContext context, WidgetRef ref) {
+    if (event.waitlistStatus == 'full') {
+      return Card(
+        color: Theme.of(context).colorScheme.errorContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(Icons.group_off, color: Theme.of(context).colorScheme.error),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(context.t.packWalk.packFullMessage),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (event.waitlistStatus == 'unlocked') ...[
+          Text(
+            context.t.packWalk.confirmYourSpot,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+        FilledButton.icon(
+          onPressed: () async {
+            final notifier = ref.read(waitlistActionProvider(event.id).notifier);
+            await notifier.joinWaitlist();
+            if (!context.mounted) return;
+            if (event.waitlistStatus == 'unlocked') {
+              final state = ref.read(waitlistActionProvider(event.id));
+              if (state is WaitlistActionSuccess) {
+                await notifier.confirmSpot();
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(context.t.packWalk.spotConfirmedSnackbar)),
+                );
+              }
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(context.t.packWalk.joinedWaitlist)),
+              );
+            }
+          },
+          icon: Icon(
+            event.waitlistStatus == 'unlocked'
+                ? Icons.check_circle
+                : Icons.group_add,
+          ),
+          label: Text(
+            event.waitlistStatus == 'unlocked'
+                ? context.t.packWalk.confirmSpot
+                : context.t.packWalk.joinWaitlist,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -444,6 +459,11 @@ class _SpotStatusCard extends StatelessWidget {
       'released' => (
         context.t.packWalk.spotReleased,
         Icons.cancel,
+        theme.colorScheme.error,
+      ),
+      'declined' => (
+        context.t.packWalk.spotDeclined,
+        Icons.block,
         theme.colorScheme.error,
       ),
       _ => (

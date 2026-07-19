@@ -55,8 +55,8 @@ class DogEvent {
     List<String>? attendeeIds,
     bool? isCancelled,
     int? minThreshold,
-    String? waitlistStatus,
-    DateTime? scheduledDate,
+    Object? waitlistStatus = _clear,
+    Object? scheduledDate = _clear,
   }) {
     return DogEvent(
       id: id ?? this.id,
@@ -74,8 +74,14 @@ class DogEvent {
       attendeeIds: attendeeIds ?? this.attendeeIds,
       isCancelled: isCancelled ?? this.isCancelled,
       minThreshold: minThreshold ?? this.minThreshold,
-      waitlistStatus: waitlistStatus ?? this.waitlistStatus,
-      scheduledDate: scheduledDate ?? this.scheduledDate,
+      waitlistStatus: identical(waitlistStatus, _clear) ? this.waitlistStatus : waitlistStatus as String?,
+      scheduledDate: identical(scheduledDate, _clear) ? this.scheduledDate : scheduledDate as DateTime?,
     );
   }
+
 }
+
+class _ClearSentinel {
+  const _ClearSentinel();
+}
+const _clear = _ClearSentinel();

@@ -316,6 +316,7 @@ packWalk:
   spotWaiting: "Your spot: Waiting"
   spotConfirmed: "Your spot: Confirmed"
   spotReleased: "Your spot: Released — join another walk"
+  spotDeclined: "Your spot: Declined"
   packFullMessage: "Pack's Full — join another walk!"
   confirmYourSpot: Confirm your spot for this Saturday's walk
   spotConfirmedSnackbar: You're confirmed for the walk!

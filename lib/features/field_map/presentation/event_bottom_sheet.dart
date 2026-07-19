@@ -24,8 +24,9 @@ class EventBottomSheet extends ConsumerWidget {
 
     String dateStr;
     if (isPackWalk && event.scheduledDate != null) {
+      final d = event.scheduledDate!;
       dateStr = context.t.packWalk.scheduledDate(
-        date: '${event.scheduledDate!.month}/${event.scheduledDate!.day}',
+        date: '${d.month}/${d.day}',
       );
     } else {
       dateStr = '${event.dateTime.month}/${event.dateTime.day}/${event.dateTime.year} '
@@ -209,8 +210,8 @@ class _PackWalkProgressIndicator extends ConsumerWidget {
     return countsAsync.when(
       data: (counts) {
         final joined = (counts['waiting'] ?? 0) + (counts['confirmed'] ?? 0);
-        final progress = event.maxAttendees > 0
-            ? (joined / event.maxAttendees).clamp(0.0, 1.0)
+        final progress = event.minThreshold > 0
+            ? (joined / event.minThreshold).clamp(0.0, 1.0)
             : 0.0;
         final needed = (event.minThreshold - joined).clamp(0, event.minThreshold);
 
