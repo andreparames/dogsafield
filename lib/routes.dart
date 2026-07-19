@@ -5,7 +5,6 @@ import 'features/onboarding/routes.dart';
 import 'features/onboarding/state/auth_provider.dart';
 import 'features/onboarding/state/onboarding_state.dart';
 import 'features/field_map/presentation/field_map_screen.dart';
-import 'features/splash/splash_screen.dart';
 import 'features/account/presentation/suspend_screen.dart';
 import 'features/account/routes.dart';
 import 'features/field_map/routes.dart';
@@ -27,20 +26,19 @@ final _appRouter = GoRouter(
     final authed = auth.isAuthenticated;
     final location = state.uri.path;
 
-    if (!authed && location != '/onboarding/welcome' && location != '/onboarding/reviewer-login') return '/onboarding/welcome';
-    if (suspendedNotifier.value && location != '/account/suspended') return '/account/suspended';
+    if (!authed && location != '/onboarding/welcome' && location != '/onboarding/reviewer-login') {
+      return '/onboarding/welcome';
+    }
+    if (suspendedNotifier.value && location != '/account/suspended') {
+      return '/account/suspended';
+    }
 
     if (authed) {
       container.read(onboardingAutoInitProvider);
 
-      if (isCheckingExistingProfileNotifier.value) {
-        if (location != '/splash') return '/splash';
-        return null;
-      }
-
-      if (profileCheckFailedNotifier.value) {
-        if (location != '/splash') return '/splash';
-        return null;
+      if (isCheckingExistingProfileNotifier.value ||
+          profileCheckFailedNotifier.value) {
+        return location == '/onboarding/welcome' ? null : '/onboarding/welcome';
       }
 
       final onboarding = container.read(onboardingProvider);
@@ -48,15 +46,23 @@ final _appRouter = GoRouter(
       final profile = onboarding.userProfile;
       if (onboarding.step == OnboardingStep.complete) {
         if (profile != null && !profile.hasSeenFieldIntro) {
-          if (location != '/field/intro') return '/field/intro';
+          if (location != '/field/intro') {
+            return '/field/intro';
+          }
           return null;
         }
-        if (location != '/') return '/';
+        if (location == '/onboarding/welcome') {
+          return '/';
+        }
         return null;
       }
 
-      if (!location.startsWith('/onboarding/')) return '/onboarding/welcome';
-      if (location == '/onboarding/welcome') return '/onboarding/photo';
+      if (!location.startsWith('/onboarding/')) {
+        return '/onboarding/welcome';
+      }
+      if (location == '/onboarding/welcome') {
+        return '/onboarding/photo';
+      }
     }
 
     return null;
@@ -65,10 +71,6 @@ final _appRouter = GoRouter(
     GoRoute(
       path: '/',
       builder: (context, state) => const FieldMapScreen(),
-    ),
-    GoRoute(
-      path: '/splash',
-      builder: (context, state) => const SplashScreen(),
     ),
     GoRoute(
       path: '/account/suspended',
