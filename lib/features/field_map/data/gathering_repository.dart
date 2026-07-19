@@ -166,6 +166,12 @@ class GatheringRepository {
       maxAttendees: row['max_attendees'] as int,
       whatToBring: (row['what_to_bring'] as List<dynamic>?)?.cast<String>() ?? [],
       amenityTags: (row['amenity_tags'] as List<dynamic>?)?.cast<String>() ?? [],
+      isCancelled: row['is_cancelled'] as bool? ?? false,
+      minThreshold: row['min_threshold'] as int? ?? 8,
+      waitlistStatus: row['waitlist_status'] as String?,
+      scheduledDate: row['scheduled_date'] != null
+          ? DateTime.parse(row['scheduled_date'] as String)
+          : null,
     );
   }
 

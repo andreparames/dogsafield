@@ -16,6 +16,7 @@ import 'package:dogsafield/features/field_map/data/field_map_repository.dart';
 import 'package:dogsafield/features/field_map/data/gathering_detail.dart';
 import 'package:dogsafield/features/field_map/data/gathering_repository.dart';
 import 'package:dogsafield/features/field_map/data/rsvp_repository.dart';
+import 'package:dogsafield/features/field_map/data/waitlist_repository.dart';
 import 'package:dogsafield/features/hosting/data/hosting_repository.dart';
 import 'package:dogsafield/features/messaging/data/messaging_repository.dart';
 import 'package:dogsafield/features/messaging/data/conversation.dart';
@@ -329,6 +330,63 @@ class FakeRsvpRepository implements RsvpRepository {
   Future<bool> hasRsvp(String eventId) async {
     if (shouldFail) throw Exception('Check failed');
     return rsvpEvents.contains(eventId);
+  }
+}
+
+class FakeWaitlistRepository implements WaitlistRepository {
+  final Map<String, WaitlistEntry> _entries = {};
+  bool shouldFail = false;
+
+  @override
+  Future<WaitlistEntry> joinWaitlist(String walkId) async {
+    if (shouldFail) throw Exception('Join failed');
+    final entry = WaitlistEntry(
+      id: 'wl-${walkId}',
+      walkId: walkId,
+      userId: 'current-user',
+      status: 'waiting',
+      createdAt: DateTime.now(),
+    );
+    _entries[walkId] = entry;
+    return entry;
+  }
+
+  @override
+  Future<void> confirmSpot(String walkId) async {
+    if (shouldFail) throw Exception('Confirm failed');
+    final existing = _entries[walkId];
+    if (existing == null) throw Exception('Not on waitlist');
+    _entries[walkId] = WaitlistEntry(
+      id: existing.id,
+      walkId: existing.walkId,
+      userId: existing.userId,
+      status: 'confirmed',
+      confirmedAt: DateTime.now(),
+      createdAt: existing.createdAt,
+    );
+  }
+
+  @override
+  Future<void> leaveWaitlist(String walkId) async {
+    if (shouldFail) throw Exception('Leave failed');
+    _entries.remove(walkId);
+  }
+
+  @override
+  Future<WaitlistEntry?> fetchMyStatus(String walkId) async {
+    if (shouldFail) throw Exception('Fetch failed');
+    return _entries[walkId];
+  }
+
+  @override
+  Future<Map<String, int>> fetchCounts(String walkId) async {
+    if (shouldFail) throw Exception('Fetch failed');
+    final entry = _entries[walkId];
+    if (entry == null) return {'waiting': 0, 'confirmed': 0, 'released': 0};
+    if (entry.status == 'confirmed') {
+      return {'waiting': 0, 'confirmed': 1, 'released': 0};
+    }
+    return {'waiting': 1, 'confirmed': 0, 'released': 0};
   }
 }
 

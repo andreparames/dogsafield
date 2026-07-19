@@ -304,6 +304,26 @@ messaging:
   failedToSend: Failed to send message. Please try again.
   cannotMessage: You can only message your packmates.
 
+packWalk:
+  forming: Pack Forming
+  unlocked: "Unlocked — This Saturday!"
+  full: Pack's Full
+  needsMore: "$joined/$max joined — needs $needed more to unlock"
+  scheduledDate: "Scheduled: $date"
+  joinWaitlist: Join Waitlist
+  leaveWaitlist: Leave Waitlist
+  confirmSpot: Confirm Your Spot
+  spotWaiting: "Your spot: Waiting"
+  spotConfirmed: "Your spot: Confirmed"
+  spotReleased: "Your spot: Released — join another walk"
+  packFullMessage: "Pack's Full — join another walk!"
+  confirmYourSpot: Confirm your spot for this Saturday's walk
+  spotConfirmedSnackbar: You're confirmed for the walk!
+  joinedWaitlist: You're on the waitlist!
+  leftWaitlist: You've left the waitlist
+  waitlistCount: "$count on waitlist"
+  confirmedCount: "$count confirmed"
+
 errors:
   failedToSave: Failed to save. Please try again.
   failedToCreateEvent: Failed to create event. Please try again.

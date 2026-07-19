@@ -53,6 +53,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$connections$en connections = Translations$connections$en._(_root);
 	late final Translations$info$en info = Translations$info$en._(_root);
 	late final Translations$messaging$en messaging = Translations$messaging$en._(_root);
+	late final Translations$packWalk$en packWalk = Translations$packWalk$en._(_root);
 	late final Translations$errors$en errors = Translations$errors$en._(_root);
 }
 
@@ -544,6 +545,69 @@ class Translations$messaging$en {
 
 	/// en: 'You can only message your packmates.'
 	String get cannotMessage => 'You can only message your packmates.';
+}
+
+// Path: packWalk
+class Translations$packWalk$en {
+	Translations$packWalk$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Pack Forming'
+	String get forming => 'Pack Forming';
+
+	/// en: 'Unlocked — This Saturday!'
+	String get unlocked => 'Unlocked — This Saturday!';
+
+	/// en: 'Pack's Full'
+	String get full => 'Pack\'s Full';
+
+	/// en: '$joined/$max joined — needs $needed more to unlock'
+	String needsMore({required Object joined, required Object max, required Object needed}) => '${joined}/${max} joined — needs ${needed} more to unlock';
+
+	/// en: 'Scheduled: $date'
+	String scheduledDate({required Object date}) => 'Scheduled: ${date}';
+
+	/// en: 'Join Waitlist'
+	String get joinWaitlist => 'Join Waitlist';
+
+	/// en: 'Leave Waitlist'
+	String get leaveWaitlist => 'Leave Waitlist';
+
+	/// en: 'Confirm Your Spot'
+	String get confirmSpot => 'Confirm Your Spot';
+
+	/// en: 'Your spot: Waiting'
+	String get spotWaiting => 'Your spot: Waiting';
+
+	/// en: 'Your spot: Confirmed'
+	String get spotConfirmed => 'Your spot: Confirmed';
+
+	/// en: 'Your spot: Released — join another walk'
+	String get spotReleased => 'Your spot: Released — join another walk';
+
+	/// en: 'Pack's Full — join another walk!'
+	String get packFullMessage => 'Pack\'s Full — join another walk!';
+
+	/// en: 'Confirm your spot for this Saturday's walk'
+	String get confirmYourSpot => 'Confirm your spot for this Saturday\'s walk';
+
+	/// en: 'You're confirmed for the walk!'
+	String get spotConfirmedSnackbar => 'You\'re confirmed for the walk!';
+
+	/// en: 'You're on the waitlist!'
+	String get joinedWaitlist => 'You\'re on the waitlist!';
+
+	/// en: 'You've left the waitlist'
+	String get leftWaitlist => 'You\'ve left the waitlist';
+
+	/// en: '$count on waitlist'
+	String waitlistCount({required Object count}) => '${count} on waitlist';
+
+	/// en: '$count confirmed'
+	String confirmedCount({required Object count}) => '${count} confirmed';
 }
 
 // Path: errors
@@ -1536,6 +1600,24 @@ extension on Translations {
 			'messaging.failedToLoad' => 'Could not load messages',
 			'messaging.failedToSend' => 'Failed to send message. Please try again.',
 			'messaging.cannotMessage' => 'You can only message your packmates.',
+			'packWalk.forming' => 'Pack Forming',
+			'packWalk.unlocked' => 'Unlocked — This Saturday!',
+			'packWalk.full' => 'Pack\'s Full',
+			'packWalk.needsMore' => ({required Object joined, required Object max, required Object needed}) => '${joined}/${max} joined — needs ${needed} more to unlock',
+			'packWalk.scheduledDate' => ({required Object date}) => 'Scheduled: ${date}',
+			'packWalk.joinWaitlist' => 'Join Waitlist',
+			'packWalk.leaveWaitlist' => 'Leave Waitlist',
+			'packWalk.confirmSpot' => 'Confirm Your Spot',
+			'packWalk.spotWaiting' => 'Your spot: Waiting',
+			'packWalk.spotConfirmed' => 'Your spot: Confirmed',
+			'packWalk.spotReleased' => 'Your spot: Released — join another walk',
+			'packWalk.packFullMessage' => 'Pack\'s Full — join another walk!',
+			'packWalk.confirmYourSpot' => 'Confirm your spot for this Saturday\'s walk',
+			'packWalk.spotConfirmedSnackbar' => 'You\'re confirmed for the walk!',
+			'packWalk.joinedWaitlist' => 'You\'re on the waitlist!',
+			'packWalk.leftWaitlist' => 'You\'ve left the waitlist',
+			'packWalk.waitlistCount' => ({required Object count}) => '${count} on waitlist',
+			'packWalk.confirmedCount' => ({required Object count}) => '${count} confirmed',
 			'errors.failedToSave' => 'Failed to save. Please try again.',
 			'errors.failedToCreateEvent' => 'Failed to create event. Please try again.',
 			'errors.failedToUpdateEvent' => 'Failed to update event. Please try again.',

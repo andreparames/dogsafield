@@ -505,6 +505,13 @@ class _HostActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (event.type == EventType.packWalk) {
+      return FilledButton.icon(
+        onPressed: () => context.go('/field/pack-walk/${event.id}'),
+        icon: const Icon(Icons.directions_walk),
+        label: Text(context.t.packWalk.joinWaitlist),
+      );
+    }
     final userId = ref.read(authServiceProvider).currentUser?.id;
     if (userId == event.hostId) {
       return FilledButton.icon(

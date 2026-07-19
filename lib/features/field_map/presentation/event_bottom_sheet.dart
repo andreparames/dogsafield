@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/models/event.dart';
 import '../state/gathering_providers.dart';
+import '../state/waitlist_providers.dart';
 import 'event_marker_icon.dart';
 import 'package:dogsafield/i18n/strings.g.dart';
 
@@ -19,8 +20,17 @@ class EventBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final dateStr = '${event.dateTime.month}/${event.dateTime.day}/${event.dateTime.year} '
-        '${event.dateTime.hour.toString().padLeft(2, '0')}:${event.dateTime.minute.toString().padLeft(2, '0')}';
+    final isPackWalk = event.type == EventType.packWalk;
+
+    String dateStr;
+    if (isPackWalk && event.scheduledDate != null) {
+      dateStr = context.t.packWalk.scheduledDate(
+        date: '${event.scheduledDate!.month}/${event.scheduledDate!.day}',
+      );
+    } else {
+      dateStr = '${event.dateTime.month}/${event.dateTime.day}/${event.dateTime.year} '
+          '${event.dateTime.hour.toString().padLeft(2, '0')}:${event.dateTime.minute.toString().padLeft(2, '0')}';
+    }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
@@ -88,9 +98,21 @@ class EventBottomSheet extends ConsumerWidget {
               ),
             ],
           ),
+          if (isPackWalk) ...[
+            const SizedBox(height: 12),
+            _PackWalkStatusChip(waitlistStatus: event.waitlistStatus),
+            const SizedBox(height: 12),
+            _PackWalkProgressIndicator(event: event),
+          ],
           const SizedBox(height: 16),
           FilledButton(
-            onPressed: () => context.push('/field/gathering/${event.id}'),
+            onPressed: () {
+              if (isPackWalk) {
+                context.push('/field/pack-walk/${event.id}');
+              } else {
+                context.push('/field/gathering/${event.id}');
+              }
+            },
             child: Text(context.t.fieldMap.viewDetails),
           ),
           if (showRsvpAction) ...[
@@ -146,6 +168,81 @@ class EventBottomSheet extends ConsumerWidget {
         ],
       ),
       ),
+    );
+  }
+}
+
+class _PackWalkStatusChip extends StatelessWidget {
+  final String? waitlistStatus;
+
+  const _PackWalkStatusChip({this.waitlistStatus});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final (label, color) = switch (waitlistStatus) {
+      'unlocked' => (context.t.packWalk.unlocked, theme.colorScheme.primary),
+      'full' => (context.t.packWalk.full, theme.colorScheme.error),
+      _ => (context.t.packWalk.forming, theme.colorScheme.onSurfaceVariant),
+    };
+
+    return Chip(
+      label: Text(label, style: theme.textTheme.labelSmall?.copyWith(color: color)),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: VisualDensity.compact,
+      side: BorderSide(color: color),
+      padding: EdgeInsets.zero,
+    );
+  }
+}
+
+class _PackWalkProgressIndicator extends ConsumerWidget {
+  final DogEvent event;
+
+  const _PackWalkProgressIndicator({required this.event});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final countsAsync = ref.watch(waitlistCountsProvider(event.id));
+
+    return countsAsync.when(
+      data: (counts) {
+        final joined = (counts['waiting'] ?? 0) + (counts['confirmed'] ?? 0);
+        final progress = event.maxAttendees > 0
+            ? (joined / event.maxAttendees).clamp(0.0, 1.0)
+            : 0.0;
+        final needed = (event.minThreshold - joined).clamp(0, event.minThreshold);
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 8,
+                backgroundColor: theme.colorScheme.surfaceContainerHighest,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              event.waitlistStatus == 'forming'
+                  ? context.t.packWalk.needsMore(
+                      joined: joined.toString(),
+                      max: event.maxAttendees.toString(),
+                      needed: needed.toString(),
+                    )
+                  : '$joined/${event.maxAttendees}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const LinearProgressIndicator(),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 }

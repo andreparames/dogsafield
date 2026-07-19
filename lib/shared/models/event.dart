@@ -15,6 +15,9 @@ class DogEvent {
   final List<String> amenityTags;
   final List<String> attendeeIds;
   final bool isCancelled;
+  final int minThreshold;
+  final String? waitlistStatus;
+  final DateTime? scheduledDate;
 
   const DogEvent({
     required this.id,
@@ -31,6 +34,9 @@ class DogEvent {
     this.amenityTags = const [],
     this.attendeeIds = const [],
     this.isCancelled = false,
+    this.minThreshold = 8,
+    this.waitlistStatus,
+    this.scheduledDate,
   });
 
   DogEvent copyWith({
@@ -48,6 +54,9 @@ class DogEvent {
     List<String>? amenityTags,
     List<String>? attendeeIds,
     bool? isCancelled,
+    int? minThreshold,
+    String? waitlistStatus,
+    DateTime? scheduledDate,
   }) {
     return DogEvent(
       id: id ?? this.id,
@@ -64,6 +73,9 @@ class DogEvent {
       amenityTags: amenityTags ?? this.amenityTags,
       attendeeIds: attendeeIds ?? this.attendeeIds,
       isCancelled: isCancelled ?? this.isCancelled,
+      minThreshold: minThreshold ?? this.minThreshold,
+      waitlistStatus: waitlistStatus ?? this.waitlistStatus,
+      scheduledDate: scheduledDate ?? this.scheduledDate,
     );
   }
 }

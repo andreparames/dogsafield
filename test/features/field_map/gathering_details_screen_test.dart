@@ -305,7 +305,7 @@ void main() {
       expect(find.text(t.common.retry), findsOneWidget);
     });
 
-    testWidgets('shows Join Pack button when not RSVPd', (tester) async {
+    testWidgets('shows Join Waitlist button for pack walk when not RSVPd', (tester) async {
       gatheringRepo.detail = GatheringDetail(
         event: DogEvent(
           id: 'evt-1',
@@ -324,16 +324,38 @@ void main() {
       await tester.pumpWidget(buildScreen('evt-1'));
       await tester.pumpAndSettle();
 
-      expect(find.text(t.gathering.joinPack), findsOneWidget);
+      expect(find.text(t.packWalk.joinWaitlist), findsOneWidget);
     });
 
-    testWidgets('shows Leave Pack after joining', (tester) async {
+    testWidgets('shows Join Pack button for non-pack-walk when not RSVPd', (tester) async {
       gatheringRepo.detail = GatheringDetail(
         event: DogEvent(
           id: 'evt-1',
           hostId: 'host-1',
-          type: EventType.packWalk,
-          title: 'Walk',
+          type: EventType.dogPicnic,
+          title: 'Picnic',
+          locationName: 'Park',
+          latitude: 38.7,
+          longitude: -9.1,
+          dateTime: DateTime(2026, 7, 10, 15, 0),
+          maxAttendees: 20,
+        ),
+        host: UserProfile(id: 'host-1', email: 'host@test.com'),
+      );
+
+      await tester.pumpWidget(buildScreen('evt-1'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(t.gathering.joinPack), findsOneWidget);
+    });
+
+    testWidgets('shows Leave Pack for non-pack-walk after joining', (tester) async {
+      gatheringRepo.detail = GatheringDetail(
+        event: DogEvent(
+          id: 'evt-1',
+          hostId: 'host-1',
+          type: EventType.dogPicnic,
+          title: 'Picnic',
           locationName: 'Park',
           latitude: 38.7,
           longitude: -9.1,
@@ -350,13 +372,13 @@ void main() {
       expect(find.text(t.gathering.leavePack), findsOneWidget);
     });
 
-    testWidgets('tapping Join Pack calls RSVP and shows Leave Pack', (tester) async {
+    testWidgets('tapping Join Pack calls RSVP and shows Leave Pack for non-pack-walk', (tester) async {
       gatheringRepo.detail = GatheringDetail(
         event: DogEvent(
           id: 'evt-1',
           hostId: 'host-1',
-          type: EventType.packWalk,
-          title: 'Walk',
+          type: EventType.dogPicnic,
+          title: 'Picnic',
           locationName: 'Park',
           latitude: 38.7,
           longitude: -9.1,
