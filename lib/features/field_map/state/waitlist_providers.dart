@@ -7,6 +7,11 @@ final waitlistRepositoryProvider = Provider<WaitlistRepository>((ref) {
   return WaitlistRepository(Supabase.instance.client);
 });
 
+final myWaitlistWalkIdsProvider = FutureProvider<Set<String>>((ref) async {
+  final repo = ref.watch(waitlistRepositoryProvider);
+  return repo.fetchMyWaitlistWalkIds();
+});
+
 final myWaitlistStatusProvider =
     FutureProvider.family.autoDispose<WaitlistEntry?, String>((ref, walkId) async {
   final repo = ref.watch(waitlistRepositoryProvider);

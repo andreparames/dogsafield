@@ -6,6 +6,7 @@ import 'package:dogsafield/core/services/location_provider.dart';
 import 'package:dogsafield/features/connections/state/connection_providers.dart';
 import 'package:dogsafield/features/field_map/state/field_map_providers.dart';
 import 'package:dogsafield/features/field_map/state/rsvp_providers.dart';
+import 'package:dogsafield/features/field_map/state/waitlist_providers.dart';
 import 'package:dogsafield/features/onboarding/state/auth_provider.dart';
 import 'package:dogsafield/shared/models/event.dart';
 import '../../helpers/test_utils.dart';
@@ -140,6 +141,57 @@ void main() {
 
       expect(result.length, 1);
       expect(result.single.id, '1');
+    });
+
+    test('includes waitlisted events when filter is true', () async {
+      final allEvents = [
+        DogEvent(
+          id: '1', hostId: 'host1', type: EventType.packWalk,
+          title: 'Morning Walk', locationName: 'Park',
+          latitude: 38.7, longitude: -9.1,
+          dateTime: DateTime.now().add(const Duration(days: 1)),
+          maxAttendees: 10,
+        ),
+        DogEvent(
+          id: '2', hostId: 'host2', type: EventType.dogPicnic,
+          title: 'Picnic', locationName: 'Garden',
+          latitude: 38.8, longitude: -9.2,
+          dateTime: DateTime.now().add(const Duration(days: 2)),
+          maxAttendees: 20,
+        ),
+        DogEvent(
+          id: '3', hostId: 'host2', type: EventType.fieldGames,
+          title: 'Games', locationName: 'Field',
+          latitude: 38.8, longitude: -9.2,
+          dateTime: DateTime.now().add(const Duration(days: 3)),
+          maxAttendees: 20,
+        ),
+      ];
+      fieldRepo.nearbyEvents = allEvents;
+      rsvpRepo.rsvpEvents = {'1'};
+
+      final waitlistRepo = FakeWaitlistRepository();
+      waitlistRepo.joinWaitlist('2');
+
+      final container = ProviderContainer(
+        overrides: [
+          authServiceProvider.overrideWithValue(fakeAuthService),
+          authStateProvider.overrideWith((ref) => Stream.empty()),
+          fieldMapRepositoryProvider.overrideWithValue(fieldRepo),
+          rsvpRepositoryProvider.overrideWithValue(rsvpRepo),
+          waitlistRepositoryProvider.overrideWithValue(waitlistRepo),
+          currentPositionProvider.overrideWith((ref) async => fakePosition),
+        ],
+      );
+      addTearDown(container.dispose);
+      await setupEvents(container);
+      await container.read(myWaitlistWalkIdsProvider.future);
+
+      container.read(rsvpFilterProvider.notifier).state = true;
+      final result = container.read(discoveredEventsProvider);
+
+      expect(result.length, 2);
+      expect(result.map((e) => e.id), containsAll({'1', '2'}));
     });
 
     test('filters locally without re-fetching when toggle changes', () async {

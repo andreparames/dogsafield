@@ -378,6 +378,15 @@ class FakeWaitlistRepository implements WaitlistRepository {
   }
 
   @override
+  Future<Set<String>> fetchMyWaitlistWalkIds() async {
+    if (shouldFail) throw Exception('Fetch failed');
+    return _entries.entries
+        .where((e) => e.value.status == 'waiting' || e.value.status == 'confirmed')
+        .map((e) => e.key)
+        .toSet();
+  }
+
+  @override
   Future<WaitlistEntry?> fetchMyStatus(String walkId) async {
     if (shouldFail) throw Exception('Fetch failed');
     return _entries[walkId];
