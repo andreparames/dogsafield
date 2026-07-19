@@ -66,6 +66,19 @@ class WaitlistRepository {
     return _rowToEntry(response);
   }
 
+  Future<Set<String>> fetchMyWaitlistWalkIds() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return {};
+
+    final rows = await _client
+        .from('waitlist')
+        .select('walk_id')
+        .eq('user_id', user.id)
+        .inFilter('status', ['waiting', 'confirmed']);
+
+    return rows.map((r) => r['walk_id'] as String).toSet();
+  }
+
   Future<Map<String, int>> fetchCounts(String walkId) async {
     final response = await _client.rpc('get_waitlist_counts', params: {
       'p_walk_id': walkId,

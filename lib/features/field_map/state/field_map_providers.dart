@@ -7,6 +7,7 @@ import '../../connections/state/connection_providers.dart';
 import '../../onboarding/state/auth_provider.dart';
 import '../data/field_map_repository.dart';
 import 'rsvp_providers.dart';
+import 'waitlist_providers.dart';
 
 final fieldMapRepositoryProvider = Provider<FieldMapRepository>((ref) {
   return FieldMapRepository(
@@ -35,6 +36,12 @@ final allEventsProvider = FutureProvider<List<DogEvent>>((ref) async {
   );
 });
 
+final myTrackedEventIdsProvider = Provider<Set<String>>((ref) {
+  final rsvpIds = ref.watch(myRsvpIdsProvider).value ?? {};
+  final waitlistIds = ref.watch(myWaitlistWalkIdsProvider).value ?? {};
+  return {...rsvpIds, ...waitlistIds};
+});
+
 final discoveredEventsProvider = Provider<List<DogEvent>>((ref) {
   final showRsvps = ref.watch(rsvpFilterProvider);
   final allEvents = ref.watch(allEventsProvider).value ?? [];
@@ -42,6 +49,6 @@ final discoveredEventsProvider = Provider<List<DogEvent>>((ref) {
   final currentUserId = ref.watch(authServiceProvider).currentUser?.id;
   final visible = allEvents.where((e) => !blockerIds.contains(e.hostId)).toList();
   if (!showRsvps) return visible;
-  final rsvpIds = ref.watch(myRsvpIdsProvider).value ?? {};
-  return visible.where((e) => rsvpIds.contains(e.id) || e.hostId == currentUserId).toList();
+  final myIds = ref.watch(myTrackedEventIdsProvider);
+  return visible.where((e) => myIds.contains(e.id) || e.hostId == currentUserId).toList();
 });
